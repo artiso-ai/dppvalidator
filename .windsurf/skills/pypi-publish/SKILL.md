@@ -13,7 +13,7 @@ description: Guides publishing dppvalidator to PyPI with proper versioning
 
 ## Version Bump Commands
 
-```bash
+```
 # Patch release (0.1.0 -> 0.1.1)
 uv version patch
 
@@ -26,7 +26,7 @@ uv version major
 
 ## Build and Publish
 
-```bash
+```
 # Build distribution
 uv build
 

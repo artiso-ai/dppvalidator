@@ -4,7 +4,7 @@ Complete reference for the dppvalidator command line interface.
 
 ## Synopsis
 
-```bash
+```
 dppvalidator [OPTIONS] COMMAND [ARGS]...
 ```
 
@@ -23,7 +23,7 @@ dppvalidator [OPTIONS] COMMAND [ARGS]...
 
 Validate a Digital Product Passport.
 
-```bash
+```
 dppvalidator validate INPUT [OPTIONS]
 ```
 
@@ -47,7 +47,7 @@ dppvalidator validate INPUT [OPTIONS]
 
 Export a DPP to different formats.
 
-```bash
+```
 dppvalidator export INPUT [OPTIONS]
 ```
 
@@ -62,7 +62,7 @@ dppvalidator export INPUT [OPTIONS]
 
 Display schema information.
 
-```bash
+```
 dppvalidator schema [OPTIONS]
 ```
 
@@ -83,7 +83,7 @@ dppvalidator schema [OPTIONS]
 
 ## Examples
 
-```bash
+```
 # Validate a file
 dppvalidator validate passport.json
 

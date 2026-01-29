@@ -4,7 +4,7 @@ Example plugin for [dppvalidator](https://github.com/artiso-ai/dppvalidator) dem
 
 ## Installation
 
-```bash
+```
 # Using uv (recommended)
 uv pip install dppvalidator-example-plugin
 
@@ -14,7 +14,7 @@ pip install dppvalidator-example-plugin
 
 Or for development:
 
-```bash
+```
 cd examples/dppvalidator_example_plugin
 
 # Using uv (recommended)

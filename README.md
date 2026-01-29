@@ -39,7 +39,7 @@ ______________________________________________________________________
 
 ## Installation
 
-```bash
+```
 # Using uv (recommended)
 uv add dppvalidator
 
@@ -88,7 +88,7 @@ else:
 
 ### Command Line
 
-```bash
+```
 # Validate a DPP file
 dppvalidator validate passport.json
 
@@ -272,7 +272,7 @@ def validate_supplier_submission(dpp_json: dict) -> bool:
 
 We welcome contributions! Here's how to get started:
 
-```bash
+```
 # Clone the repository
 git clone https://github.com/artiso-ai/dppvalidator.git
 cd dppvalidator
