@@ -21,19 +21,25 @@ class ValidationError:
         code: Machine-readable error code (e.g., "SEM001")
         layer: Validation layer that produced this error
         severity: Error severity level
+        suggestion: Suggested fix for the error
+        docs_url: Link to detailed error documentation
+        did_you_mean: Similar valid values (for typo correction)
         context: Additional context for debugging
     """
 
     path: str
     message: str
     code: str
-    layer: Literal["schema", "model", "semantic", "plugin"]
+    layer: Literal["schema", "model", "semantic", "plugin", "vocabulary"]
     severity: Literal["error", "warning", "info"] = "error"
+    suggestion: str | None = None
+    docs_url: str | None = None
+    did_you_mean: tuple[str, ...] = ()
     context: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
-        return {
+        result = {
             "path": self.path,
             "message": self.message,
             "code": self.code,
@@ -41,6 +47,13 @@ class ValidationError:
             "severity": self.severity,
             "context": self.context,
         }
+        if self.suggestion:
+            result["suggestion"] = self.suggestion
+        if self.docs_url:
+            result["docs_url"] = self.docs_url
+        if self.did_you_mean:
+            result["did_you_mean"] = list(self.did_you_mean)
+        return result
 
 
 @dataclass

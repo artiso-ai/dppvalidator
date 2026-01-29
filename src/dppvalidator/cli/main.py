@@ -4,15 +4,30 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Callable
 from typing import NoReturn
 
-from dppvalidator.cli.commands import completions, export, schema, validate
+from dppvalidator.cli.commands import completions, doctor, export, init, schema, validate, watch
 from dppvalidator.cli.console import Console
 from dppvalidator.logging import configure_logging
 
 EXIT_VALID = 0
 EXIT_INVALID = 1
 EXIT_ERROR = 2
+
+# Command handler type: (args, console) -> exit_code
+CommandHandler = Callable[[argparse.Namespace, Console], int]
+
+# Command dispatch table
+COMMAND_HANDLERS: dict[str, CommandHandler] = {
+    "validate": validate.run,
+    "export": export.run,
+    "schema": schema.run,
+    "init": init.run,
+    "doctor": doctor.run,
+    "watch": watch.run,
+    "completions": lambda args, _: completions.run(args),
+}
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -54,6 +69,9 @@ Examples:
     validate.add_parser(subparsers)
     export.add_parser(subparsers)
     schema.add_parser(subparsers)
+    init.add_parser(subparsers)
+    doctor.add_parser(subparsers)
+    watch.add_parser(subparsers)
     completions.add_parser(subparsers)
 
     return parser
@@ -85,17 +103,11 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_VALID
 
     try:
-        if args.command == "validate":
-            return validate.run(args, console)
-        elif args.command == "export":
-            return export.run(args, console)
-        elif args.command == "schema":
-            return schema.run(args, console)
-        elif args.command == "completions":
-            return completions.run(args)
-        else:
-            parser.print_help()
-            return EXIT_ERROR
+        handler = COMMAND_HANDLERS.get(args.command)
+        if handler:
+            return handler(args, console)
+        parser.print_help()
+        return EXIT_ERROR
 
     except KeyboardInterrupt:
         console.print_error("Interrupted")

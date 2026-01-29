@@ -1,4 +1,4 @@
-"""Export formats for Digital Product Passports."""
+"""Exporter utilities for Digital Product Passports."""
 
 from dppvalidator.exporters.contexts import (
     CONTEXTS,
@@ -8,15 +8,14 @@ from dppvalidator.exporters.contexts import (
 )
 from dppvalidator.exporters.json import JSONExporter, export_json
 from dppvalidator.exporters.jsonld import JSONLDExporter, export_jsonld
+from dppvalidator.exporters.protocols import Exporter
 
 __all__ = [
-    # JSON-LD
+    "Exporter",
     "JSONLDExporter",
     "export_jsonld",
-    # Plain JSON
     "JSONExporter",
     "export_json",
-    # Contexts
     "ContextManager",
     "ContextDefinition",
     "CONTEXTS",

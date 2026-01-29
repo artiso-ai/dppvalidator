@@ -15,7 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Material` model for fiber composition with ISO 2076 codes
 - `SupplyChainNode` model for traceability
 - `DigitalProductPassport` model following EU ESPR regulations
-- `OpenDPP` validation engine
 - JSON-LD export for Semantic Web compatibility
 - Unit tests for all models and validators
 - GitHub Actions CI/CD pipeline

@@ -1,0 +1,7 @@
+{
+  "type": "DigitalProductPassport",
+  "@context": "https://www.w3.org/ns/credentials/v2",
+  "id": 12345,
+  "issuer": "not-an-object",
+  "validFrom": "not-a-date"
+}

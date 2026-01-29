@@ -80,6 +80,11 @@ dppvalidator schema --version 0.6.1
 - [Validation Guide](guides/validation.md) — Understanding validation layers
 - [API Reference](reference/api/validators.md) — Full API documentation
 
+## For AI Assistants
+
+- [llms.txt](llms.txt) — Quick context for LLMs
+- [llms-ctx.txt](llms-ctx.txt) — Extended context with API details
+
 ## Contributing
 
 We welcome contributions! See our [Contributing Guide](contributing/development-setup.md) to get started.

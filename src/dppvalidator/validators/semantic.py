@@ -57,6 +57,8 @@ class SemanticValidator:
         for rule in self.rules:
             violations = rule.check(passport)
             severity: Literal["error", "warning", "info"] = getattr(rule, "severity", "error")
+            suggestion: str | None = getattr(rule, "suggestion", None)
+            docs_url: str | None = getattr(rule, "docs_url", None)
 
             for path, message in violations:
                 error = ValidationError(
@@ -65,6 +67,8 @@ class SemanticValidator:
                     code=rule.rule_id,
                     layer="semantic",
                     severity=severity,
+                    suggestion=suggestion,
+                    docs_url=docs_url,
                 )
 
                 if severity == "error":
