@@ -6,11 +6,11 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/dppvalidator/"><img src="https://img.shields.io/pypi/v/dppvalidator.svg" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/dppvalidator/"><img src="https://img.shields.io/pypi/pyversions/dppvalidator.svg" alt="Python versions"></a>
-  <a href="https://github.com/artiso-ai/dppvalidator/blob/main/LICENSE"><img src="https://img.shields.io/github/license/artiso-ai/dppvalidator.svg" alt="License"></a>
-  <a href="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml"><img src="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://artiso-ai.github.io/dppvalidator/"><img src="https://img.shields.io/badge/docs-mkdocs-blue.svg" alt="Documentation"></a>
+  <a href="https://pypi.org/project/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/pypi/v/dppvalidator.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/pypi/pyversions/dppvalidator.svg" alt="Python versions"></a>
+  <a href="https://github.com/artiso-ai/dppvalidator/blob/main/LICENSE" style="text-decoration: none;"><img src="https://img.shields.io/github/license/artiso-ai/dppvalidator.svg" alt="License"></a>
+  <a href="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml" style="text-decoration: none;"><img src="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://artiso-ai.github.io/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/badge/docs-mkdocs-blue.svg" alt="Documentation"></a>
 </p>
 
 <p align="center">
@@ -224,17 +224,49 @@ The EU's [Ecodesign for Sustainable Products Regulation (ESPR)](https://environm
 
 ### Use Cases
 
-- **Fashion Brands** — Validate DPP data before QR code generation
-- **PLM/ERP Systems** — Ensure product data exports are ESPR-compliant
-- **Supply Chain Platforms** — Validate supplier DPP submissions
-- **Recyclers & Resale** — Parse incoming product passports for material recovery
-- **Sustainability Teams** — Automated compliance checking in CI/CD
+dppvalidator serves diverse stakeholders across the product lifecycle:
+
+| Use Case                      | Target User         | Value Proposition                          |
+| ----------------------------- | ------------------- | ------------------------------------------ |
+| **Pre-production validation** | Brand product teams | Catch errors before QR code generation     |
+| **Supplier onboarding**       | Procurement teams   | Validate supplier DPP submissions          |
+| **CI/CD compliance gates**    | DevOps teams        | Automated compliance checks in pipelines   |
+| **Data migration**            | IT teams            | Validate legacy data exports to DPP format |
+| **Consumer apps**             | App developers      | DPP scanning, parsing, and display         |
+| **Recycling facilities**      | Waste management    | Material identification for sorting        |
+| **Resale platforms**          | Recommerce          | Product authentication and history         |
+| **Customs & compliance**      | Border control      | Import compliance verification             |
+
+**Example: CI/CD Integration**
+
+```yaml
+# .github/workflows/validate-dpp.yml
+- name: Validate DPP files
+  run: dppvalidator validate data/passports/*.json --strict
+```
+
+**Example: Supplier Validation API**
+
+```python
+from dppvalidator.validators import ValidationEngine
+
+engine = ValidationEngine(strict_mode=True)
+
+
+def validate_supplier_submission(dpp_json: dict) -> bool:
+    result = engine.validate(dpp_json)
+    if not result.valid:
+        raise ValueError(f"Invalid DPP: {result.errors}")
+    return True
+```
 
 ## Related Standards
 
 - [UNTP Digital Product Passport](https://untp.unece.org/docs/specification/DigitalProductPassport/) — UN/CEFACT specification
 - [EU ESPR Regulation](https://environment.ec.europa.eu/topics/circular-economy/ecodesign-sustainable-products-regulation_en) — Ecodesign for Sustainable Products
 - [W3C Verifiable Credentials](https://www.w3.org/TR/vc-data-model/) — Credential format standard
+
+> ⚠️ **Note on UNTP Specification:** The UNTP Digital Product Passport specification is under active development and not yet ready for production implementation. We track the latest maintained releases and will update dppvalidator as the specification stabilizes. See the [UNTP releases page](https://untp.unece.org/docs/specification/DigitalProductPassport/) for current status.
 
 ## Contributing
 
@@ -259,11 +291,15 @@ See our [Contributing Guide](https://artiso-ai.github.io/dppvalidator/contributi
 
 ## About ARTISO
 
-<a href="https://www.artiso.ai"><img src="https://www.artiso.ai/ARTISO.svg" alt="ARTISO" height="28"></a>
+<table><tr><td>
 
 **dppvalidator** is developed and maintained by [ARTISO](https://www.artiso.ai), a Barcelona-based fashion technology company.
 
-We believe the fashion industry's transition to sustainability requires **open, accessible tools**. By open-sourcing dppvalidator, we're enabling brands of all sizes - from emerging designers to global retailers — to meet EU compliance requirements without expensive consulting firms or proprietary solutions.
+</td><td align="right" valign="top">
+<a href="https://www.artiso.ai" style="text-decoration: none;"><img src="https://www.artiso.ai/ARTISO.svg" alt="ARTISO" height="40"></a>
+</td></tr></table>
+
+We believe the fashion industry's transition to sustainability requires **open, accessible tools**. By open-sourcing dppvalidator, we're enabling brands of all sizes - from emerging designers to global retailers - to meet EU compliance requirements without proprietary solutions.
 
 **Our commitment:**
 

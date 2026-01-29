@@ -9,11 +9,15 @@ if TYPE_CHECKING:
 
 
 class MassFractionSumRule:
-    """SEM001: Material mass fractions must sum to 1.0 (±0.01)."""
+    """SEM001: Material mass fractions should sum to 1.0.
+
+    Per UNTP spec, partial declarations (sum < 1.0) are valid but should
+    be flagged as a warning. Only sum > 1.0 is physically impossible.
+    """
 
     rule_id: str = "SEM001"
-    description: str = "Material mass fractions must sum to 1.0 (±0.01)"
-    severity: Literal["error", "warning", "info"] = "error"
+    description: str = "Material mass fractions should sum to 1.0"
+    severity: Literal["error", "warning", "info"] = "warning"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check mass fraction sum."""
@@ -29,11 +33,13 @@ class MassFractionSumRule:
         fractions = [m.mass_fraction for m in materials if m.mass_fraction is not None]
         if fractions:
             total = sum(fractions)
+            # Only flag if significantly different from 1.0
+            # Partial declarations (< 1.0) are valid per UNTP spec
             if abs(total - 1.0) > 0.01:
                 violations.append(
                     (
                         "$.credentialSubject.materialsProvenance",
-                        f"Mass fractions sum to {total:.3f}, expected 1.0 (±0.01)",
+                        f"Mass fractions sum to {total:.3f}, expected 1.0 (partial declaration)",
                     )
                 )
 

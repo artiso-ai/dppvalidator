@@ -5,11 +5,11 @@ from __future__ import annotations
 from datetime import date
 from typing import Annotated, ClassVar
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 from dppvalidator.models.base import UNTPBaseModel
 from dppvalidator.models.identifiers import Facility, IdentifierScheme, Party
-from dppvalidator.models.primitives import Classification, Link, Measure
+from dppvalidator.models.primitives import Classification, FlexibleUri, Link, Measure
 
 
 class Dimension(UNTPBaseModel):
@@ -36,7 +36,7 @@ class Product(UNTPBaseModel):
     _jsonld_type: ClassVar[list[str]] = ["Product"]
 
     id: Annotated[
-        HttpUrl,
+        FlexibleUri,
         Field(..., description="Globally unique ID of the product as a URI"),
     ]
     name: str = Field(..., description="Registered name of the product")
