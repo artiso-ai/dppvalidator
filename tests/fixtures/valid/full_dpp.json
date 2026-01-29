@@ -1,0 +1,54 @@
+{
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/"
+  ],
+  "id": "https://example.com/credentials/dpp-002",
+  "issuer": {
+    "type": ["CredentialIssuer"],
+    "id": "did:web:example.com:issuers:001",
+    "name": "Example Company Ltd"
+  },
+  "validFrom": "2024-01-01T00:00:00Z",
+  "validUntil": "2034-01-01T00:00:00Z",
+  "credentialSubject": {
+    "type": ["ProductPassport"],
+    "id": "https://example.com/products/battery-001",
+    "granularityLevel": "item",
+    "product": {
+      "type": ["Product"],
+      "id": "https://id.gs1.org/01/09520123456788/21/12345",
+      "name": "EV Battery 300Ah",
+      "description": "400Ah 24v LiFePO4 battery for electric vehicles",
+      "serialNumber": "SN-2024-001234",
+      "batchNumber": "BATCH-2024-Q1",
+      "productionDate": "2024-03-15",
+      "countryOfProduction": "DE"
+    },
+    "materialsProvenance": [
+      {
+        "type": ["Material"],
+        "name": "Lithium Iron Phosphate",
+        "originCountry": "AU",
+        "massFraction": 0.6,
+        "hazardous": false
+      },
+      {
+        "type": ["Material"],
+        "name": "Aluminum Casing",
+        "originCountry": "DE",
+        "massFraction": 0.4,
+        "recycledMassFraction": 0.3,
+        "hazardous": false
+      }
+    ],
+    "circularityScorecard": {
+      "type": ["CircularityPerformance"],
+      "recyclableContent": 0.85,
+      "recycledContent": 0.3,
+      "utilityFactor": 1.2,
+      "materialCircularityIndicator": 0.65
+    }
+  }
+}

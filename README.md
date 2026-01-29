@@ -1,20 +1,41 @@
-# dppvalidator
+<p align="center">
+  <h1 align="center">dppvalidator</h1>
+  <p align="center">
+    <strong>The open-source compliance engine for EU Digital Product Passports</strong>
+  </p>
+</p>
 
-[![PyPI version](https://img.shields.io/pypi/v/dppvalidator.svg)](https://pypi.org/project/dppvalidator/)
-[![Python versions](https://img.shields.io/pypi/pyversions/dppvalidator.svg)](https://pypi.org/project/dppvalidator/)
-[![License](https://img.shields.io/github/license/artiso-ai/dppvalidator.svg)](https://github.com/artiso-ai/dppvalidator/blob/main/LICENSE)
-[![CI](https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml/badge.svg)](https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://pypi.org/project/dppvalidator/"><img src="https://img.shields.io/pypi/v/dppvalidator.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/dppvalidator/"><img src="https://img.shields.io/pypi/pyversions/dppvalidator.svg" alt="Python versions"></a>
+  <a href="https://github.com/artiso-ai/dppvalidator/blob/main/LICENSE"><img src="https://img.shields.io/github/license/artiso-ai/dppvalidator.svg" alt="License"></a>
+  <a href="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml"><img src="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://artiso-ai.github.io/dppvalidator/"><img src="https://img.shields.io/badge/docs-mkdocs-blue.svg" alt="Documentation"></a>
+</p>
 
-**A Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and UNTP standards.**
+<p align="center">
+  <a href="#installation">Installation</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#features">Features</a> •
+  <a href="#documentation">Documentation</a> •
+  <a href="#contributing">Contributing</a>
+</p>
 
-## Features
+______________________________________________________________________
 
-- **Three-Layer Validation** — Schema, Model, and Semantic validation
-- **UNTP DPP Schema Support** — Built-in support for UNTP DPP 0.6.1
-- **High Performance** — 80,000+ validations per second
-- **Plugin System** — Extensible with custom validators and exporters
-- **JSON-LD Export** — W3C Verifiable Credentials compliant output
-- **CLI & API** — Use from command line or programmatically
+**dppvalidator** is a Python library for validating [Digital Product Passports (DPP)](https://untp.unece.org/docs/specification/DigitalProductPassport/) according to EU ESPR regulations and [UNTP](https://uncefact.unece.org/) standards.
+
+**Starting 2027, every textile and apparel product sold in the EU must have a Digital Product Passport.** This library ensures your DPP data is compliant *before* it hits production — saving fashion brands from costly compliance failures and enabling seamless integration with the circular economy.
+
+## Why dppvalidator?
+
+| Challenge                         | Solution                                                                        |
+| --------------------------------- | ------------------------------------------------------------------------------- |
+| Complex JSON Schema validation    | **Three-layer validation** catches errors at schema, model, and semantic levels |
+| Evolving UNTP specifications      | **Built-in schema support** for UNTP DPP 0.6.1 with easy version switching      |
+| Integration with existing systems | **CLI + Python API** for pipelines, CI/CD, and application integration          |
+| Custom business rules             | **Plugin system** for domain-specific validators and exporters                  |
+| Interoperability requirements     | **JSON-LD export** for W3C Verifiable Credentials compliance                    |
 
 ## Installation
 
@@ -24,56 +45,247 @@ uv add dppvalidator
 
 # Using pip
 pip install dppvalidator
+
+# With optional dependencies
+pip install dppvalidator[all]  # Includes jsonschema + httpx
 ```
+
+**Requirements:** Python 3.10+
 
 ## Quick Start
 
-### Validate a DPP file
+### Validate a DPP
 
 ```python
 from dppvalidator.validators import ValidationEngine
 
 engine = ValidationEngine()
+
 result = engine.validate(
     {
-        "id": "https://example.com/dpp/12345",
-        "issuer": {"id": "https://example.com/issuer", "name": "Acme Corp"},
+        "id": "https://example.com/dpp/battery-001",
+        "type": ["DigitalProductPassport", "VerifiableCredential"],
+        "issuer": {
+            "id": "https://example.com/manufacturer",
+            "name": "Acme Battery Co.",
+        },
+        "credentialSubject": {
+            "id": "https://example.com/product/battery-001",
+            "product": {
+                "name": "EV Battery Pack",
+                "description": "High-capacity lithium-ion battery",
+            },
+        },
     }
 )
 
 if result.valid:
-    print("DPP is valid!")
+    print(f"✓ Valid in {result.validation_time_ms:.2f}ms")
 else:
     for error in result.errors:
-        print(f"{error.path}: {error.message}")
+        print(f"✗ [{error.code}] {error.path}: {error.message}")
 ```
 
 ### Command Line
 
 ```bash
-# Validate a DPP JSON file
+# Validate a DPP file
 dppvalidator validate passport.json
 
-# Export to JSON-LD
-dppvalidator export passport.json --format jsonld
+# Strict mode - warnings become errors
+dppvalidator validate passport.json --strict
 
-# Show schema information
+# Export to JSON-LD (W3C Verifiable Credential format)
+dppvalidator export passport.json --format jsonld --output passport.jsonld
+
+# Display schema information
 dppvalidator schema --version 0.6.1
+```
+
+### Export to JSON-LD
+
+```python
+from dppvalidator.models import DigitalProductPassport, CredentialIssuer
+from dppvalidator.exporters import JSONLDExporter
+
+passport = DigitalProductPassport(
+    id="https://example.com/dpp/product-001",
+    issuer=CredentialIssuer(
+        id="https://example.com/issuer", name="Sustainable Textiles Ltd."
+    ),
+)
+
+exporter = JSONLDExporter()
+jsonld_output = exporter.export(passport)
+# Ready for W3C Verifiable Credentials ecosystem
+```
+
+## Features
+
+### Three-Layer Validation Architecture
+
+```mermaid
+flowchart TD
+    A[/"📄 Input Data (JSON)"/] --> B
+
+    subgraph Layer1["🔷 Layer 1: Schema Validation"]
+        B["JSON Schema Draft 2020-12<br/>Required fields, types, formats"]
+    end
+
+    B -->|"SCH001-SCH099"| C
+
+    subgraph Layer2["🔶 Layer 2: Model Validation"]
+        C["Pydantic v2 Models<br/>Type coercion, URL validation"]
+    end
+
+    C -->|"MOD001-MOD099"| D
+
+    subgraph Layer3["🟢 Layer 3: Semantic Validation"]
+        D["Business Rules & Vocabularies<br/>ISO codes, date logic, references"]
+    end
+
+    D -->|"SEM001-SEM099"| E[/"✅ ValidationResult<br/>.valid | .errors | .warnings"/]
+```
+
+### Selective Layer Validation
+
+```python
+from dppvalidator.validators import ValidationEngine
+
+# Run all layers (default)
+engine = ValidationEngine()
+
+# Schema validation only (fastest)
+engine = ValidationEngine(layers=["schema"])
+
+# Skip schema, run model + semantic
+engine = ValidationEngine(layers=["model", "semantic"])
+```
+
+### Performance
+
+| Layer    | Time      | Throughput         |
+| -------- | --------- | ------------------ |
+| Schema   | ~5μs      | 200,000 ops/sec    |
+| Model    | ~8μs      | 125,000 ops/sec    |
+| Semantic | ~3μs      | 333,000 ops/sec    |
+| **All**  | **~13μs** | **80,000 ops/sec** |
+
+*Benchmarked on Apple M2, Python 3.12*
+
+### Plugin System
+
+Extend dppvalidator with custom validators and exporters:
+
+```python
+from dppvalidator.plugins import PluginRegistry
+
+registry = PluginRegistry()
+
+
+# Register a custom validator
+@registry.register_validator("textile")
+class TextileValidator:
+    def validate(self, data: dict) -> list:
+        errors = []
+        if data.get("fiber_composition_total") != 100:
+            errors.append("Fiber composition must sum to 100%")
+        return errors
+
+
+# Use in validation engine
+engine = ValidationEngine(plugins=registry)
 ```
 
 ## Documentation
 
-Full documentation is available at [https://artiso-ai.github.io/dppvalidator/](https://artiso-ai.github.io/dppvalidator/)
+📚 **Full documentation:** [artiso-ai.github.io/dppvalidator](https://artiso-ai.github.io/dppvalidator/)
 
-- [Installation Guide](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)
-- [Quick Start Tutorial](https://artiso-ai.github.io/dppvalidator/getting-started/quickstart/)
-- [CLI Usage](https://artiso-ai.github.io/dppvalidator/guides/cli-usage/)
-- [API Reference](https://artiso-ai.github.io/dppvalidator/reference/api/validators/)
+| Guide                                                                                     | Description                                |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [Installation](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)    | Setup and optional dependencies            |
+| [Quick Start](https://artiso-ai.github.io/dppvalidator/getting-started/quickstart/)       | Get started in 5 minutes                   |
+| [CLI Reference](https://artiso-ai.github.io/dppvalidator/guides/cli-usage/)               | Command-line interface                     |
+| [Validation Layers](https://artiso-ai.github.io/dppvalidator/concepts/validation-layers/) | Understanding the three-layer architecture |
+| [API Reference](https://artiso-ai.github.io/dppvalidator/reference/api/validators/)       | Complete Python API                        |
+
+## Built for Fashion & Textiles
+
+The EU's [Ecodesign for Sustainable Products Regulation (ESPR)](https://environment.ec.europa.eu/topics/circular-economy/ecodesign-sustainable-products-regulation_en) mandates Digital Product Passports for textiles starting 2027. dppvalidator helps fashion brands prepare now:
+
+| DPP Requirement                | How dppvalidator Helps                       |
+| ------------------------------ | -------------------------------------------- |
+| Material composition & weights | Validates fiber percentages sum to 100%      |
+| Manufacturing processes        | Validates supply chain node structure        |
+| Environmental indicators       | Supports LCA data validation                 |
+| Chemical compliance (REACH)    | Semantic validation for substance references |
+| Traceability information       | Validates production stage URIs              |
+| Durability & recyclability     | Custom validators via plugin system          |
+
+### Use Cases
+
+- **Fashion Brands** — Validate DPP data before QR code generation
+- **PLM/ERP Systems** — Ensure product data exports are ESPR-compliant
+- **Supply Chain Platforms** — Validate supplier DPP submissions
+- **Recyclers & Resale** — Parse incoming product passports for material recovery
+- **Sustainability Teams** — Automated compliance checking in CI/CD
+
+## Related Standards
+
+- [UNTP Digital Product Passport](https://untp.unece.org/docs/specification/DigitalProductPassport/) — UN/CEFACT specification
+- [EU ESPR Regulation](https://environment.ec.europa.eu/topics/circular-economy/ecodesign-sustainable-products-regulation_en) — Ecodesign for Sustainable Products
+- [W3C Verifiable Credentials](https://www.w3.org/TR/vc-data-model/) — Credential format standard
 
 ## Contributing
 
-We welcome contributions! See our [Contributing Guide](https://artiso-ai.github.io/dppvalidator/contributing/development-setup/) to get started.
+We welcome contributions! Here's how to get started:
+
+```bash
+# Clone the repository
+git clone https://github.com/artiso-ai/dppvalidator.git
+cd dppvalidator
+
+# Install dependencies with uv
+uv sync --all-extras
+
+# Run tests
+uv run pytest
+
+# Run linting
+uv run ruff check .
+```
+
+See our [Contributing Guide](https://artiso-ai.github.io/dppvalidator/contributing/development-setup/) for more details.
+
+## About ARTISO
+
+<a href="https://www.artiso.ai"><img src="https://www.artiso.ai/ARTISO.svg" alt="ARTISO" height="28"></a>
+
+**dppvalidator** is developed and maintained by [ARTISO](https://www.artiso.ai), a Barcelona-based fashion technology company.
+
+We believe the fashion industry's transition to sustainability requires **open, accessible tools**. By open-sourcing dppvalidator, we're enabling brands of all sizes - from emerging designers to global retailers — to meet EU compliance requirements without expensive consulting firms or proprietary solutions.
+
+**Our commitment:**
+
+- **Open Source First** - Core validation engine will always be free and MIT-licensed
+- **Fashion Expertise** - Built by a team with deep industry experience at major brands
+- **Circular Economy** - Enabling the data infrastructure for textile recycling and resale
+- **Community Driven** - We welcome contributions from brands, sustainability experts, and developers
+
+> *"The circular economy can only work if recyclers can read the tags. dppvalidator ensures interoperability across the entire fashion supply chain."*
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE) for details.
+
+______________________________________________________________________
+
+<p align="center">
+  <a href="https://www.artiso.ai">artiso.ai</a> ·
+  <a href="https://artiso-ai.github.io/dppvalidator/">Documentation</a> ·
+  <a href="https://github.com/artiso-ai/dppvalidator/issues">Issues</a>
+</p>
+
+<p align="center">
+  <sub>Built with ❤️ in Barcelona for a more sustainable fashion industry</sub>
+</p>

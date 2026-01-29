@@ -1,0 +1,104 @@
+site_name: dppvalidator
+site_description: Python library for validating Digital Product Passports (UNTP DPP)
+site_url: https://artiso-ai.github.io/dppvalidator
+repo_url: https://github.com/artiso-ai/dppvalidator
+repo_name: artiso-ai/dppvalidator
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 artiso-ai
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            docstring_style: google
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/artiso-ai/dppvalidator
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/dppvalidator/
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - Guides:
+      - CLI Usage: guides/cli-usage.md
+      - Validation: guides/validation.md
+      - JSON-LD Export: guides/jsonld.md
+      - Plugin Development: guides/plugins.md
+  - Reference:
+      - CLI Reference: reference/cli.md
+      - API:
+          - Models: reference/api/models.md
+          - Validators: reference/api/validators.md
+          - Exporters: reference/api/exporters.md
+          - Plugins: reference/api/plugins.md
+  - Concepts:
+      - UNTP DPP Schema: concepts/untp-schema.md
+      - Three-Layer Validation: concepts/validation-layers.md
+  - Contributing:
+      - Development Setup: contributing/development-setup.md
+      - Code Style: contributing/code-style.md
+      - Testing: contributing/testing.md
+  - Changelog: changelog.md

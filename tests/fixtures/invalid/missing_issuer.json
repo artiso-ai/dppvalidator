@@ -1,0 +1,8 @@
+{
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/"
+  ],
+  "id": "https://example.com/credentials/dpp-invalid-001"
+}
