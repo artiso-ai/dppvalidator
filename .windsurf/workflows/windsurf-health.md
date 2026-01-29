@@ -63,7 +63,7 @@ Check rules and workflows stay within 12KB limit:
 
 11. Verify root `AGENTS.md` covers:
     - [ ] Project overview and purpose
-    - [ ] Tech stack (Python 3.12+, Pydantic v2, uv, ruff, ty)
+    - [ ] Tech stack (Python 3.10+, Pydantic v2, uv, ruff, ty)
     - [ ] Directory structure
     - [ ] Development workflow (gitflow)
     - [ ] Code principles (SOLID, DRY)

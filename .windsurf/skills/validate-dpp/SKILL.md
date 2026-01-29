@@ -13,10 +13,10 @@ This skill helps implement Digital Product Passport validation features followin
 
 ```python
 from pydantic import BaseModel, Field, field_validator, model_validator
-from typing import List, Optional
 
 class YourModel(BaseModel):
     field_name: str = Field(..., description="Description for docs")
+    optional_field: str | None = None  # Use X | None instead of Optional[X]
 
     @field_validator('field_name')
     @classmethod
