@@ -345,7 +345,7 @@ class TestPluginDiscoveryCoverage:
         from dppvalidator.plugins import discovery
 
         # Mock entry_points to raise TypeError (simulating old API)
-        def mock_entry_points_old(*args, **kwargs):
+        def mock_entry_points_old(*_args, **kwargs):
             if kwargs:  # New API with group= keyword
                 raise TypeError("group keyword not supported")
             # Return empty dict for old API
@@ -368,7 +368,7 @@ class TestPluginDiscoveryCoverage:
             def load(self):
                 raise ImportError("Module not found")
 
-        def mock_entry_points(group=None):
+        def mock_entry_points(group=None):  # noqa: ARG001
             return [MockEntryPoint()]
 
         monkeypatch.setattr(discovery, "entry_points", mock_entry_points)
@@ -391,7 +391,7 @@ class TestPluginDiscoveryCoverage:
             def load(self):
                 return MockPlugin
 
-        def mock_entry_points(group=None):
+        def mock_entry_points(group=None):  # noqa: ARG001
             return [MockEntryPoint()]
 
         monkeypatch.setattr(discovery, "entry_points", mock_entry_points)

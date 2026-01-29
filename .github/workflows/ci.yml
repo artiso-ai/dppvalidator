@@ -24,15 +24,31 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Run ruff linter
-        run: uv run ruff check src/ tests/ --output-format=github
+      # Matches pre-commit: ruff bandit security (src only)
+      - name: Run ruff security (bandit)
+        run: uv run ruff check src/ --select=S --ignore=S101,S110 --output-format=github
 
+      # Matches pre-commit: ruff isort
+      - name: Run ruff isort
+        run: uv run ruff check src/ tests/ --select=I --output-format=github
+
+      # Matches pre-commit: ruff type annotations (src only)
+      - name: Run ruff type annotations
+        run: uv run ruff check src/ --select=ANN --ignore=ANN101,ANN102,ANN401,ANN002,ANN003 --output-format=github
+
+      # Matches pre-commit: ruff comprehensive (src only)
+      - name: Run ruff comprehensive (src)
+        run: uv run ruff check src/ --output-format=github
+
+      # Matches pre-commit: ruff-format
       - name: Run ruff formatter check
         run: uv run ruff format --check src/ tests/
 
+      # Matches pre-commit: ty type checker
       - name: Run ty type checker
-        run: uv run ty check src/
+        run: uv run ty check src/dppvalidator/
 
+      # Matches pre-commit: pip-audit (pre-push stage)
       - name: Run security scan (pip-audit)
         run: uv run pip-audit --skip-editable
 
