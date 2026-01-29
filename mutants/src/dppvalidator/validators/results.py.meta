@@ -1,0 +1,14 @@
+{
+    "exit_code_by_key": {
+        "dppvalidator.validators.results.x\u01c1ValidationException\u01c1__init____mutmut_1": null,
+        "dppvalidator.validators.results.x\u01c1ValidationException\u01c1__init____mutmut_2": null,
+        "dppvalidator.validators.results.x\u01c1ValidationException\u01c1__init____mutmut_3": null,
+        "dppvalidator.validators.results.x\u01c1ValidationException\u01c1__init____mutmut_4": null,
+        "dppvalidator.validators.results.x\u01c1ValidationException\u01c1__init____mutmut_5": null,
+        "dppvalidator.validators.results.x\u01c1ValidationException\u01c1__init____mutmut_6": null,
+        "dppvalidator.validators.results.x\u01c1ValidationException\u01c1__init____mutmut_7": null
+    },
+    "hash_by_function_name": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dppvalidator-example-plugin"
+version = "0.1.0"
+description = "Example plugin for dppvalidator demonstrating custom validators and exporters"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Your Name", email = "your.email@example.com" }
+]
+keywords = ["dpp", "validation", "plugin", "dppvalidator"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "dppvalidator>=0.1.0",
+]
+
+[project.entry-points."dppvalidator.validators"]
+brand_name = "dppvalidator_example_plugin.validators:BrandNameRule"
+min_materials = "dppvalidator_example_plugin.validators:MinMaterialsRule"
+
+[project.entry-points."dppvalidator.exporters"]
+csv = "dppvalidator_example_plugin.exporters:CSVExporter"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/dppvalidator-example-plugin"
+Documentation = "https://github.com/yourusername/dppvalidator-example-plugin#readme"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dppvalidator_example_plugin"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/README.md",
+]

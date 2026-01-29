@@ -1,0 +1,58 @@
+name: Update Vocabularies
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # Monthly on the 1st at midnight UTC
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Fetch vocabulary data
+        run: uv run python scripts/fetch_vocabularies.py
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet src/dppvalidator/vocabularies/data/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update vocabulary data"
+          title: "chore: update vocabulary data"
+          body: |
+            Automated update of vocabulary data files:
+            - `countries.json` - ISO 3166-1 country codes
+            - `units.json` - UNECE Rec20 unit codes
+
+            This PR was created automatically by the vocabulary update workflow.
+          branch: chore/update-vocabularies
+          delete-branch: true
+          labels: |
+            automated
+            dependencies

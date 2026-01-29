@@ -1,0 +1,15 @@
+{
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/"
+  ],
+  "id": "https://example.com/credentials/dpp-invalid-002",
+  "issuer": {
+    "type": ["CredentialIssuer"],
+    "id": "did:web:example.com:issuers:001",
+    "name": "Example Company Ltd"
+  },
+  "validFrom": "2034-01-01T00:00:00Z",
+  "validUntil": "2024-01-01T00:00:00Z"
+}
