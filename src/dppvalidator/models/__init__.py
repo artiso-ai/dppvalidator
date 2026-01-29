@@ -19,7 +19,13 @@ from dppvalidator.models.performance import (
     EmissionsPerformance,
     TraceabilityPerformance,
 )
-from dppvalidator.models.primitives import Classification, Link, Measure, SecureLink
+from dppvalidator.models.primitives import (
+    Classification,
+    FlexibleUri,
+    Link,
+    Measure,
+    SecureLink,
+)
 from dppvalidator.models.product import Characteristics, Dimension, Product
 
 __all__ = [
@@ -35,6 +41,7 @@ __all__ = [
     "OperationalScope",
     # Primitives
     "Classification",
+    "FlexibleUri",
     "Link",
     "Measure",
     "SecureLink",

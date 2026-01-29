@@ -5,12 +5,12 @@ from __future__ import annotations
 from datetime import date
 from typing import Annotated, ClassVar
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 from dppvalidator.models.base import UNTPBaseModel, UNTPStrictModel
 from dppvalidator.models.enums import ConformityTopic, CriterionStatus
 from dppvalidator.models.identifiers import Party
-from dppvalidator.models.primitives import Measure, SecureLink
+from dppvalidator.models.primitives import Classification, FlexibleUri, Measure, SecureLink
 
 
 class Metric(UNTPStrictModel):
@@ -35,13 +35,13 @@ class Metric(UNTPStrictModel):
     )
 
 
-class Criterion(UNTPStrictModel):
+class Criterion(UNTPBaseModel):
     """Specific rule or criterion within a standard or regulation."""
 
     _jsonld_type: ClassVar[list[str]] = ["Criterion"]
 
     id: Annotated[
-        HttpUrl,
+        FlexibleUri,
         Field(..., description="Unique identifier for the criterion"),
     ]
     name: str = Field(..., description="Criterion name")
@@ -63,9 +63,14 @@ class Criterion(UNTPStrictModel):
         str | None,
         Field(default=None, alias="performanceLevel", description="Performance category code"),
     ]
-    tags: str | None = Field(
-        default=None, description="Category code for stakeholder/commodity types"
-    )
+    category: Annotated[
+        list[Classification] | None,
+        Field(default=None, description="Product categories the criterion applies to"),
+    ]
+    tag: Annotated[
+        list[str] | None,
+        Field(default=None, description="Tags for stakeholder/commodity types"),
+    ]
 
 
 class Standard(UNTPStrictModel):
@@ -74,7 +79,7 @@ class Standard(UNTPStrictModel):
     _jsonld_type: ClassVar[list[str]] = ["Standard"]
 
     id: Annotated[
-        HttpUrl | None,
+        FlexibleUri | None,
         Field(default=None, description="Unique identifier for the standard"),
     ]
     name: str | None = Field(default=None, description="Name of the standard")
@@ -94,7 +99,7 @@ class Regulation(UNTPStrictModel):
     _jsonld_type: ClassVar[list[str]] = ["Regulation"]
 
     id: Annotated[
-        HttpUrl | None,
+        FlexibleUri | None,
         Field(default=None, description="Globally unique identifier of the regulation"),
     ]
     name: str | None = Field(default=None, description="Name of the regulation or act")
@@ -122,7 +127,7 @@ class Claim(UNTPBaseModel):
     _jsonld_type: ClassVar[list[str]] = ["Claim", "Declaration"]
 
     id: Annotated[
-        HttpUrl,
+        FlexibleUri,
         Field(..., description="Unique identifier for the declaration"),
     ]
     description: str | None = Field(default=None, description="Textual description of the claim")

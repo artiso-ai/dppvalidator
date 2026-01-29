@@ -5,10 +5,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated, ClassVar
 
-from pydantic import Field, HttpUrl, model_validator
+from pydantic import Field, model_validator
 
 from dppvalidator.models.base import UNTPBaseModel
 from dppvalidator.models.credential import CredentialIssuer, ProductPassport
+from dppvalidator.models.primitives import FlexibleUri
 
 
 class DigitalProductPassport(UNTPBaseModel):
@@ -32,7 +33,7 @@ class DigitalProductPassport(UNTPBaseModel):
         ),
     ]
     id: Annotated[
-        HttpUrl,
+        FlexibleUri,
         Field(..., description="Unique identifier (URI) for this passport"),
     ]
     issuer: CredentialIssuer = Field(..., description="Organisation issuing this credential")
@@ -62,7 +63,12 @@ class DigitalProductPassport(UNTPBaseModel):
 
     @model_validator(mode="after")
     def validate_material_mass_fractions(self) -> DigitalProductPassport:
-        """Ensure material mass fractions sum to approximately 1.0."""
+        """Validate material mass fractions don't exceed 1.0.
+
+        Per UNTP spec, mass fractions can be partial declarations (sum < 1.0).
+        Only sum > 1.0 is physically impossible and should error.
+        Semantic validation checks for exact sum when appropriate.
+        """
         if not self.credential_subject:
             return self
         materials = self.credential_subject.materials_provenance
@@ -71,6 +77,6 @@ class DigitalProductPassport(UNTPBaseModel):
         fractions = [m.mass_fraction for m in materials if m.mass_fraction is not None]
         if fractions:
             total = sum(fractions)
-            if abs(total - 1.0) > 0.01:
-                raise ValueError(f"Material mass fractions must sum to 1.0, got {total:.3f}")
+            if total > 1.01:  # Allow small tolerance for floating point
+                raise ValueError(f"Material mass fractions cannot exceed 1.0, got {total:.3f}")
         return self

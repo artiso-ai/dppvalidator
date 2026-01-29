@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import Annotated, Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UNTPBaseModel(BaseModel):
     """Base model for all UNTP entities.
 
     Provides:
-    - JSON-LD type support via _jsonld_type class variable
+    - JSON-LD type support via _jsonld_type class variable and 'type' field
     - Flexible serialization with alias support
     - Extra field allowance per UNTP spec (additionalProperties: true)
+    - W3C VC pattern support (accepts 'type' arrays from incoming JSON-LD)
     """
 
     model_config = ConfigDict(
@@ -25,6 +26,12 @@ class UNTPBaseModel(BaseModel):
     )
 
     _jsonld_type: ClassVar[list[str]] = []
+
+    # W3C VC type field - accepts type arrays from incoming JSON-LD
+    type: Annotated[
+        list[str] | None,
+        Field(default=None, description="JSON-LD type(s) for this entity"),
+    ]
 
     def to_jsonld(
         self,

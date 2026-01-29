@@ -2,12 +2,42 @@
 
 from __future__ import annotations
 
+import re
 from typing import Annotated, ClassVar
 
-from pydantic import Field, HttpUrl
+from pydantic import AfterValidator, Field, HttpUrl
 
 from dppvalidator.models.base import UNTPStrictModel
 from dppvalidator.models.enums import EncryptionMethod, HashMethod
+
+# URI pattern supporting:
+# - HTTP/HTTPS URLs (https://example.com)
+# - DIDs (did:web:example.com, did:webvh:example.com)
+# - URNs (urn:uuid:123, urn:isbn:123)
+# - Custom schemes (example:product/1234, gs1:01/1234)
+_URI_PATTERN = re.compile(
+    r"^[a-zA-Z][a-zA-Z0-9+.-]*:"  # scheme (RFC 3986)
+    r".+$",  # scheme-specific part (non-empty)
+    re.ASCII,
+)
+
+
+def _validate_uri(value: str) -> str:
+    """Validate that a string is a valid URI per RFC 3986.
+
+    Supports HTTP URLs, DIDs, URNs, and custom URI schemes.
+    """
+    if not _URI_PATTERN.match(value):
+        raise ValueError(
+            f"Invalid URI: '{value}'. Must have format 'scheme:path' "
+            "(e.g., 'https://...', 'did:web:...', 'urn:uuid:...')"
+        )
+    return value
+
+
+# Flexible URI type for W3C VC / UNTP compatibility
+# Accepts HTTP URLs, DIDs (did:web:, did:webvh:), URNs, and custom schemes
+FlexibleUri = Annotated[str, AfterValidator(_validate_uri)]
 
 
 class Measure(UNTPStrictModel):
@@ -84,7 +114,7 @@ class Classification(UNTPStrictModel):
     _jsonld_type: ClassVar[list[str]] = ["Classification"]
 
     id: Annotated[
-        HttpUrl,
+        FlexibleUri,
         Field(..., description="Globally unique URI representing the classifier value"),
     ]
     code: Annotated[
@@ -93,7 +123,7 @@ class Classification(UNTPStrictModel):
     ]
     name: str = Field(..., description="Name of the classification")
     scheme_id: Annotated[
-        HttpUrl | None,
+        FlexibleUri | None,
         Field(default=None, alias="schemeID", description="Classification scheme ID"),
     ]
     scheme_name: Annotated[

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import Annotated, ClassVar
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 from dppvalidator.models.base import UNTPBaseModel, UNTPStrictModel
+from dppvalidator.models.primitives import FlexibleUri
 
 
 class IdentifierScheme(UNTPStrictModel):
@@ -15,7 +16,7 @@ class IdentifierScheme(UNTPStrictModel):
     _jsonld_type: ClassVar[list[str]] = ["IdentifierScheme"]
 
     id: Annotated[
-        HttpUrl | None,
+        FlexibleUri | None,
         Field(
             default=None,
             description="Globally unique identifier of the registration scheme",
@@ -33,7 +34,7 @@ class Party(UNTPBaseModel):
     _jsonld_type: ClassVar[list[str]] = ["Party"]
 
     id: Annotated[
-        HttpUrl,
+        FlexibleUri,
         Field(..., description="Globally unique ID of the party as a URI"),
     ]
     name: str = Field(..., description="Registered name of the party")
@@ -53,7 +54,7 @@ class Facility(UNTPBaseModel):
     _jsonld_type: ClassVar[list[str]] = ["Facility"]
 
     id: Annotated[
-        HttpUrl,
+        FlexibleUri,
         Field(..., description="Globally unique ID of the facility as URI"),
     ]
     name: str = Field(..., description="Registered name of the facility")

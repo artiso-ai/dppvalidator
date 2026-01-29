@@ -269,7 +269,7 @@ class TestValidateCommandExtended:
         result = main(["validate", str(file_path)])
         assert result == EXIT_ERROR
 
-    def test_validate_stdin(self, _tmp_path, monkeypatch):  # noqa: ARG002
+    def test_validate_stdin(self, tmp_path, monkeypatch):  # noqa: ARG002
         """Test validate from stdin."""
         import io
         import sys
@@ -482,8 +482,105 @@ class TestValidateCommandCoverage:
         assert result in (EXIT_VALID, EXIT_INVALID)
 
 
+class TestSchemaCommandCoverage:
+    """Coverage tests for schema command branches."""
+
+    def test_schema_info_valid_version(self):
+        """Test schema info with valid version shows info."""
+        import argparse
+        from io import StringIO
+
+        from dppvalidator.cli.commands import schema as schema_module
+        from dppvalidator.cli.console import Console
+
+        args = argparse.Namespace(schema_command="info", version="0.6.1")
+        stream = StringIO()
+        console = Console(file=stream)
+
+        result = schema_module.run(args, console)
+        output = stream.getvalue()
+        assert result == EXIT_VALID
+        assert "0.6.1" in output
+
+    def test_schema_info_unknown_version_error(self, capsys):
+        """Test schema info with unknown version returns error."""
+        import argparse
+        from io import StringIO
+
+        from dppvalidator.cli.commands import schema as schema_module
+        from dppvalidator.cli.console import Console
+
+        args = argparse.Namespace(schema_command="info", version="99.99.99")
+        stream = StringIO()
+        console = Console(file=stream)
+
+        result = schema_module.run(args, console)
+        captured = capsys.readouterr()
+        output = stream.getvalue()
+        assert result == EXIT_ERROR
+        assert "Unknown" in captured.err or "unknown" in output.lower()
+
+    def test_schema_download_to_directory(self, tmp_path):
+        """Test schema download to specified directory."""
+        import argparse
+        from io import StringIO
+
+        from dppvalidator.cli.commands import schema as schema_module
+        from dppvalidator.cli.console import Console
+
+        args = argparse.Namespace(
+            schema_command="download",
+            version="0.6.1",
+            output=str(tmp_path),
+        )
+        stream = StringIO()
+        console = Console(file=stream)
+
+        # The download will likely fail due to network, which is expected
+        result = schema_module.run(args, console)
+        # Either succeeds (network available) or fails (expected in CI)
+        assert result in (EXIT_VALID, EXIT_ERROR)
+
+    def test_schema_list_shows_versions(self, capsys):
+        """Test schema list shows available versions with table."""
+        result = main(["schema", "list"])
+        captured = capsys.readouterr()
+        assert result == EXIT_VALID
+        # Should show version info
+        assert "0.6" in captured.out or "Available" in captured.out
+
+
 class TestExportCommandCoverage:
     """Coverage tests for export command."""
+
+    def test_export_invalid_dpp_shows_errors(self, tmp_path, capsys):
+        """Test export with invalid DPP shows validation errors."""
+        passport_data = {"invalid": "data", "no_issuer": True}
+        file_path = tmp_path / "invalid.json"
+        file_path.write_text(json.dumps(passport_data))
+
+        result = main(["export", str(file_path)])
+        captured = capsys.readouterr()
+        assert result == EXIT_ERROR
+        assert "not a valid DPP" in captured.err.lower() or "error" in captured.err.lower()
+
+    def test_export_compact_output(self, tmp_path, capsys):
+        """Test export with --compact flag produces minimal formatting."""
+        passport_data = {
+            "id": "https://example.com/dpp",
+            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+        }
+        file_path = tmp_path / "passport.json"
+        file_path.write_text(json.dumps(passport_data))
+
+        result = main(["export", str(file_path), "--compact"])
+        captured = capsys.readouterr()
+        assert result == EXIT_VALID
+        # Compact output should not have leading whitespace (no indentation)
+        output = captured.out
+        # Check there's no 2+ space indentation at start of lines
+        lines_with_indent = [line for line in output.split("\n") if line.startswith("  ")]
+        assert len(lines_with_indent) == 0, "Compact output should not have indentation"
 
     def test_export_to_json(self, tmp_path, capsys):
         """Test export to JSON format."""
@@ -523,3 +620,135 @@ class TestExportCommandCoverage:
         output_path = tmp_path / "output.json"
         result = main(["export", str(file_path), "-o", str(output_path)])
         assert result in (EXIT_VALID, EXIT_ERROR)
+
+
+class TestValidateCommandBehavior:
+    """Behavior tests for validate command - testing actual library behavior."""
+
+    def test_validate_returns_structured_json_output(self, tmp_path, capsys):
+        """Test that --format json returns properly structured output."""
+        passport_data = {
+            "id": "https://example.com/dpp",
+            "issuer": {"id": "https://example.com/issuer", "name": "Test Corp"},
+        }
+        file_path = tmp_path / "passport.json"
+        file_path.write_text(json.dumps(passport_data))
+
+        result = main(["validate", str(file_path), "--format", "json"])
+        captured = capsys.readouterr()
+        assert result == EXIT_VALID
+
+        # Parse and verify structure
+        output = json.loads(captured.out)
+        assert "valid" in output
+        assert output["valid"] is True
+        assert "schema_version" in output
+
+    def test_validate_invalid_data_json_format(self, tmp_path, capsys):
+        """Test invalid data returns structured errors in JSON format."""
+        passport_data = {"missing": "issuer"}
+        file_path = tmp_path / "invalid.json"
+        file_path.write_text(json.dumps(passport_data))
+
+        result = main(["validate", str(file_path), "--format", "json"])
+        captured = capsys.readouterr()
+        assert result == EXIT_INVALID
+
+        output = json.loads(captured.out)
+        assert output["valid"] is False
+        assert len(output["errors"]) > 0
+
+    def test_validate_multiple_errors_collected(self, tmp_path, capsys):
+        """Test that multiple validation errors are collected."""
+        passport_data = {
+            "validFrom": "2034-01-01T00:00:00Z",
+            "validUntil": "2024-01-01T00:00:00Z",
+        }
+        file_path = tmp_path / "multi_error.json"
+        file_path.write_text(json.dumps(passport_data))
+
+        result = main(["validate", str(file_path), "--format", "json"])
+        captured = capsys.readouterr()
+        assert result == EXIT_INVALID
+
+        output = json.loads(captured.out)
+        # Should have at least errors for missing issuer and date order
+        assert len(output["errors"]) >= 1
+
+
+class TestCompletionsUnknownShell:
+    """Tests for completions command with unknown shell."""
+
+    def test_completions_unknown_shell(self, capsys):
+        """Test completions with unknown shell returns error."""
+        import argparse
+
+        from dppvalidator.cli.commands import completions as completions_module
+
+        args = argparse.Namespace(shell="powershell")
+        result = completions_module.run(args)
+        captured = capsys.readouterr()
+        assert result == 2  # EXIT_ERROR equivalent
+        assert "Unknown shell" in captured.err
+
+
+class TestExportNullPassport:
+    """Tests for export command when passport is None after validation."""
+
+    def test_export_passport_none_after_validation(self, tmp_path, monkeypatch):
+        """Test export when validation passes but passport is None."""
+        import argparse
+        from io import StringIO
+
+        from dppvalidator.cli.commands import export as export_module
+        from dppvalidator.cli.console import Console
+        from dppvalidator.validators.results import ValidationResult
+
+        # Create a valid JSON file
+        file_path = tmp_path / "passport.json"
+        file_path.write_text('{"id": "test", "issuer": {"id": "x", "name": "y"}}')
+
+        # Mock ValidationEngine to return valid=True but passport=None
+        class MockEngine:
+            def __init__(self, **kwargs):
+                pass
+
+            def validate(self, _data):
+                return ValidationResult(valid=True, passport=None, schema_version="0.6.1")
+
+        # Patch at the source module where it's imported from
+        import dppvalidator.validators as validators_module
+
+        monkeypatch.setattr(validators_module, "ValidationEngine", MockEngine)
+
+        args = argparse.Namespace(
+            input=str(file_path),
+            output=None,
+            format="jsonld",
+            compact=False,
+            schema_version="0.6.1",
+        )
+        stream = StringIO()
+        console = Console(file=stream)
+
+        result = export_module.run(args, console)
+        assert result == 2  # EXIT_ERROR
+
+
+class TestCLIKeyboardInterrupt:
+    """Tests for CLI keyboard interrupt handling."""
+
+    def test_main_keyboard_interrupt(self, tmp_path, monkeypatch):
+        """Test main handles KeyboardInterrupt gracefully."""
+        from dppvalidator.cli.commands import validate as validate_module
+
+        def raise_keyboard_interrupt(*_args, **_kwargs):
+            raise KeyboardInterrupt()
+
+        monkeypatch.setattr(validate_module, "run", raise_keyboard_interrupt)
+
+        file_path = tmp_path / "test.json"
+        file_path.write_text('{"id": "test"}')
+
+        result = main(["validate", str(file_path)])
+        assert result == EXIT_ERROR

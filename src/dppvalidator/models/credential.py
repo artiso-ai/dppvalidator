@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, ClassVar
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 from dppvalidator.models.base import UNTPBaseModel, UNTPStrictModel
 from dppvalidator.models.claims import Claim
@@ -16,7 +16,7 @@ from dppvalidator.models.performance import (
     EmissionsPerformance,
     TraceabilityPerformance,
 )
-from dppvalidator.models.primitives import Link
+from dppvalidator.models.primitives import FlexibleUri, Link
 from dppvalidator.models.product import Product
 
 
@@ -26,8 +26,8 @@ class CredentialIssuer(UNTPStrictModel):
     _jsonld_type: ClassVar[list[str]] = ["CredentialIssuer"]
 
     id: Annotated[
-        HttpUrl,
-        Field(..., description="W3C DID of the issuer (did:web or did:webvh)"),
+        FlexibleUri,
+        Field(..., description="W3C DID of the issuer (did:web, did:webvh, or https URL)"),
     ]
     name: str = Field(..., description="Name of the issuer person or organisation")
     issuer_also_known_as: Annotated[
@@ -46,8 +46,8 @@ class ProductPassport(UNTPBaseModel):
     _jsonld_type: ClassVar[list[str]] = ["ProductPassport"]
 
     id: Annotated[
-        HttpUrl | None,
-        Field(default=None, description="Identifier for the credential subject"),
+        FlexibleUri | None,
+        Field(default=None, description="Identifier for the credential subject (URI)"),
     ]
     product: Product | None = Field(default=None, description="Product information")
     granularity_level: Annotated[
