@@ -152,12 +152,12 @@ The `.github/CODEOWNERS` file defines who must review PRs:
 
 ```text
 # Default owners for everything
-*                           @matbreotten
+*                           @matbmeijer
 
 # Critical paths
-/src/                       @matbreotten
-/.github/                   @matbreotten
-/pyproject.toml             @matbreotten
+/src/                       @matbmeijer
+/.github/                   @matbmeijer
+/pyproject.toml             @matbmeijer
 ```
 
 **Important**: CODEOWNERS only works when:
