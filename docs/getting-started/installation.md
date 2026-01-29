@@ -9,29 +9,27 @@
 
 === "uv (recommended)"
 
-````
-[uv](https://docs.astral.sh/uv/) is a fast Python package manager:
-
-```bash
-uv add dppvalidator
 ```
-````
+
+uv add dppvalidator
+
+```
 
 === "pip"
 
-````
-```bash
-pip install dppvalidator
 ```
-````
+
+pip install dppvalidator
+
+```
 
 === "poetry"
 
-````
-```bash
-poetry add dppvalidator
 ```
-````
+
+poetry add dppvalidator
+
+```
 
 ## Optional Dependencies
 
@@ -41,19 +39,17 @@ For fetching remote schemas and vocabularies:
 
 === "uv"
 
-````
-```bash
-uv add "dppvalidator[http]"
 ```
-````
+
+uv add "dppvalidator[http]"
+
+```
 
 === "pip"
 
-````
-```bash
+```
 pip install "dppvalidator[http]"
 ```
-````
 
 This installs `httpx` for async HTTP requests.
 
@@ -63,41 +59,37 @@ For strict JSON Schema validation:
 
 === "uv"
 
-````
-```bash
+```
 uv add "dppvalidator[jsonschema]"
 ```
-````
 
 === "pip"
 
-````
-```bash
+```
 pip install "dppvalidator[jsonschema]"
 ```
-````
 
 ### All Optional Dependencies
 
 === "uv"
 
-````
-```bash
-uv add "dppvalidator[all]"
 ```
-````
+
+uv add "dppvalidator[all]"
+
+```
 
 === "pip"
 
-````
-```bash
-pip install "dppvalidator[all]"
 ```
-````
+
+pip install "dppvalidator[all]"
+
+```
 
 ## Verify Installation
 
-```bash
+```
 # Check version
 dppvalidator --version
 
@@ -109,7 +101,7 @@ echo '{"id": "https://example.com/dpp"}' | dppvalidator validate -
 
 For contributing to dppvalidator:
 
-```bash
+```
 # Clone the repository
 git clone https://github.com/artiso-ai/dppvalidator.git
 cd dppvalidator
