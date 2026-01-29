@@ -6,23 +6,23 @@
 # Each line is a file pattern followed by one or more owners.
 
 # Default owners for everything in the repo
-*                           @matbreotten
+*                           @matbmeijer
 
 # Core library code requires owner review
-/src/                       @matbreotten
-/tests/                     @matbreotten
+/src/                       @matbmeijer
+/tests/                     @matbmeijer
 
 # Critical files that affect security, releases, and CI/CD
-/.github/                   @matbreotten
-/pyproject.toml             @matbreotten
-/uv.lock                    @matbreotten
-/setup.cfg                  @matbreotten
+/.github/                   @matbmeijer
+/pyproject.toml             @matbmeijer
+/uv.lock                    @matbmeijer
+/setup.cfg                  @matbmeijer
 
 # Documentation
-/docs/                      @matbreotten
-/README.md                  @matbreotten
-/CHANGELOG.md               @matbreotten
+/docs/                      @matbmeijer
+/README.md                  @matbmeijer
+/CHANGELOG.md               @matbmeijer
 
 # Windsurf/AI configuration
-/.windsurf/                 @matbreotten
-/AGENTS.md                  @matbreotten
+/.windsurf/                 @matbmeijer
+/AGENTS.md                  @matbmeijer
