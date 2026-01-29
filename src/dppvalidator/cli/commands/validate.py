@@ -138,6 +138,13 @@ def _output_text(result: Any, input_path: str, console: Console) -> None:
         console.print(f"\n[bold red]Errors ({len(result.errors)}):[/bold red]", style="red")
         for err in result.errors:
             console.print(f"  [{err.code}] {err.path}: {err.message}")
+            if err.did_you_mean:
+                suggestions = ", ".join(f'"{v}"' for v in err.did_you_mean)
+                console.print(f"    Did you mean: {suggestions}?", style="cyan")
+            if err.suggestion:
+                console.print(f"    💡 {err.suggestion}", style="dim")
+            if err.docs_url:
+                console.print(f"    📖 {err.docs_url}", style="dim blue")
 
     if result.warnings:
         console.print(
@@ -145,6 +152,10 @@ def _output_text(result: Any, input_path: str, console: Console) -> None:
         )
         for warn in result.warnings:
             console.print(f"  [{warn.code}] {warn.path}: {warn.message}")
+            if warn.suggestion:
+                console.print(f"    💡 {warn.suggestion}", style="dim")
+            if warn.docs_url:
+                console.print(f"    📖 {warn.docs_url}", style="dim blue")
 
     if result.info:
         console.print(f"\nInfo ({len(result.info)}):")

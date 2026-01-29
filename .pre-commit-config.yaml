@@ -30,20 +30,21 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.14
     hooks:
-      # bandit (security)
+      # bandit (security) - exclude notebooks (example code uses random)
       - id: ruff
-        types_or: [python, pyi, jupyter]
+        types_or: [python, pyi]
         args: ["--fix", "--select=S", "--ignore=S101,S110"]
-        exclude: ^(tests/|mutants/)
+        exclude: ^(tests/|mutants/|examples/)
       # isort
       - id: ruff
         types_or: [python, pyi, jupyter]
         args: [--fix, "--select=I"]
-      # type annotations
+      # type annotations - exclude notebooks (educational examples)
       - id: ruff
+        types_or: [python, pyi]
         args:
           ["--select", "ANN", "--ignore", "ANN101,ANN102,ANN401,ANN002,ANN003"]
-        exclude: ^(tests/|mutants/|benchmarks/).*$
+        exclude: ^(tests/|mutants/|benchmarks/|examples/).*$
       # Replace %s statements with f-string syntax
       - id: ruff
         types_or: [python, pyi, jupyter]
@@ -51,9 +52,9 @@ repos:
       # Comprehensive ruff check (no auto-fix) - only on src code
       - id: ruff
         name: ruff-check-all
-        types_or: [python, pyi, jupyter]
+        types_or: [python, pyi]
         args: ["--output-format=github"]
-        exclude: ^(tests/|mutants/|benchmarks/)
+        exclude: ^(tests/|mutants/|benchmarks/|examples/)
       # formatting
       - id: ruff-format
         types_or: [python, pyi, jupyter]

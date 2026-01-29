@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import time
 from importlib import resources
@@ -21,6 +22,32 @@ except ImportError:
     JsonSchemaError = Exception  # type: ignore[misc, assignment]
 
 
+# Stable error code mapping based on JSON Schema validator type
+SCHEMA_ERROR_CODES: dict[str, str] = {
+    "required": "SCH001",
+    "type": "SCH002",
+    "enum": "SCH003",
+    "format": "SCH004",
+    "pattern": "SCH005",
+    "minLength": "SCH006",
+    "maxLength": "SCH007",
+    "minimum": "SCH008",
+    "maximum": "SCH009",
+    "additionalProperties": "SCH010",
+    "minItems": "SCH011",
+    "maxItems": "SCH012",
+    "uniqueItems": "SCH013",
+    "const": "SCH014",
+    "allOf": "SCH015",
+    "anyOf": "SCH016",
+    "oneOf": "SCH017",
+    "not": "SCH018",
+    "contains": "SCH019",
+    "prefixItems": "SCH020",
+    "$ref": "SCH021",
+}
+
+
 class SchemaValidator:
     """JSON Schema validation layer.
 
@@ -35,14 +62,17 @@ class SchemaValidator:
         self,
         schema_version: str = "0.6.1",
         schema_path: Path | None = None,
+        strict: bool = False,
     ) -> None:
         """Initialize schema validator.
 
         Args:
             schema_version: UNTP DPP schema version
             schema_path: Optional custom schema path. If None, uses bundled schema.
+            strict: If True, disallows additional properties not in schema
         """
         self.schema_version = schema_version
+        self.strict = strict
         self._schema: dict[str, Any] | None = None
         self._schema_path = schema_path
         self._validator: Any | None = None
@@ -57,14 +87,59 @@ class SchemaValidator:
         else:
             try:
                 schema_file = resources.files("dppvalidator.schemas.data").joinpath(
-                    f"untp_dpp_{self.schema_version.replace('.', '_')}.json"
+                    f"untp-dpp-schema-{self.schema_version}.json"
                 )
                 self._schema = json.loads(schema_file.read_text())
             except (FileNotFoundError, ModuleNotFoundError):
                 # No bundled schema available - validation will be skipped
                 self._schema = {}
 
+        # Apply strict mode: set additionalProperties to false
+        if self.strict and self._schema:
+            self._schema = self._apply_strict_mode(self._schema)
+
         return self._schema
+
+    def _apply_strict_mode(self, schema: dict[str, Any]) -> dict[str, Any]:
+        """Apply strict mode by setting additionalProperties to false.
+
+        Args:
+            schema: Original schema
+
+        Returns:
+            Modified schema with strict additionalProperties
+        """
+        schema = copy.deepcopy(schema)
+        self._set_additional_properties_false(schema)
+        return schema
+
+    def _set_additional_properties_false(self, obj: dict[str, Any]) -> None:
+        """Recursively set additionalProperties to false."""
+        if not isinstance(obj, dict):
+            return
+
+        # Set additionalProperties to false for objects with properties
+        if (
+            "properties" in obj
+            and "additionalProperties" not in obj
+            or "properties" in obj
+            and obj.get("additionalProperties") is True
+        ):
+            obj["additionalProperties"] = False
+
+        # Recurse into $defs
+        if "$defs" in obj:
+            for def_schema in obj["$defs"].values():
+                self._set_additional_properties_false(def_schema)
+
+        # Recurse into properties
+        if "properties" in obj:
+            for prop_schema in obj["properties"].values():
+                self._set_additional_properties_false(prop_schema)
+
+        # Recurse into items
+        if "items" in obj and isinstance(obj["items"], dict):
+            self._set_additional_properties_false(obj["items"])
 
     def _get_validator(self) -> Any:
         """Get or create the JSON Schema validator."""
@@ -126,11 +201,12 @@ class SchemaValidator:
 
         for error in validator.iter_errors(data):
             json_path = self._error_to_path(error)
+            error_code = self._get_error_code(error)
             errors.append(
                 ValidationError(
                     path=json_path,
                     message=error.message,
-                    code=f"SCH{len(errors) + 100:03d}",
+                    code=error_code,
                     layer="schema",
                     severity="error",
                     context={"schema_path": list(error.schema_path)},
@@ -155,3 +231,15 @@ class SchemaValidator:
             else:
                 path_parts.append(f".{part}")
         return "".join(path_parts)
+
+    def _get_error_code(self, error: Any) -> str:
+        """Get stable error code based on JSON Schema validator type.
+
+        Args:
+            error: jsonschema validation error
+
+        Returns:
+            Stable error code string
+        """
+        validator_type = error.validator
+        return SCHEMA_ERROR_CODES.get(validator_type, "SCH099")

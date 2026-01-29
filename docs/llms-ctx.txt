@@ -1,0 +1,137 @@
+# dppvalidator - Extended Context for LLMs
+
+> Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and UNTP standards.
+
+## Overview
+
+dppvalidator is the open-source compliance engine for EU Digital Product Passports. The EU's Ecodesign for Sustainable Products Regulation (ESPR) mandates Digital Product Passports for textiles starting 2027. This library ensures DPP data is compliant before production.
+
+## Tech Stack
+
+- Python 3.10+
+- Pydantic v2 for validation models
+- Optional: jsonschema, httpx, rich (CLI)
+
+## Installation
+
+```bash
+pip install dppvalidator          # Core only
+pip install dppvalidator[all]     # With all optional dependencies
+```
+
+## Architecture
+
+### Three-Layer Validation
+
+1. **Schema Layer (SCH001-SCH099)**: JSON Schema Draft 2020-12 validation
+2. **Model Layer (MOD001-MOD099)**: Pydantic v2 type validation and coercion
+3. **Semantic Layer (SEM001-SEM099)**: Business rules, ISO codes, date logic
+
+### Performance
+
+- Schema: ~5μs (200k ops/sec)
+- Model: ~8μs (125k ops/sec)
+- Semantic: ~3μs (333k ops/sec)
+- All layers: ~13μs (80k ops/sec)
+
+## Core API
+
+### ValidationEngine
+
+```python
+from dppvalidator.validators import ValidationEngine
+
+# All layers (default)
+engine = ValidationEngine()
+
+# Specific layers
+engine = ValidationEngine(layers=["schema"])
+engine = ValidationEngine(layers=["model", "semantic"])
+
+# Strict mode (warnings become errors)
+engine = ValidationEngine(strict_mode=True)
+
+# Validate
+result = engine.validate(dpp_dict)
+# Returns: ValidationResult with .valid, .errors, .warnings, .validation_time_ms
+```
+
+### Models
+
+```python
+from dppvalidator.models import (
+    DigitalProductPassport,
+    CredentialIssuer,
+    Product,
+    ProductBatch,
+    Identifier,
+    Link,
+)
+
+passport = DigitalProductPassport(
+    id="https://example.com/dpp/product-001",
+    issuer=CredentialIssuer(id="https://example.com/issuer", name="Company"),
+)
+```
+
+### Exporters
+
+```python
+from dppvalidator.exporters import JSONLDExporter
+
+exporter = JSONLDExporter()
+jsonld = exporter.export(passport)  # W3C Verifiable Credential format
+```
+
+### Plugin System
+
+```python
+from dppvalidator.plugins import PluginRegistry
+
+registry = PluginRegistry()
+
+@registry.register_validator("custom")
+class CustomValidator:
+    def validate(self, data: dict) -> list:
+        errors = []
+        # Custom validation logic
+        return errors
+
+engine = ValidationEngine(plugins=registry)
+```
+
+## CLI Usage
+
+```bash
+dppvalidator validate passport.json
+dppvalidator validate passport.json --strict
+dppvalidator export passport.json --format jsonld --output out.jsonld
+dppvalidator schema --version 0.6.1
+```
+
+## Directory Structure
+
+```
+src/dppvalidator/
+├── models/          # Pydantic models for DPP entities
+├── validators/      # Validation engine and layers
+├── exporters/       # JSON-LD and other export formats
+├── schemas/         # JSON Schema loading and caching
+├── vocabularies/    # Controlled vocabulary loading
+├── cli/             # Command-line interface
+├── plugins/         # Plugin system
+└── __init__.py
+```
+
+## Related Standards
+
+- UNTP Digital Product Passport: https://untp.unece.org/docs/specification/DigitalProductPassport/
+- EU ESPR Regulation: https://environment.ec.europa.eu/topics/circular-economy/ecodesign-sustainable-products-regulation_en
+- W3C Verifiable Credentials: https://www.w3.org/TR/vc-data-model/
+
+## Links
+
+- Documentation: https://artiso-ai.github.io/dppvalidator/
+- PyPI: https://pypi.org/project/dppvalidator/
+- GitHub: https://github.com/artiso-ai/dppvalidator
+- Issues: https://github.com/artiso-ai/dppvalidator/issues

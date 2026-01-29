@@ -112,3 +112,10 @@ print(jsonld)
 - [CLI Usage Guide](../guides/cli-usage.md) — Full CLI reference
 - [Validation Guide](../guides/validation.md) — Understanding the three validation layers
 - [API Reference](../reference/api/validators.md) — Complete API documentation
+
+## For AI Assistants
+
+If you're an LLM or AI assistant, see our machine-readable context files:
+
+- [llms.txt](../llms.txt) — Quick summary
+- [llms-ctx.txt](../llms-ctx.txt) — Extended API context

@@ -15,21 +15,28 @@ keywords = [
     "pydantic",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
+    "Framework :: Pydantic :: 2",
     "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+    "Typing :: Typed",
 ]
 dependencies = ["pydantic>=2.12.5"]
 
 [project.scripts]
 dppvalidator = "dppvalidator.cli:cli"
+dppvalidator-precommit = "dppvalidator.cli.commands.precommit:main"
 
 [project.optional-dependencies]
 http = ["httpx>=0.28.0"]
@@ -40,7 +47,9 @@ all = ["httpx>=0.28.0", "jsonschema>=4.23.0", "rich>=13.0.0"]
 [project.urls]
 Homepage = "https://github.com/artiso-ai/dppvalidator"
 Repository = "https://github.com/artiso-ai/dppvalidator"
-Documentation = "https://github.com/artiso-ai/dppvalidator#readme"
+Documentation = "https://artiso-ai.github.io/dppvalidator/"
+Changelog = "https://github.com/artiso-ai/dppvalidator/blob/main/CHANGELOG.md"
+Issues = "https://github.com/artiso-ai/dppvalidator/issues"
 
 [build-system]
 requires = ["hatchling"]
@@ -48,6 +57,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dppvalidator"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/dppvalidator/schemas/data" = "dppvalidator/schemas/data"
+"src/dppvalidator/vocabularies/data" = "dppvalidator/vocabularies/data"
 
 [dependency-groups]
 dev = [

@@ -18,6 +18,8 @@ class MassFractionSumRule:
     rule_id: str = "SEM001"
     description: str = "Material mass fractions should sum to 1.0"
     severity: Literal["error", "warning", "info"] = "warning"
+    suggestion: str = "Adjust material mass fractions to sum to 1.0 (100%)"
+    docs_url: str = "https://artiso-ai.github.io/dppvalidator/errors/SEM001"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check mass fraction sum."""
@@ -52,6 +54,8 @@ class ValidityDateRule:
     rule_id: str = "SEM002"
     description: str = "validFrom must be before validUntil"
     severity: Literal["error", "warning", "info"] = "error"
+    suggestion: str = "Ensure validFrom is before validUntil"
+    docs_url: str = "https://artiso-ai.github.io/dppvalidator/errors/SEM002"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check validity date ordering."""
@@ -78,6 +82,8 @@ class HazardousMaterialRule:
     rule_id: str = "SEM003"
     description: str = "Hazardous materials require safety information"
     severity: Literal["error", "warning", "info"] = "error"
+    suggestion: str = "Add materialSafetyInformation for hazardous materials"
+    docs_url: str = "https://artiso-ai.github.io/dppvalidator/errors/SEM003"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check hazardous material safety info."""
@@ -108,6 +114,8 @@ class CircularityContentRule:
     rule_id: str = "SEM004"
     description: str = "recycledContent should not exceed recyclableContent"
     severity: Literal["error", "warning", "info"] = "warning"
+    suggestion: str = "recycledContent cannot exceed recyclableContent"
+    docs_url: str = "https://artiso-ai.github.io/dppvalidator/errors/SEM004"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check circularity content consistency."""
@@ -140,6 +148,8 @@ class ConformityClaimRule:
     rule_id: str = "SEM005"
     description: str = "At least one conformityClaim is recommended"
     severity: Literal["error", "warning", "info"] = "info"
+    suggestion: str = "Add conformity claims for sustainability or compliance"
+    docs_url: str = "https://artiso-ai.github.io/dppvalidator/errors/SEM005"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check for conformity claims."""
@@ -166,6 +176,8 @@ class GranularitySerialNumberRule:
     rule_id: str = "SEM006"
     description: str = "Item-level passports require serial numbers"
     severity: Literal["error", "warning", "info"] = "warning"
+    suggestion: str = "Add serialNumber for item-level granularity passports"
+    docs_url: str = "https://artiso-ai.github.io/dppvalidator/errors/SEM006"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check serial number for item-level passports."""
@@ -198,6 +210,8 @@ class OperationalScopeRule:
     rule_id: str = "SEM007"
     description: str = "Emissions data should specify operational scope"
     severity: Literal["error", "warning", "info"] = "warning"
+    suggestion: str = "Specify operationalScope with carbonFootprint data"
+    docs_url: str = "https://artiso-ai.github.io/dppvalidator/errors/SEM007"
 
     def check(self, passport: DigitalProductPassport) -> list[tuple[str, str]]:
         """Check operational scope for emissions data."""

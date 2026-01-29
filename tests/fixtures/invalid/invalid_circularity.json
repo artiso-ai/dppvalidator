@@ -1,0 +1,22 @@
+{
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/"
+  ],
+  "id": "https://example.com/credentials/dpp-circularity",
+  "issuer": {
+    "id": "https://example.com/issuers/001",
+    "name": "Test Company"
+  },
+  "credentialSubject": {
+    "type": ["Product"],
+    "id": "https://example.com/products/001",
+    "name": "Product with invalid circularity data",
+    "circularityScorecard": {
+      "type": ["CircularityScorecard"],
+      "recycledContent": 0.80,
+      "recyclableContent": 0.50
+    }
+  }
+}

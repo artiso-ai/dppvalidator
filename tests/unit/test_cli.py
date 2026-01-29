@@ -63,6 +63,10 @@ class TestValidateCommand:
     def test_validate_valid_file(self, tmp_path):
         """Test validating a valid passport file."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -89,6 +93,10 @@ class TestValidateCommand:
     def test_validate_with_format_json(self, tmp_path, capsys):
         """Test validate with JSON format output."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -105,6 +113,10 @@ class TestValidateCommand:
     def test_validate_strict_mode(self, tmp_path):
         """Test validate with strict mode."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -122,6 +134,10 @@ class TestExportCommand:
     def test_export_to_stdout(self, tmp_path, capsys):
         """Test export to stdout."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -137,6 +153,10 @@ class TestExportCommand:
     def test_export_to_file(self, tmp_path):
         """Test export to file."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -153,6 +173,10 @@ class TestExportCommand:
     def test_export_json_format(self, tmp_path, capsys):
         """Test export with JSON format."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -305,6 +329,10 @@ class TestExportCommandExtended:
     def test_export_with_format_jsonld(self, tmp_path, capsys):
         """Test export with jsonld format."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -328,6 +356,10 @@ class TestCLIErrorHandling:
     def test_main_quiet_mode(self, tmp_path):
         """Test quiet mode."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -396,13 +428,14 @@ class TestCLIMainFullCoverage:
         file_path = tmp_path / "test.json"
         file_path.write_text('{"id": "test"}')
 
-        # Mock validate.run to raise an exception
+        # Mock validate handler to raise an exception
         def raise_exception(*_args, **_kwargs):  # noqa: ARG001
             raise RuntimeError("Test exception")
 
-        from dppvalidator.cli.commands import validate as validate_module
+        import importlib
 
-        monkeypatch.setattr(validate_module, "run", raise_exception)
+        cli_main_module = importlib.import_module("dppvalidator.cli.main")
+        monkeypatch.setitem(cli_main_module.COMMAND_HANDLERS, "validate", raise_exception)
 
         result = main(["validate", str(file_path)])
         assert result == EXIT_ERROR
@@ -415,9 +448,10 @@ class TestCLIMainFullCoverage:
         def raise_exception(*_args, **_kwargs):  # noqa: ARG001
             raise RuntimeError("Test exception")
 
-        from dppvalidator.cli.commands import validate as validate_module
+        import importlib
 
-        monkeypatch.setattr(validate_module, "run", raise_exception)
+        cli_main_module = importlib.import_module("dppvalidator.cli.main")
+        monkeypatch.setitem(cli_main_module.COMMAND_HANDLERS, "validate", raise_exception)
 
         result = main(["--verbose", "validate", str(file_path)])
         assert result == EXIT_ERROR
@@ -441,6 +475,10 @@ class TestValidateCommandCoverage:
     def test_validate_with_format_json(self, tmp_path, capsys):
         """Test validate with JSON output format."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -567,6 +605,10 @@ class TestExportCommandCoverage:
     def test_export_compact_output(self, tmp_path, capsys):
         """Test export with --compact flag produces minimal formatting."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -628,6 +670,10 @@ class TestValidateCommandBehavior:
     def test_validate_returns_structured_json_output(self, tmp_path, capsys):
         """Test that --format json returns properly structured output."""
         passport_data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test Corp"},
         }
@@ -740,12 +786,14 @@ class TestCLIKeyboardInterrupt:
 
     def test_main_keyboard_interrupt(self, tmp_path, monkeypatch):
         """Test main handles KeyboardInterrupt gracefully."""
-        from dppvalidator.cli.commands import validate as validate_module
+        import importlib
+
+        cli_main_module = importlib.import_module("dppvalidator.cli.main")
 
         def raise_keyboard_interrupt(*_args, **_kwargs):
             raise KeyboardInterrupt()
 
-        monkeypatch.setattr(validate_module, "run", raise_keyboard_interrupt)
+        monkeypatch.setitem(cli_main_module.COMMAND_HANDLERS, "validate", raise_keyboard_interrupt)
 
         file_path = tmp_path / "test.json"
         file_path.write_text('{"id": "test"}')

@@ -141,7 +141,7 @@ class TestSchemaLoader:
         """Test _load_local with nonexistent file."""
         loader = SchemaLoader(cache_dir=tmp_path)
         schema_def = SchemaVersion(
-            version="0.6.1",
+            version="9.9.9",
             url="https://example.com/schema.json",
             sha256=None,
             context_urls=(),
@@ -480,3 +480,40 @@ class TestSchemaLoader:
         loader = SchemaLoader(cache_dir=tmp_path)
         with pytest.raises(RuntimeError, match="Failed to download"):
             loader.download_schema("0.6.1", tmp_path)
+
+
+class TestBundledSchema:
+    """Tests for bundled schema files."""
+
+    def test_bundled_schema_exists_and_loads(self):
+        """Test that bundled UNTP DPP schema 0.6.1 loads successfully."""
+        loader = SchemaLoader()
+        schema = loader.load_schema("0.6.1")
+
+        assert schema is not None
+        assert isinstance(schema, dict)
+        assert "$schema" in schema
+        assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
+    def test_bundled_schema_has_required_structure(self):
+        """Test that bundled schema has expected UNTP DPP structure."""
+        loader = SchemaLoader()
+        schema = loader.load_schema("0.6.1")
+
+        assert "properties" in schema
+        assert "id" in schema["properties"]
+        assert "issuer" in schema["properties"]
+        assert "$defs" in schema
+        assert "CredentialIssuer" in schema["$defs"]
+        assert "ProductPassport" in schema["$defs"]
+
+    def test_bundled_schema_required_fields(self):
+        """Test that bundled schema defines required fields correctly."""
+        loader = SchemaLoader()
+        schema = loader.load_schema("0.6.1")
+
+        assert "required" in schema
+        required = schema["required"]
+        assert "@context" in required
+        assert "id" in required
+        assert "issuer" in required

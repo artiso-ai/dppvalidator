@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://artiso-ai.github.io/dppvalidator/schemas/dpp-0.6.1.json",
+  "title": "Digital Product Passport",
+  "description": "UNTP Digital Product Passport v0.6.1 - For IDE autocompletion",
+  "type": "object",
+  "required": ["type", "@context", "id", "issuer"],
+  "properties": {
+    "type": {
+      "type": "array",
+      "description": "Credential types - must include DigitalProductPassport and VerifiableCredential",
+      "default": ["DigitalProductPassport", "VerifiableCredential"],
+      "items": { "type": "string" },
+      "minItems": 2
+    },
+    "@context": {
+      "type": "array",
+      "description": "JSON-LD context URIs",
+      "default": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/"
+      ],
+      "items": { "type": "string", "format": "uri" }
+    },
+    "id": {
+      "type": "string",
+      "format": "uri",
+      "description": "Unique credential identifier (URI)",
+      "examples": ["https://example.com/credentials/dpp-001"]
+    },
+    "issuer": {
+      "$ref": "#/$defs/Issuer",
+      "description": "Organization issuing this credential"
+    },
+    "validFrom": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start of credential validity period (ISO 8601)",
+      "examples": ["2024-01-01T00:00:00Z"]
+    },
+    "validUntil": {
+      "type": "string",
+      "format": "date-time",
+      "description": "End of credential validity period (ISO 8601)",
+      "examples": ["2026-01-01T00:00:00Z"]
+    },
+    "credentialSubject": {
+      "$ref": "#/$defs/ProductPassport",
+      "description": "Product passport data"
+    }
+  },
+  "$defs": {
+    "Issuer": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["CredentialIssuer"],
+          "items": { "type": "string" }
+        },
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Issuer identifier (W3C DID or URL)",
+          "examples": ["did:web:example.com:issuers:001", "https://example.com/issuers/001"]
+        },
+        "name": {
+          "type": "string",
+          "description": "Issuer organization name",
+          "examples": ["Example Company Ltd"]
+        }
+      }
+    },
+    "ProductPassport": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["ProductPassport"],
+          "items": { "type": "string" }
+        },
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Product identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Product name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Product description"
+        },
+        "granularityLevel": {
+          "type": "string",
+          "enum": ["item", "batch", "model"],
+          "description": "Passport granularity level"
+        },
+        "product": {
+          "$ref": "#/$defs/Product"
+        },
+        "materialsProvenance": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Material" },
+          "description": "Materials composition"
+        },
+        "circularityScorecard": {
+          "$ref": "#/$defs/CircularityScorecard"
+        },
+        "emissionsScorecard": {
+          "$ref": "#/$defs/EmissionsScorecard"
+        },
+        "conformityClaim": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Claim" },
+          "description": "Conformity and sustainability claims"
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["Product"],
+          "items": { "type": "string" }
+        },
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Product identifier URI"
+        },
+        "name": {
+          "type": "string",
+          "description": "Product name"
+        },
+        "serialNumber": {
+          "type": "string",
+          "description": "Serial number (required for item-level granularity)"
+        },
+        "batchNumber": {
+          "type": "string",
+          "description": "Batch/lot number"
+        },
+        "productCategory": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Product categories"
+        },
+        "producedByParty": {
+          "$ref": "#/$defs/Party",
+          "description": "Manufacturer"
+        },
+        "producedAtFacility": {
+          "$ref": "#/$defs/Facility",
+          "description": "Manufacturing facility"
+        },
+        "productionDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Production date (ISO 8601)"
+        },
+        "countryOfProduction": {
+          "type": "string",
+          "description": "ISO 3166-1 alpha-2 country code",
+          "pattern": "^[A-Z]{2}$"
+        }
+      }
+    },
+    "Party": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["Party"],
+          "items": { "type": "string" }
+        },
+        "id": {
+          "type": "string",
+          "format": "uri"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Facility": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["Facility"],
+          "items": { "type": "string" }
+        },
+        "id": {
+          "type": "string",
+          "format": "uri"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Material": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["Material"],
+          "items": { "type": "string" }
+        },
+        "name": {
+          "type": "string",
+          "description": "Material name"
+        },
+        "massFraction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Mass fraction (0-1, all materials should sum to 1.0)"
+        },
+        "recycled": {
+          "type": "boolean",
+          "description": "Is this material recycled?"
+        },
+        "hazardous": {
+          "type": "boolean",
+          "description": "Is this material hazardous?"
+        },
+        "materialSafetyInformation": {
+          "type": "object",
+          "description": "Required if hazardous=true"
+        }
+      }
+    },
+    "CircularityScorecard": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["CircularityScorecard"],
+          "items": { "type": "string" }
+        },
+        "recycledContent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraction of recycled content (0-1)"
+        },
+        "recyclableContent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraction of recyclable content (0-1)"
+        },
+        "repairabilityScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Repairability score (0-10)"
+        }
+      }
+    },
+    "EmissionsScorecard": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["EmissionsScorecard"],
+          "items": { "type": "string" }
+        },
+        "carbonFootprint": {
+          "type": "number",
+          "description": "Carbon footprint in kg CO2e"
+        },
+        "operationalScope": {
+          "type": "string",
+          "enum": ["Scope1", "Scope2", "Scope3", "CradleToGate", "CradleToGrave"],
+          "description": "Emissions scope"
+        }
+      }
+    },
+    "Claim": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["Claim"],
+          "items": { "type": "string" }
+        },
+        "claimType": {
+          "type": "string",
+          "enum": ["Certification", "Declaration", "Inspection", "Testing", "Verification", "Validation", "Assessment"],
+          "description": "Type of conformity claim"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Claim topic (e.g., sustainability, safety)"
+        },
+        "conformance": {
+          "type": "boolean",
+          "description": "Does the product conform?"
+        },
+        "conformityEvidence": {
+          "$ref": "#/$defs/Evidence"
+        }
+      }
+    },
+    "Evidence": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": ["Evidence"],
+          "items": { "type": "string" }
+        },
+        "evidenceType": {
+          "type": "string",
+          "description": "Type of evidence"
+        },
+        "linkURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to evidence document"
+        }
+      }
+    }
+  }
+}

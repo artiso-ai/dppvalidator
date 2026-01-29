@@ -1,0 +1,41 @@
+# dppvalidator
+
+> Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and UNTP standards.
+
+dppvalidator is the open-source compliance engine for EU Digital Product Passports. Starting 2027, every textile product sold in the EU must have a Digital Product Passport. This library ensures your DPP data is compliant before production.
+
+## Core Features
+
+- Three-layer validation: schema, model, and semantic
+- Built-in UNTP DPP 0.6.1 schema support
+- JSON-LD export for W3C Verifiable Credentials
+- Plugin system for custom validators
+- CLI and Python API
+
+## Installation
+
+```
+pip install dppvalidator
+```
+
+## Quick Example
+
+```python
+from dppvalidator.validators import ValidationEngine
+
+engine = ValidationEngine()
+result = engine.validate(dpp_data)
+
+if result.valid:
+    print("✓ Valid DPP")
+else:
+    for error in result.errors:
+        print(f"✗ {error.code}: {error.message}")
+```
+
+## Links
+
+- Docs: https://artiso-ai.github.io/dppvalidator/
+- PyPI: https://pypi.org/project/dppvalidator/
+- GitHub: https://github.com/artiso-ai/dppvalidator
+- Extended context: https://artiso-ai.github.io/dppvalidator/llms-ctx.txt

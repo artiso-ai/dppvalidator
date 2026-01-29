@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
+from dppvalidator.exporters.protocols import Exporter
 from dppvalidator.logging import get_logger
 from dppvalidator.plugins.discovery import discover_exporters, discover_validators
+from dppvalidator.validators.protocols import SemanticRule
 from dppvalidator.validators.results import ValidationError
 
 if TYPE_CHECKING:
@@ -27,8 +29,8 @@ class PluginRegistry:
         Args:
             auto_discover: If True, discover plugins via entry points
         """
-        self._validators: dict[str, Any] = {}
-        self._exporters: dict[str, Any] = {}
+        self._validators: dict[str, type[SemanticRule] | SemanticRule] = {}
+        self._exporters: dict[str, type[Exporter] | Exporter] = {}
 
         if auto_discover:
             self._discover_all()
@@ -43,7 +45,7 @@ class PluginRegistry:
             self._exporters[name] = exporter
             logger.info("Registered exporter plugin: %s", name)
 
-    def register_validator(self, name: str, validator: Any) -> None:
+    def register_validator(self, name: str, validator: type[SemanticRule] | SemanticRule) -> None:
         """Register a validator plugin.
 
         Args:
@@ -53,12 +55,12 @@ class PluginRegistry:
         self._validators[name] = validator
         logger.debug("Manually registered validator: %s", name)
 
-    def register_exporter(self, name: str, exporter: Any) -> None:
+    def register_exporter(self, name: str, exporter: type[Exporter] | Exporter) -> None:
         """Register an exporter plugin.
 
         Args:
             name: Unique name for the exporter
-            exporter: Exporter class or instance
+            exporter: Exporter class or instance implementing Exporter protocol
         """
         self._exporters[name] = exporter
         logger.debug("Manually registered exporter: %s", name)
@@ -85,7 +87,7 @@ class PluginRegistry:
         """
         return self._exporters.pop(name, None) is not None
 
-    def get_validator(self, name: str) -> Any | None:
+    def get_validator(self, name: str) -> type[SemanticRule] | SemanticRule | None:
         """Get a validator by name.
 
         Args:
@@ -96,7 +98,7 @@ class PluginRegistry:
         """
         return self._validators.get(name)
 
-    def get_exporter(self, name: str) -> Any | None:
+    def get_exporter(self, name: str) -> type[Exporter] | Exporter | None:
         """Get an exporter by name.
 
         Args:

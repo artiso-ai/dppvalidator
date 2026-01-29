@@ -1,6 +1,6 @@
 """Three-layer DPP validation module."""
 
-from dppvalidator.validators.engine import OpenDPP, ValidationEngine
+from dppvalidator.validators.engine import ValidationEngine
 from dppvalidator.validators.model import ModelValidator
 from dppvalidator.validators.protocols import AsyncValidator, SemanticRule, Validator
 from dppvalidator.validators.results import (
@@ -14,7 +14,6 @@ from dppvalidator.validators.semantic import SemanticValidator
 __all__ = [
     # Engine
     "ValidationEngine",
-    "OpenDPP",
     # Results
     "ValidationResult",
     "ValidationError",

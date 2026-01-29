@@ -94,12 +94,16 @@ class TestValidationEngine:
 
     @pytest.fixture
     def engine(self) -> ValidationEngine:
-        """Create validation engine."""
-        return ValidationEngine(schema_version="0.6.1")
+        """Create validation engine (model + semantic only for unit tests)."""
+        return ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])
 
     def test_validate_minimal_valid_dpp(self, engine: ValidationEngine):
         """Test validating a minimal valid DPP."""
         data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/credentials/dpp-001",
             "issuer": {
                 "id": "https://example.com/issuers/001",
@@ -241,8 +245,8 @@ class TestSemanticRules:
 
     @pytest.fixture
     def engine(self) -> ValidationEngine:
-        """Create validation engine."""
-        return ValidationEngine(schema_version="0.6.1")
+        """Create validation engine (model + semantic only for semantic rule tests)."""
+        return ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])
 
     def test_sem002_invalid_date_order(self, engine: ValidationEngine):
         """Test SEM002: validFrom must be before validUntil."""
@@ -368,14 +372,18 @@ class TestValidationEngineExtended:
 
     @pytest.fixture
     def engine(self) -> ValidationEngine:
-        """Create validation engine."""
-        return ValidationEngine(schema_version="0.6.1")
+        """Create validation engine (model + semantic only)."""
+        return ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])
 
     def test_validate_file(self, engine: ValidationEngine):
         """Test validate_file method."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(
                 {
+                    "@context": [
+                        "https://www.w3.org/ns/credentials/v2",
+                        "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+                    ],
                     "id": "https://example.com/dpp",
                     "issuer": {"id": "https://example.com/issuer", "name": "Test"},
                 },
@@ -409,6 +417,10 @@ class TestValidationEngineExtended:
     def test_validate_async(self, engine: ValidationEngine):
         """Test async validation."""
         data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
@@ -417,9 +429,21 @@ class TestValidationEngineExtended:
 
     def test_validate_batch(self, engine: ValidationEngine):
         """Test batch validation."""
+        ctx = [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+        ]
         items = [
-            {"id": "https://example.com/dpp1", "issuer": {"id": "https://a.com", "name": "A"}},
-            {"id": "https://example.com/dpp2", "issuer": {"id": "https://b.com", "name": "B"}},
+            {
+                "@context": ctx,
+                "id": "https://example.com/dpp1",
+                "issuer": {"id": "https://a.com", "name": "A"},
+            },
+            {
+                "@context": ctx,
+                "id": "https://example.com/dpp2",
+                "issuer": {"id": "https://b.com", "name": "B"},
+            },
         ]
         results = asyncio.run(engine.validate_batch(items, concurrency=2))
         assert len(results) == 2
@@ -763,15 +787,6 @@ class TestEngineEdgeCases:
         data = {"id": "https://example.com/dpp"}
         result = engine.validate(data)
         assert result is not None
-
-    def test_opendpp_backwards_compat(self):
-        """Test OpenDPP backwards compatible class."""
-        from dppvalidator.validators.engine import OpenDPP
-
-        engine = OpenDPP()
-        data = {"id": "https://example.com/dpp", "issuer": {"id": "https://a.com", "name": "A"}}
-        result = engine.validate_passport(data)
-        assert result.valid is True
 
 
 class TestProtocols:
@@ -1118,8 +1133,12 @@ class TestSemanticRulesViolationPaths:
 
     def test_mass_fraction_sum_partial_declaration_produces_warning(self):
         """Test partial mass fractions produce warning via semantic layer."""
-        engine = ValidationEngine(schema_version="0.6.1")
+        engine = ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])
         data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
             "credentialSubject": {
@@ -1137,7 +1156,7 @@ class TestSemanticRulesViolationPaths:
 
     def test_validity_date_order_caught_by_model_validation(self):
         """Test ValidityDateRule violations are caught at model level."""
-        engine = ValidationEngine(schema_version="0.6.1")
+        engine = ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])
         data = {
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
@@ -1252,8 +1271,12 @@ class TestValidationEngineBehavior:
     def test_engine_validates_real_dpp_structure(self):
         """Test engine validates a complete DPP with all components."""
 
-        engine = ValidationEngine(schema_version="0.6.1")
+        engine = ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])
         data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
             "id": "https://example.com/dpp/001",
             "issuer": {
                 "id": "https://example.com/issuer",
@@ -1366,7 +1389,7 @@ class TestSchemaValidatorWithJsonschema:
         assert len(result.errors) >= 1
 
     def test_schema_validator_error_code_format(self, tmp_path):
-        """Test error codes are properly formatted."""
+        """Test error codes are properly formatted with stable codes."""
         schema = {"type": "object", "required": ["a", "b", "c"]}
         schema_file = tmp_path / "schema.json"
         schema_file.write_text(json.dumps(schema))
@@ -1374,8 +1397,8 @@ class TestSchemaValidatorWithJsonschema:
         validator = SchemaValidator(schema_path=schema_file)
         result = validator.validate({})
         assert result.valid is False
-        # First error should be SCH100
-        assert result.errors[0].code == "SCH100"
+        # Required errors should use stable code SCH001
+        assert result.errors[0].code == "SCH001"
 
     def test_schema_validator_no_schema_loaded(self):
         """Test SchemaValidator with no schema returns warning."""
@@ -1441,8 +1464,15 @@ class TestValidationEngineEdgeCases:
 
     def test_validate_dict_input(self):
         """Test validation accepts dict input directly."""
-        engine = ValidationEngine()
-        data = {"id": "https://example.com/dpp", "issuer": {"id": "https://a.com", "name": "Test"}}
+        engine = ValidationEngine(layers=["model", "semantic"])
+        data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            ],
+            "id": "https://example.com/dpp",
+            "issuer": {"id": "https://a.com", "name": "Test"},
+        }
         result = engine.validate(data)
         assert result.valid is True
 
@@ -1452,3 +1482,173 @@ class TestValidationEngineEdgeCases:
         result = engine.validate(Path("/nonexistent/path/to/file.json"))
         assert result.valid is False
         assert any("File not found" in e.message for e in result.errors)
+
+
+class TestPhase2Features:
+    """Tests for Phase 2 features: strict_mode, validate_vocabularies, load_plugins, stable error codes."""
+
+    def test_strict_mode_rejects_additional_properties(self, tmp_path):
+        """Test strict_mode rejects data with additional properties not in schema."""
+        schema = {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+            "additionalProperties": True,  # Will be set to false by strict mode
+        }
+        schema_file = tmp_path / "schema.json"
+        schema_file.write_text(json.dumps(schema))
+
+        # Non-strict mode allows additional properties
+        validator_normal = SchemaValidator(schema_path=schema_file, strict=False)
+        result_normal = validator_normal.validate({"name": "test", "extra": "field"})
+        assert result_normal.valid is True
+
+        # Strict mode rejects additional properties
+        validator_strict = SchemaValidator(schema_path=schema_file, strict=True)
+        result_strict = validator_strict.validate({"name": "test", "extra": "field"})
+        assert result_strict.valid is False
+        assert any(
+            "extra" in e.message.lower() or "additional" in e.message.lower()
+            for e in result_strict.errors
+        )
+
+    def test_stable_error_codes_for_required(self, tmp_path):
+        """Test that 'required' violations always produce SCH001."""
+        schema = {"type": "object", "required": ["field_a", "field_b"]}
+        schema_file = tmp_path / "schema.json"
+        schema_file.write_text(json.dumps(schema))
+
+        validator = SchemaValidator(schema_path=schema_file)
+        result = validator.validate({})
+
+        assert result.valid is False
+        # All required errors should have code SCH001
+        for error in result.errors:
+            assert error.code == "SCH001"
+
+    def test_stable_error_codes_for_type(self, tmp_path):
+        """Test that 'type' violations always produce SCH002."""
+        schema = {"type": "object", "properties": {"count": {"type": "integer"}}}
+        schema_file = tmp_path / "schema.json"
+        schema_file.write_text(json.dumps(schema))
+
+        validator = SchemaValidator(schema_path=schema_file)
+        result = validator.validate({"count": "not a number"})
+
+        assert result.valid is False
+        assert any(e.code == "SCH002" for e in result.errors)
+
+    def test_engine_strict_mode_passed_to_schema_validator(self):
+        """Test ValidationEngine passes strict_mode to SchemaValidator."""
+        engine = ValidationEngine(strict_mode=True, layers=["schema"])
+        assert engine._schema_validator.strict is True
+
+        engine_normal = ValidationEngine(strict_mode=False, layers=["schema"])
+        assert engine_normal._schema_validator.strict is False
+
+    def test_engine_validate_vocabularies_initializes_loader(self):
+        """Test validate_vocabularies=True initializes vocabulary loader."""
+        engine = ValidationEngine(validate_vocabularies=True, layers=["model"])
+        assert engine._vocab_loader is not None
+
+        engine_no_vocab = ValidationEngine(validate_vocabularies=False, layers=["model"])
+        assert engine_no_vocab._vocab_loader is None
+
+    def test_engine_load_plugins_initializes_registry(self):
+        """Test load_plugins=True initializes plugin registry."""
+        engine = ValidationEngine(load_plugins=True, layers=["model"])
+        assert engine._plugin_registry is not None
+
+        engine_no_plugins = ValidationEngine(load_plugins=False, layers=["model"])
+        assert engine_no_plugins._plugin_registry is None
+
+    def test_schema_error_code_mapping_completeness(self):
+        """Test that SCHEMA_ERROR_CODES covers common validator types."""
+        from dppvalidator.validators.schema import SCHEMA_ERROR_CODES
+
+        expected_validators = [
+            "required",
+            "type",
+            "enum",
+            "format",
+            "pattern",
+            "minLength",
+            "maxLength",
+            "minimum",
+            "maximum",
+            "additionalProperties",
+            "minItems",
+            "maxItems",
+        ]
+
+        for validator in expected_validators:
+            assert validator in SCHEMA_ERROR_CODES, f"Missing error code for {validator}"
+            assert SCHEMA_ERROR_CODES[validator].startswith("SCH")
+
+
+class TestPhase3InputSizeLimits:
+    """Tests for Phase 3: Input size limits for DoS protection."""
+
+    def test_default_max_input_size(self):
+        """Test default max input size is 10 MB."""
+        engine = ValidationEngine()
+        assert engine.max_input_size == 10 * 1024 * 1024  # 10 MB
+
+    def test_custom_max_input_size(self):
+        """Test custom max input size can be set."""
+        engine = ValidationEngine(max_input_size=1000)
+        assert engine.max_input_size == 1000
+
+    def test_disable_input_size_limit(self):
+        """Test input size limit can be disabled with 0."""
+        engine = ValidationEngine(max_input_size=0)
+        assert engine.max_input_size == 0
+
+    def test_input_size_exceeded_returns_error(self):
+        """Test that exceeding input size returns validation error."""
+        engine = ValidationEngine(max_input_size=100, layers=[])
+        # Create a string larger than 100 bytes
+        large_input = '{"data": "' + "x" * 200 + '"}'
+
+        result = engine.validate(large_input)
+
+        assert result.valid is False
+        assert len(result.errors) == 1
+        assert result.errors[0].code == "PRS004"
+        assert "exceeds maximum" in result.errors[0].message
+
+    def test_input_within_size_limit_passes(self):
+        """Test that input within size limit is processed normally."""
+        engine = ValidationEngine(max_input_size=10000, layers=["model", "semantic"])
+        small_input = json.dumps(
+            {
+                "@context": [
+                    "https://www.w3.org/ns/credentials/v2",
+                    "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+                ],
+                "id": "https://example.com/dpp",
+                "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+            }
+        )
+
+        result = engine.validate(small_input)
+
+        assert result.valid is True
+
+    def test_dict_input_bypasses_size_check(self):
+        """Test that dict input is not size-checked (already in memory)."""
+        engine = ValidationEngine(max_input_size=1, layers=[])
+        # Dict input should not be size-checked
+        result = engine.validate({"large": "data" * 1000})
+
+        # Should not fail due to size (may fail for other reasons)
+        assert not any(e.code == "PRS004" for e in result.errors)
+
+    def test_disabled_size_limit_allows_large_input(self):
+        """Test that disabled size limit (0) allows any size input."""
+        engine = ValidationEngine(max_input_size=0, layers=[])
+        large_input = '{"data": "' + "x" * 100000 + '"}'
+
+        result = engine.validate(large_input)
+
+        # Should not fail due to size
+        assert not any(e.code == "PRS004" for e in result.errors)

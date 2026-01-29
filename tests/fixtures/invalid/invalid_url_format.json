@@ -1,0 +1,12 @@
+{
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/"
+  ],
+  "id": "not-a-valid-url",
+  "issuer": {
+    "id": "also-not-a-url",
+    "name": "Test Company"
+  }
+}

@@ -675,15 +675,6 @@ class TestEngineEdgeCases:
         result = engine.validate(data)
         assert result is not None
 
-    def test_opendpp_backwards_compat(self):
-        """Test OpenDPP backwards compatible class."""
-        from dppvalidator.validators.engine import OpenDPP
-
-        engine = OpenDPP()
-        data = {"id": "https://example.com/dpp", "issuer": {"id": "https://a.com", "name": "A"}}
-        result = engine.validate_passport(data)
-        assert result.valid is True
-
 
 class TestProtocols:
     """Tests for validator protocols."""
