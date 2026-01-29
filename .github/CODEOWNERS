@@ -1,0 +1,28 @@
+# CODEOWNERS for dppvalidator
+# These owners will be requested for review when someone opens a PR
+# that modifies code in the repository.
+#
+# Order matters: later patterns take precedence over earlier ones.
+# Each line is a file pattern followed by one or more owners.
+
+# Default owners for everything in the repo
+*                           @matbreotten
+
+# Core library code requires owner review
+/src/                       @matbreotten
+/tests/                     @matbreotten
+
+# Critical files that affect security, releases, and CI/CD
+/.github/                   @matbreotten
+/pyproject.toml             @matbreotten
+/uv.lock                    @matbreotten
+/setup.cfg                  @matbreotten
+
+# Documentation
+/docs/                      @matbreotten
+/README.md                  @matbreotten
+/CHANGELOG.md               @matbreotten
+
+# Windsurf/AI configuration
+/.windsurf/                 @matbreotten
+/AGENTS.md                  @matbreotten
