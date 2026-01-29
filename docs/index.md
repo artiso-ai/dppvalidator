@@ -24,7 +24,7 @@ ______________________________________________________________________
 === "uv (recommended)"
 
 ````
-```bash
+```
 uv add dppvalidator
 ```
 ````
@@ -32,7 +32,7 @@ uv add dppvalidator
 === "pip"
 
 ````
-```bash
+```
 pip install dppvalidator
 ```
 ````
@@ -61,7 +61,7 @@ else:
 
 ### Command Line
 
-```bash
+```
 # Validate a DPP JSON file
 dppvalidator validate passport.json
 

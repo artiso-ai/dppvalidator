@@ -60,7 +60,7 @@ jsonld = exporter.export(passport, indent=2)
 
 ## CLI Export
 
-```bash
+```
 # Export to JSON-LD
 dppvalidator export passport.json --format jsonld
 

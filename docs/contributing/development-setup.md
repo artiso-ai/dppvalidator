@@ -10,7 +10,7 @@ Set up your development environment for contributing to dppvalidator.
 
 ## Clone the Repository
 
-```bash
+```
 git clone https://github.com/artiso-ai/dppvalidator.git
 cd dppvalidator
 ```
@@ -19,7 +19,7 @@ cd dppvalidator
 
 ### Using uv (recommended)
 
-```bash
+```
 # Install all dependencies including dev tools
 uv sync
 
@@ -29,7 +29,7 @@ source .venv/bin/activate
 
 ### Using pip
 
-```bash
+```
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
@@ -37,7 +37,7 @@ pip install -e ".[dev]"
 
 ## Verify Installation
 
-```bash
+```
 # Run tests
 uv run pytest
 
@@ -74,7 +74,7 @@ dppvalidator/
 1. Run tests and linting
 1. Submit a pull request
 
-```bash
+```
 # Create feature branch
 git checkout develop
 git checkout -b feature/my-feature
@@ -95,7 +95,7 @@ git push origin feature/my-feature
 
 Install pre-commit hooks for automatic linting:
 
-```bash
+```
 uv run pre-commit install
 ```
 

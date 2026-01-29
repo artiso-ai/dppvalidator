@@ -79,7 +79,7 @@ class MyCustomRule:
 
 ### 4. Install and Test
 
-```bash
+```
 # Using uv (recommended)
 uv pip install -e .
 

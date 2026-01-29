@@ -4,7 +4,7 @@ dppvalidator maintains high test coverage with multiple testing strategies.
 
 ## Running Tests
 
-```bash
+```
 # Run all tests
 uv run pytest
 
@@ -110,7 +110,7 @@ def test_with_fixture(valid_passport_data):
 
 Target: **85%** coverage
 
-```bash
+```
 # Generate coverage report
 uv run pytest --cov=dppvalidator --cov-report=html
 
@@ -122,7 +122,7 @@ open htmlcov/index.html
 
 Run performance benchmarks:
 
-```bash
+```
 uv run python -m benchmarks.run_benchmarks
 ```
 

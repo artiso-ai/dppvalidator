@@ -9,7 +9,7 @@ dppvalidator follows consistent coding standards enforced by automated tools.
 
 ## Running Checks
 
-```bash
+```
 # Lint check
 uv run ruff check .
 
@@ -22,7 +22,7 @@ uv run ty check src/
 
 ## Auto-fix
 
-```bash
+```
 # Fix linting issues
 uv run ruff check --fix .
 
@@ -100,7 +100,7 @@ Maximum 100 characters per line.
 
 Pre-commit hooks run automatically on commit:
 
-```bash
+```
 uv run pre-commit install
 ```
 

@@ -8,7 +8,7 @@ The dppvalidator CLI provides commands for validating DPPs, exporting to differe
 
 Validate a Digital Product Passport JSON file.
 
-```bash
+```
 dppvalidator validate <input> [options]
 ```
 
@@ -26,7 +26,7 @@ dppvalidator validate <input> [options]
 
 **Examples:**
 
-```bash
+```
 # Validate a file
 dppvalidator validate passport.json
 
@@ -44,7 +44,7 @@ dppvalidator validate passport.json --strict --schema-version 0.6.1
 
 Export a DPP to different formats.
 
-```bash
+```
 dppvalidator export <input> [options]
 ```
 
@@ -55,7 +55,7 @@ dppvalidator export <input> [options]
 
 **Examples:**
 
-```bash
+```
 # Export to JSON-LD
 dppvalidator export passport.json --format jsonld
 
@@ -67,7 +67,7 @@ dppvalidator export passport.json --format jsonld -o output.jsonld
 
 Display schema information.
 
-```bash
+```
 dppvalidator schema [options]
 ```
 
@@ -78,7 +78,7 @@ dppvalidator schema [options]
 
 **Examples:**
 
-```bash
+```
 # Show current schema
 dppvalidator schema
 
