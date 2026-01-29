@@ -1,6 +1,7 @@
 """Tests for validation engine and validators."""
 
 import asyncio
+import importlib.util
 import json
 import tempfile
 from pathlib import Path
@@ -1307,12 +1308,7 @@ class TestValidationEngineBehavior:
         assert any("Unsupported input type" in e.message for e in result.errors)
 
 
-try:
-    import jsonschema
-
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
+HAS_JSONSCHEMA = importlib.util.find_spec("jsonschema") is not None
 
 
 @pytest.mark.skipif(not HAS_JSONSCHEMA, reason="jsonschema not installed")

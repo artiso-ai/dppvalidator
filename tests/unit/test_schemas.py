@@ -332,7 +332,7 @@ class TestSchemaLoader:
         loader = SchemaLoader(cache_dir=tmp_path / "readonly")
 
         # Mock mkdir to raise OSError
-        def mock_mkdir(*args, **kwargs):
+        def mock_mkdir(*_args, **_kwargs):
             raise OSError("Permission denied")
 
         monkeypatch.setattr("pathlib.Path.mkdir", mock_mkdir)
@@ -366,7 +366,7 @@ class TestSchemaLoader:
             def __exit__(self, *args):
                 pass
 
-            def get(self, url, follow_redirects=True):
+            def get(self, url, follow_redirects=True):  # noqa: ARG002
                 return MockResponse()
 
         monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
@@ -409,7 +409,7 @@ class TestSchemaLoader:
             def __exit__(self, *args):
                 pass
 
-            def get(self, url, follow_redirects=True):
+            def get(self, url, follow_redirects=True):  # noqa: ARG002
                 return MockResponse()
 
         monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
@@ -446,7 +446,7 @@ class TestSchemaLoader:
             def __exit__(self, *args):
                 pass
 
-            def get(self, url, follow_redirects=True):
+            def get(self, url, follow_redirects=True):  # noqa: ARG002
                 return MockResponse()
 
         monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
@@ -471,7 +471,7 @@ class TestSchemaLoader:
             def __exit__(self, *args):
                 pass
 
-            def get(self, url, follow_redirects=True):
+            def get(self, url, follow_redirects=True):  # noqa: ARG002
                 raise ConnectionError("Network error")
 
         monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
