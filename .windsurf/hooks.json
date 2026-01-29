@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "post_write_code": [
+      {
+        "command": "uv run ruff check --fix ${file_path} 2>/dev/null || true",
+        "show_output": false,
+        "working_directory": "${workspace_root}"
+      }
+    ]
+  }
+}
