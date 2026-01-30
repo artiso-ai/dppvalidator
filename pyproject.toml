@@ -59,6 +59,7 @@ build-backend = "hatchling.build"
 packages = ["src/dppvalidator"]
 
 [tool.hatch.build.targets.wheel.force-include]
+"src/dppvalidator/py.typed" = "dppvalidator/py.typed"
 "src/dppvalidator/schemas/data" = "dppvalidator/schemas/data"
 "src/dppvalidator/vocabularies/data" = "dppvalidator/vocabularies/data"
 
@@ -66,6 +67,7 @@ packages = ["src/dppvalidator"]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.24.0",
     "hypothesis>=6.100.0",
     "mutmut>=3.0.0",
     "ruff>=0.8.0",
@@ -115,6 +117,8 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 source = ["src/dppvalidator"]

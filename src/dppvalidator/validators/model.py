@@ -10,6 +10,55 @@ from pydantic import ValidationError as PydanticValidationError
 from dppvalidator.models.passport import DigitalProductPassport
 from dppvalidator.validators.results import ValidationError, ValidationResult
 
+# Stable error code mapping based on Pydantic error types
+# See: https://docs.pydantic.dev/latest/errors/validation_errors/
+PYDANTIC_ERROR_CODES: dict[str, str] = {
+    # Missing/required fields
+    "missing": "MDL001",
+    "value_error": "MDL002",
+    # Type errors
+    "string_type": "MDL010",
+    "int_type": "MDL011",
+    "float_type": "MDL012",
+    "bool_type": "MDL013",
+    "list_type": "MDL014",
+    "dict_type": "MDL015",
+    "none_required": "MDL016",
+    # String validation
+    "string_too_short": "MDL020",
+    "string_too_long": "MDL021",
+    "string_pattern_mismatch": "MDL022",
+    # Numeric validation
+    "greater_than": "MDL030",
+    "greater_than_equal": "MDL031",
+    "less_than": "MDL032",
+    "less_than_equal": "MDL033",
+    # URL/URI validation
+    "url_parsing": "MDL040",
+    "url_scheme": "MDL041",
+    "url_type": "MDL042",
+    # Date/time validation
+    "datetime_parsing": "MDL050",
+    "datetime_type": "MDL051",
+    "date_parsing": "MDL052",
+    "time_parsing": "MDL053",
+    # Enum validation
+    "enum": "MDL060",
+    "literal_error": "MDL061",
+    # JSON parsing
+    "json_invalid": "MDL070",
+    "json_type": "MDL071",
+    # Model validation
+    "model_type": "MDL080",
+    "model_attributes_type": "MDL081",
+    # Union/discriminator errors
+    "union_tag_invalid": "MDL090",
+    "union_tag_not_found": "MDL091",
+}
+
+# Default code for unmapped error types
+DEFAULT_ERROR_CODE = "MDL099"
+
 
 class ModelValidator:
     """Pydantic model validation layer.
@@ -47,15 +96,16 @@ class ModelValidator:
         except PydanticValidationError as e:
             for error in e.errors():
                 json_path = self._loc_to_path(error.get("loc", ()))
+                error_type = error.get("type", "unknown")
                 errors.append(
                     ValidationError(
                         path=json_path,
                         message=error.get("msg", "Validation error"),
-                        code=f"MDL{len(errors) + 100:03d}",
+                        code=self._get_error_code(error_type),
                         layer="model",
                         severity="error",
                         context={
-                            "type": error.get("type", "unknown"),
+                            "type": error_type,
                             "input": self._safe_input(error.get("input")),
                         },
                     )
@@ -90,3 +140,14 @@ class ModelValidator:
         if isinstance(value, (list, dict)):
             return str(value)[:100] + "..." if len(str(value)) > 100 else value
         return str(value)[:100]
+
+    def _get_error_code(self, error_type: str) -> str:
+        """Get stable error code for a Pydantic error type.
+
+        Args:
+            error_type: Pydantic error type string (e.g., 'missing', 'string_type')
+
+        Returns:
+            Stable error code (e.g., 'MDL001')
+        """
+        return PYDANTIC_ERROR_CODES.get(error_type, DEFAULT_ERROR_CODE)

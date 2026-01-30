@@ -9,6 +9,7 @@ from dppvalidator.models import (
     Classification,
     ConformityTopic,
     CredentialIssuer,
+    CredentialStatus,
     Criterion,
     CriterionStatus,
     DigitalProductPassport,
@@ -583,3 +584,99 @@ class TestDimension:
         dimension = Dimension()
         jsonld = dimension.to_jsonld()
         assert jsonld["type"] == ["Dimension"]
+
+
+class TestCredentialStatus:
+    """Tests for CredentialStatus model (W3C VC v2 revocation)."""
+
+    def test_valid_credential_status(self):
+        """Test creating a valid credential status."""
+        status = CredentialStatus(
+            id="https://example.com/status/1#42",
+            type="BitstringStatusListEntry",
+            statusPurpose="revocation",
+            statusListIndex="42",
+            statusListCredential="https://example.com/status/1",
+        )
+        assert status.id == "https://example.com/status/1#42"
+        assert status.type == "BitstringStatusListEntry"
+        assert status.status_purpose == "revocation"
+        assert status.status_list_index == "42"
+
+    def test_credential_status_minimal(self):
+        """Test minimal credential status with only required fields."""
+        status = CredentialStatus(
+            id="https://example.com/status/1",
+            type="StatusList2021Entry",
+        )
+        assert status.id == "https://example.com/status/1"
+        assert status.type == "StatusList2021Entry"
+        assert status.status_purpose is None
+        assert status.status_list_index is None
+        assert status.status_list_credential is None
+
+    def test_credential_status_to_jsonld(self):
+        """Test JSON-LD serialization."""
+        status = CredentialStatus(
+            id="https://example.com/status/1#42",
+            type="BitstringStatusListEntry",
+            statusPurpose="revocation",
+        )
+        jsonld = status.to_jsonld()
+        assert jsonld["type"] == ["CredentialStatus"]
+        assert jsonld["id"] == "https://example.com/status/1#42"
+        assert jsonld["statusPurpose"] == "revocation"
+
+    def test_credential_status_missing_required_fields(self):
+        """Test that required fields are enforced."""
+        with pytest.raises(ValidationError):
+            CredentialStatus(id="https://example.com/status")  # missing type
+
+
+class TestDigitalProductPassportCredentialStatus:
+    """Tests for credentialStatus field on DigitalProductPassport."""
+
+    def test_passport_with_single_credential_status(self):
+        """Test passport with single credential status."""
+        passport = DigitalProductPassport(
+            id="https://example.com/dpp/001",
+            issuer={"id": "did:web:example.com", "name": "Issuer"},
+            credentialStatus={
+                "id": "https://example.com/status/1#42",
+                "type": "BitstringStatusListEntry",
+                "statusPurpose": "revocation",
+            },
+        )
+        assert passport.credential_status is not None
+        assert passport.credential_status.type == "BitstringStatusListEntry"
+
+    def test_passport_with_multiple_credential_statuses(self):
+        """Test passport with list of credential statuses."""
+        passport = DigitalProductPassport(
+            id="https://example.com/dpp/001",
+            issuer={"id": "did:web:example.com", "name": "Issuer"},
+            credentialStatus=[
+                {
+                    "id": "https://example.com/status/revocation#42",
+                    "type": "BitstringStatusListEntry",
+                    "statusPurpose": "revocation",
+                },
+                {
+                    "id": "https://example.com/status/suspension#42",
+                    "type": "BitstringStatusListEntry",
+                    "statusPurpose": "suspension",
+                },
+            ],
+        )
+        assert isinstance(passport.credential_status, list)
+        assert len(passport.credential_status) == 2
+        assert passport.credential_status[0].status_purpose == "revocation"
+        assert passport.credential_status[1].status_purpose == "suspension"
+
+    def test_passport_without_credential_status(self):
+        """Test passport without credential status (optional field)."""
+        passport = DigitalProductPassport(
+            id="https://example.com/dpp/001",
+            issuer={"id": "did:web:example.com", "name": "Issuer"},
+        )
+        assert passport.credential_status is None

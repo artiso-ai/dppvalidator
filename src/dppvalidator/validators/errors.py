@@ -1,73 +1,26 @@
-"""Enhanced error messages with suggestions and documentation links.
+"""Error utilities: suggestions, documentation links, and typo correction.
 
-This module provides rich error context for improved developer experience,
+This module provides error context utilities for improved developer experience,
 including "Did you mean?" suggestions, fix examples, and documentation links.
+
+Note: The main ValidationError class is in validators/results.py.
+This module provides utilities to enhance error messages.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from difflib import get_close_matches
-from typing import Any, Literal
+from typing import Any, TypedDict
 
 # Base URL for error documentation
 DOCS_BASE_URL = "https://artiso-ai.github.io/dppvalidator/errors"
 
 
-@dataclass(frozen=True, slots=True)
-class ErrorSuggestion:
-    """A suggested fix for a validation error."""
+class ErrorSuggestionDict(TypedDict, total=False):
+    """Type definition for error suggestion dictionaries."""
 
     text: str
-    example: str | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class EnhancedValidationError:
-    """Validation error with rich context for improved DX.
-
-    Attributes:
-        path: JSON path to the error location
-        message: Human-readable error description
-        code: Machine-readable error code (e.g., "SEM001")
-        layer: Validation layer that produced this error
-        severity: Error severity level
-        suggestion: Suggested fix with optional example
-        docs_url: Link to detailed error documentation
-        did_you_mean: Suggested correct values (for typos)
-        context: Additional context for debugging
-    """
-
-    path: str
-    message: str
-    code: str
-    layer: Literal["schema", "model", "semantic", "plugin"]
-    severity: Literal["error", "warning", "info"] = "error"
-    suggestion: ErrorSuggestion | None = None
-    docs_url: str | None = None
-    did_you_mean: list[str] = field(default_factory=list)
-    context: dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
-        result = {
-            "path": self.path,
-            "message": self.message,
-            "code": self.code,
-            "layer": self.layer,
-            "severity": self.severity,
-            "context": self.context,
-        }
-        if self.suggestion:
-            result["suggestion"] = {
-                "text": self.suggestion.text,
-                "example": self.suggestion.example,
-            }
-        if self.docs_url:
-            result["docs_url"] = self.docs_url
-        if self.did_you_mean:
-            result["did_you_mean"] = self.did_you_mean
-        return result
+    example: str | None
 
 
 # Error code registry with suggestions and documentation
@@ -166,7 +119,7 @@ KNOWN_VALUES: dict[str, list[str]] = {
         "EnvelopedVerifiableCredential",
     ],
     "granularityLevel": ["item", "batch", "model"],
-    "operationalScope": ["Scope1", "Scope2", "Scope3", "CradleToGate", "CradleToGrave"],
+    "operationalScope": ["None", "Scope1", "Scope2", "Scope3", "CradleToGate", "CradleToGrave"],
     "claimType": [
         "Certification",
         "Declaration",
@@ -191,11 +144,18 @@ def get_error_docs_url(code: str) -> str:
     return f"{DOCS_BASE_URL}/{code}"
 
 
-def get_error_suggestion(code: str) -> ErrorSuggestion | None:
-    """Get suggestion for an error code."""
+def get_error_suggestion(code: str) -> ErrorSuggestionDict | None:
+    """Get suggestion for an error code.
+
+    Args:
+        code: Error code to look up
+
+    Returns:
+        Dictionary with 'text' and optional 'example', or None if not found
+    """
     if code in ERROR_REGISTRY:
         info = ERROR_REGISTRY[code]
-        return ErrorSuggestion(
+        return ErrorSuggestionDict(
             text=info.get("suggestion", ""),
             example=info.get("example"),
         )
@@ -221,71 +181,16 @@ def find_similar_values(value: str, field_name: str, cutoff: float = 0.6) -> lis
     return matches
 
 
-def enhance_error(
-    path: str,
-    message: str,
-    code: str,
-    layer: Literal["schema", "model", "semantic", "plugin"],
-    severity: Literal["error", "warning", "info"] = "error",
-    context: dict[str, Any] | None = None,
-    invalid_value: str | None = None,
-    field_name: str | None = None,
-) -> EnhancedValidationError:
-    """Create an enhanced validation error with suggestions.
+def get_suggestion_text(code: str) -> str | None:
+    """Get suggestion text for an error code.
+
+    Convenience function that returns just the suggestion text.
 
     Args:
-        path: JSON path to error location
-        message: Error message
-        code: Error code
-        layer: Validation layer
-        severity: Error severity
-        context: Additional context
-        invalid_value: The invalid value (for typo suggestions)
-        field_name: Field name (for looking up valid values)
+        code: Error code to look up
 
     Returns:
-        EnhancedValidationError with suggestions and docs link
+        Suggestion text string, or None if not found
     """
     suggestion = get_error_suggestion(code)
-    docs_url = get_error_docs_url(code)
-
-    did_you_mean: list[str] = []
-    if invalid_value and field_name:
-        did_you_mean = find_similar_values(invalid_value, field_name)
-
-    return EnhancedValidationError(
-        path=path,
-        message=message,
-        code=code,
-        layer=layer,
-        severity=severity,
-        suggestion=suggestion,
-        docs_url=docs_url,
-        did_you_mean=did_you_mean,
-        context=context or {},
-    )
-
-
-def format_error_for_display(error: EnhancedValidationError) -> str:
-    """Format an enhanced error for terminal display.
-
-    Returns a multi-line string with error details, suggestions, and links.
-    """
-    lines = [
-        f"[{error.code}] {error.path}",
-        f"  {error.message}",
-    ]
-
-    if error.did_you_mean:
-        suggestions = ", ".join(f'"{v}"' for v in error.did_you_mean)
-        lines.append(f"  Did you mean: {suggestions}?")
-
-    if error.suggestion:
-        lines.append(f"  💡 {error.suggestion.text}")
-        if error.suggestion.example:
-            lines.append(f"     Example: {error.suggestion.example}")
-
-    if error.docs_url:
-        lines.append(f"  📖 {error.docs_url}")
-
-    return "\n".join(lines)
+    return suggestion["text"] if suggestion else None

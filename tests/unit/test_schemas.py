@@ -302,12 +302,12 @@ class TestSchemaLoader:
 
         loader = SchemaLoader(cache_dir=tmp_path)
 
-        # Create valid cache file
+        # Create valid cache file (use 0.6.0 which has no SHA-256 hash)
         tmp_path.mkdir(parents=True, exist_ok=True)
-        cache_file = tmp_path / "untp-dpp-schema-0.6.1.json"
+        cache_file = tmp_path / "untp-dpp-schema-0.6.0.json"
         cache_file.write_text('{"$schema": "test"}')
 
-        result = loader.load_schema("0.6.1")
+        result = loader.load_schema("0.6.0")
         assert result == {"$schema": "test"}
 
     def test_load_cached_json_decode_error(self, tmp_path):

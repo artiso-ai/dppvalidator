@@ -143,7 +143,7 @@ class PluginRegistry:
                             )
                         )
 
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError, RuntimeError) as e:
                 logger.warning("Plugin %s failed: %s", name, e)
                 errors.append(
                     ValidationError(

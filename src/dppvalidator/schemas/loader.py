@@ -19,6 +19,7 @@ try:
 
     HAS_HTTPX = True
 except ImportError:
+    httpx = None  # type: ignore[assignment]
     HAS_HTTPX = False
 
 logger = get_logger(__name__)
@@ -142,8 +143,11 @@ class SchemaLoader:
             logger.info("Fetched schema %s from %s", schema_def.version, schema_def.url)
             return response.json()
 
-        except Exception as e:
-            logger.warning("Failed to fetch schema %s: %s", schema_def.version, e)
+        except OSError as e:
+            logger.warning("Network error fetching schema %s: %s", schema_def.version, e)
+            return None
+        except json.JSONDecodeError as e:
+            logger.warning("Invalid JSON in schema %s: %s", schema_def.version, e)
             return None
 
     def _cache_to_disk(self, version: str, content: bytes) -> None:
@@ -192,5 +196,5 @@ class SchemaLoader:
             logger.info("Downloaded schema %s to %s", version, out_path)
             return out_path
 
-        except Exception as e:
+        except OSError as e:
             raise RuntimeError(f"Failed to download schema {version}: {e}") from e
