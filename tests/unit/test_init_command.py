@@ -221,10 +221,18 @@ class TestInitRun:
         assert "type" in content
         assert "existing" not in content
 
-    def test_handles_permission_error(self):
+    def test_handles_permission_error(self, tmp_path, monkeypatch):
         """Init handles permission errors gracefully."""
         console = MagicMock()
-        args = make_args(path="/root/protected_path")
+        args = make_args(path=str(tmp_path / "test_project"))
+
+        # Mock Path.mkdir to raise PermissionError (works cross-platform)
+        from pathlib import Path
+
+        def mock_mkdir(_self, *_args, **_kwargs):
+            raise PermissionError("Permission denied")
+
+        monkeypatch.setattr(Path, "mkdir", mock_mkdir)
 
         result = run(args, console)
 

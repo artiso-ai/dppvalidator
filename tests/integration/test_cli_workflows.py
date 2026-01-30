@@ -227,10 +227,16 @@ class TestErrorHandling:
         output = captured.out + captured.err
         assert "json" in output.lower() or "parse" in output.lower() or "invalid" in output.lower()
 
-    def test_permission_denied_graceful_error(self):
+    def test_permission_denied_graceful_error(self, tmp_path, monkeypatch):
         """Permission denied produces helpful error message."""
-        # Try to write to protected location
-        exit_code = main(["init", "/root/protected_location"])
+
+        # Mock Path.mkdir to raise PermissionError (works cross-platform)
+        def mock_mkdir(_self, *_args, **_kwargs):
+            raise PermissionError("Permission denied")
+
+        monkeypatch.setattr(Path, "mkdir", mock_mkdir)
+
+        exit_code = main(["init", str(tmp_path / "protected_location")])
 
         assert exit_code == EXIT_ERROR
 
