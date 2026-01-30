@@ -58,11 +58,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/dppvalidator"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"src/dppvalidator/py.typed" = "dppvalidator/py.typed"
-"src/dppvalidator/schemas/data" = "dppvalidator/schemas/data"
-"src/dppvalidator/vocabularies/data" = "dppvalidator/vocabularies/data"
-
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
