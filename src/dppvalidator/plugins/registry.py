@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from dppvalidator.exporters.protocols import Exporter
@@ -178,22 +179,16 @@ class PluginRegistry:
         return len(self._exporters)
 
 
-_default_registry: PluginRegistry | None = None
-
-
+@lru_cache(maxsize=1)
 def get_default_registry() -> PluginRegistry:
     """Get the default plugin registry (lazy initialization).
 
     Returns:
         Default PluginRegistry instance
     """
-    global _default_registry
-    if _default_registry is None:
-        _default_registry = PluginRegistry(auto_discover=True)
-    return _default_registry
+    return PluginRegistry(auto_discover=True)
 
 
 def reset_default_registry() -> None:
     """Reset the default registry (useful for testing)."""
-    global _default_registry
-    _default_registry = None
+    get_default_registry.cache_clear()
