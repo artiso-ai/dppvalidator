@@ -125,6 +125,15 @@ class ValidationResult:
         if not self.valid:
             raise ValidationException(self)
 
+    def __repr__(self) -> str:
+        """Return a concise representation for debugging."""
+        return (
+            f"ValidationResult(valid={self.valid}, "
+            f"errors={len(self.errors)}, "
+            f"warnings={len(self.warnings)}, "
+            f"info={len(self.info)})"
+        )
+
     def merge(self, other: ValidationResult) -> ValidationResult:
         """Merge another result into this one."""
         return ValidationResult(

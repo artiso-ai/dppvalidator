@@ -80,6 +80,7 @@ extra:
 nav:
   - Home: index.md
   - Getting Started:
+      - Introduction: getting-started/introduction.md
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
   - Guides:
