@@ -248,7 +248,7 @@ def _check_write_permissions(console: Console) -> tuple[bool, str, bool]:
     try:
         cache_dir.mkdir(parents=True, exist_ok=True)
         test_file = cache_dir / ".write_test"
-        test_file.write_text("test")
+        test_file.write_text("test", encoding="utf-8")
         test_file.unlink()
         console.print(f"  [green]✓[/green] Write permissions OK for {cache_dir}")
         return True, "", False

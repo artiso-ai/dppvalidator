@@ -123,7 +123,7 @@ class VocabularyCache:
 
         cache_path = self._get_cache_path(url)
         with contextlib.suppress(OSError):
-            cache_path.write_text(json.dumps(cache_data))
+            cache_path.write_text(json.dumps(cache_data), encoding="utf-8")
 
     def clear(self) -> None:
         """Clear all cached data."""
