@@ -61,8 +61,12 @@ spell-checker, but for product data instead of text.
 
 ## How does it work?
 
-```
-Your Product Data → dppvalidator → ✓ Valid or ✗ Errors List
+```mermaid
+flowchart LR
+    A[Your Product Data] --> B[dppvalidator]
+    B --> C{Result}
+    C -->|Valid| D[✓ Success]
+    C -->|Invalid| E[✗ Errors List]
 ```
 
 1. You provide product passport data (as JSON)
