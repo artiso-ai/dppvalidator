@@ -8,7 +8,11 @@ from typing import Annotated, ClassVar
 from pydantic import Field, model_validator
 
 from dppvalidator.models.base import UNTPBaseModel
-from dppvalidator.models.credential import CredentialIssuer, ProductPassport
+from dppvalidator.models.credential import (
+    CredentialIssuer,
+    CredentialStatus,
+    ProductPassport,
+)
 from dppvalidator.models.primitives import FlexibleUri
 
 
@@ -51,6 +55,14 @@ class DigitalProductPassport(UNTPBaseModel):
             default=None,
             alias="credentialSubject",
             description="The product passport content",
+        ),
+    ]
+    credential_status: Annotated[
+        CredentialStatus | list[CredentialStatus] | None,
+        Field(
+            default=None,
+            alias="credentialStatus",
+            description="Credential revocation/suspension status per W3C VC v2",
         ),
     ]
 

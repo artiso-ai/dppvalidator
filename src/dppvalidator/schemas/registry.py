@@ -35,7 +35,7 @@ SCHEMA_REGISTRY: dict[str, SchemaVersion] = {
     "0.6.0": SchemaVersion(
         version="0.6.0",
         url="https://test.uncefact.org/vocabulary/untp/dpp/untp-dpp-schema-0.6.0.json",
-        sha256=None,
+        sha256=None,  # Schema not bundled locally
         context_urls=(
             "https://www.w3.org/ns/credentials/v2",
             "https://test.uncefact.org/vocabulary/untp/dpp/0.6.0/",
@@ -44,7 +44,7 @@ SCHEMA_REGISTRY: dict[str, SchemaVersion] = {
     "0.6.1": SchemaVersion(
         version="0.6.1",
         url="https://test.uncefact.org/vocabulary/untp/dpp/untp-dpp-schema-0.6.1.json",
-        sha256=None,
+        sha256="c0fdd7da5d23b6aec5d1d0ce198ca8d1cd67ca27609395a1b4961b3d1a8549a8",
         context_urls=(
             "https://www.w3.org/ns/credentials/v2",
             "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",

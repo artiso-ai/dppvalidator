@@ -2,7 +2,7 @@
 
 from dppvalidator.models.base import UNTPBaseModel, UNTPStrictModel
 from dppvalidator.models.claims import Claim, Criterion, Metric, Regulation, Standard
-from dppvalidator.models.credential import CredentialIssuer, ProductPassport
+from dppvalidator.models.credential import CredentialIssuer, CredentialStatus, ProductPassport
 from dppvalidator.models.enums import (
     ConformityTopic,
     CriterionStatus,
@@ -67,6 +67,7 @@ __all__ = [
     "Material",
     # Credential
     "CredentialIssuer",
+    "CredentialStatus",
     "ProductPassport",
     # Root
     "DigitalProductPassport",

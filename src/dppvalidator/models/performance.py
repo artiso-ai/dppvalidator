@@ -34,8 +34,12 @@ class EmissionsPerformance(UNTPBaseModel):
         ),
     ]
     operational_scope: Annotated[
-        OperationalScope,
-        Field(..., alias="operationalScope", description="Emissions operational scope"),
+        OperationalScope | None,
+        Field(
+            default=None,
+            alias="operationalScope",
+            description="Emissions operational scope (GHG Protocol or lifecycle boundary)",
+        ),
     ]
     primary_sourced_ratio: Annotated[
         float,

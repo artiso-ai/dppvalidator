@@ -53,7 +53,7 @@ def _discover_plugins(group: str) -> Iterator[tuple[str, Any]]:
             plugin = ep.load()
             logger.debug("Discovered plugin: %s = %s", ep.name, ep.value)
             yield ep.name, plugin
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError) as e:
             logger.warning(
                 "Failed to load plugin %s from %s: %s",
                 ep.name,

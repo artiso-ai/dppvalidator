@@ -197,8 +197,10 @@ class VocabularyLoader:
                     logger.info("Fetched %d values for %s", len(values), vocab_def.name)
                     return values
 
-        except Exception as e:
-            logger.warning("Failed to fetch vocabulary %s: %s", vocab_def.name, e)
+        except OSError as e:
+            logger.warning("Network error fetching vocabulary %s: %s", vocab_def.name, e)
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            logger.warning("Invalid response for vocabulary %s: %s", vocab_def.name, e)
 
         return None
 

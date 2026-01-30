@@ -98,7 +98,7 @@ class ValidationEngine:
                 "Plugin registry initialized with %d validators",
                 self._plugin_registry.validator_count,
             )
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError) as e:
             logger.warning("Plugin registry initialization failed: %s", e)
 
     def validate(
@@ -269,8 +269,7 @@ class ValidationEngine:
         Returns:
             ValidationResult
         """
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.validate, data)
+        return await asyncio.to_thread(self.validate, data)
 
     async def validate_batch(
         self,

@@ -1,135 +1,18 @@
-"""Tests for enhanced validation error messages."""
-
-import pytest
+"""Tests for error utilities: suggestions, documentation links, and typo correction."""
 
 from dppvalidator.validators.errors import (
     DOCS_BASE_URL,
     ERROR_REGISTRY,
     KNOWN_VALUES,
-    EnhancedValidationError,
-    ErrorSuggestion,
-    enhance_error,
     find_similar_values,
-    format_error_for_display,
     get_error_docs_url,
     get_error_suggestion,
+    get_suggestion_text,
 )
 
-
-class TestErrorSuggestion:
-    """Tests for ErrorSuggestion dataclass."""
-
-    def test_suggestion_with_text_only(self):
-        """Suggestion can be created with just text."""
-        suggestion = ErrorSuggestion(text="Fix the issue")
-        assert suggestion.text == "Fix the issue"
-        assert suggestion.example is None
-
-    def test_suggestion_with_example(self):
-        """Suggestion can include an example."""
-        suggestion = ErrorSuggestion(
-            text="Add the required field",
-            example='"issuer": {"id": "https://example.com", "name": "Test"}',
-        )
-        assert suggestion.text == "Add the required field"
-        assert "issuer" in suggestion.example
-
-    def test_suggestion_is_immutable(self):
-        """ErrorSuggestion should be frozen (immutable)."""
-        suggestion = ErrorSuggestion(text="Test")
-        with pytest.raises(AttributeError):
-            suggestion.text = "Modified"
-
-
-class TestEnhancedValidationError:
-    """Tests for EnhancedValidationError dataclass."""
-
-    def test_minimal_error_creation(self):
-        """Error can be created with minimal required fields."""
-        error = EnhancedValidationError(
-            path="$.issuer",
-            message="Missing required field",
-            code="MDL001",
-            layer="model",
-        )
-        assert error.path == "$.issuer"
-        assert error.message == "Missing required field"
-        assert error.code == "MDL001"
-        assert error.layer == "model"
-        assert error.severity == "error"  # default
-
-    def test_error_with_all_fields(self):
-        """Error can include all optional fields."""
-        suggestion = ErrorSuggestion(text="Add issuer", example='"issuer": {...}')
-        error = EnhancedValidationError(
-            path="$.issuer",
-            message="Missing issuer",
-            code="MDL001",
-            layer="model",
-            severity="warning",
-            suggestion=suggestion,
-            docs_url="https://docs.example.com/MDL001",
-            did_you_mean=["issuer", "issuers"],
-            context={"expected_type": "object"},
-        )
-        assert error.severity == "warning"
-        assert error.suggestion == suggestion
-        assert "MDL001" in error.docs_url
-        assert "issuer" in error.did_you_mean
-
-    def test_error_to_dict_minimal(self):
-        """to_dict() works with minimal fields."""
-        error = EnhancedValidationError(
-            path="$",
-            message="Error",
-            code="ERR001",
-            layer="schema",
-        )
-        result = error.to_dict()
-
-        assert result["path"] == "$"
-        assert result["message"] == "Error"
-        assert result["code"] == "ERR001"
-        assert result["layer"] == "schema"
-        assert result["severity"] == "error"
-        assert "suggestion" not in result
-        assert "docs_url" not in result
-        assert "did_you_mean" not in result
-
-    def test_error_to_dict_with_suggestion(self):
-        """to_dict() includes suggestion when present."""
-        error = EnhancedValidationError(
-            path="$",
-            message="Error",
-            code="ERR001",
-            layer="schema",
-            suggestion=ErrorSuggestion(text="Fix it", example="example code"),
-        )
-        result = error.to_dict()
-
-        assert "suggestion" in result
-        assert result["suggestion"]["text"] == "Fix it"
-        assert result["suggestion"]["example"] == "example code"
-
-    def test_error_to_dict_with_did_you_mean(self):
-        """to_dict() includes did_you_mean when non-empty."""
-        error = EnhancedValidationError(
-            path="$",
-            message="Error",
-            code="ERR001",
-            layer="schema",
-            did_you_mean=["option1", "option2"],
-        )
-        result = error.to_dict()
-
-        assert "did_you_mean" in result
-        assert result["did_you_mean"] == ["option1", "option2"]
-
-    def test_error_is_immutable(self):
-        """EnhancedValidationError should be frozen (immutable)."""
-        error = EnhancedValidationError(path="$", message="Test", code="ERR", layer="model")
-        with pytest.raises(AttributeError):
-            error.path = "$.modified"
+# Note: EnhancedValidationError and ErrorSuggestion classes were removed in Phase 2.
+# ValidationError in validators/results.py now has all needed fields (suggestion,
+# docs_url, did_you_mean) and is the single error class used throughout the pipeline.
 
 
 class TestGetErrorDocsUrl:
@@ -153,7 +36,7 @@ class TestGetErrorSuggestion:
         """Returns suggestion for registered error codes."""
         suggestion = get_error_suggestion("SEM001")
         assert suggestion is not None
-        assert "mass fraction" in suggestion.text.lower()
+        assert "mass fraction" in suggestion["text"].lower()
 
     def test_returns_none_for_unknown_code(self):
         """Returns None for unregistered error codes."""
@@ -164,8 +47,23 @@ class TestGetErrorSuggestion:
         """Includes example from registry when available."""
         suggestion = get_error_suggestion("MDL002")
         assert suggestion is not None
-        assert suggestion.example is not None
-        assert "https://" in suggestion.example
+        assert suggestion["example"] is not None
+        assert "https://" in suggestion["example"]
+
+
+class TestGetSuggestionText:
+    """Tests for get_suggestion_text convenience function."""
+
+    def test_returns_text_for_known_code(self):
+        """Returns suggestion text for registered error codes."""
+        text = get_suggestion_text("SEM001")
+        assert text is not None
+        assert "mass fraction" in text.lower()
+
+    def test_returns_none_for_unknown_code(self):
+        """Returns None for unregistered error codes."""
+        text = get_suggestion_text("UNKNOWN999")
+        assert text is None
 
 
 class TestFindSimilarValues:
@@ -202,123 +100,6 @@ class TestFindSimilarValues:
         matches_strict = find_similar_values("Digita", "type", cutoff=0.9)
         matches_loose = find_similar_values("Digita", "type", cutoff=0.4)
         assert len(matches_loose) >= len(matches_strict)
-
-
-class TestEnhanceError:
-    """Tests for enhance_error factory function."""
-
-    def test_creates_enhanced_error_with_defaults(self):
-        """Creates enhanced error with suggestion and docs URL."""
-        error = enhance_error(
-            path="$.materials[0].massFraction",
-            message="Mass fractions do not sum to 1.0",
-            code="SEM001",
-            layer="semantic",
-        )
-        assert error.path == "$.materials[0].massFraction"
-        assert error.docs_url is not None
-        assert error.suggestion is not None
-
-    def test_includes_did_you_mean_for_typos(self):
-        """Includes 'did you mean' suggestions for typos."""
-        error = enhance_error(
-            path="$.type",
-            message="Invalid type value",
-            code="SCH003",
-            layer="schema",
-            invalid_value="DigitalProductPasport",
-            field_name="type",
-        )
-        assert "DigitalProductPassport" in error.did_you_mean
-
-    def test_includes_context_when_provided(self):
-        """Includes additional context in error."""
-        error = enhance_error(
-            path="$",
-            message="Error",
-            code="ERR001",
-            layer="model",
-            context={"expected": "string", "got": "integer"},
-        )
-        assert error.context["expected"] == "string"
-        assert error.context["got"] == "integer"
-
-    def test_supports_all_severity_levels(self):
-        """Supports error, warning, and info severity levels."""
-        for severity in ["error", "warning", "info"]:
-            error = enhance_error(
-                path="$",
-                message="Test",
-                code="TEST",
-                layer="model",
-                severity=severity,
-            )
-            assert error.severity == severity
-
-
-class TestFormatErrorForDisplay:
-    """Tests for format_error_for_display function."""
-
-    def test_formats_minimal_error(self):
-        """Formats error with just path and message."""
-        error = EnhancedValidationError(
-            path="$.issuer",
-            message="Missing required field",
-            code="MDL001",
-            layer="model",
-        )
-        output = format_error_for_display(error)
-
-        assert "[MDL001]" in output
-        assert "$.issuer" in output
-        assert "Missing required field" in output
-
-    def test_formats_error_with_did_you_mean(self):
-        """Includes 'did you mean' in formatted output."""
-        error = EnhancedValidationError(
-            path="$.type",
-            message="Invalid value",
-            code="SCH003",
-            layer="schema",
-            did_you_mean=["DigitalProductPassport", "VerifiableCredential"],
-        )
-        output = format_error_for_display(error)
-
-        assert "Did you mean" in output
-        assert "DigitalProductPassport" in output
-
-    def test_formats_error_with_suggestion(self):
-        """Includes suggestion and example in formatted output."""
-        error = EnhancedValidationError(
-            path="$",
-            message="Error",
-            code="SEM001",
-            layer="semantic",
-            suggestion=ErrorSuggestion(
-                text="Adjust fractions to sum to 1.0",
-                example='"massFraction": 0.5',
-            ),
-        )
-        output = format_error_for_display(error)
-
-        assert "💡" in output
-        assert "Adjust fractions" in output
-        assert "Example:" in output
-        assert "massFraction" in output
-
-    def test_formats_error_with_docs_url(self):
-        """Includes documentation URL in formatted output."""
-        error = EnhancedValidationError(
-            path="$",
-            message="Error",
-            code="SEM001",
-            layer="semantic",
-            docs_url="https://docs.example.com/errors/SEM001",
-        )
-        output = format_error_for_display(error)
-
-        assert "📖" in output
-        assert "https://docs.example.com/errors/SEM001" in output
 
 
 class TestErrorRegistry:

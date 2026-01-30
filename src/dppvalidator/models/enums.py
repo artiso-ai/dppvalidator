@@ -34,9 +34,16 @@ class GranularityLevel(str, Enum):
 
 
 class OperationalScope(str, Enum):
-    """Operational scope for emissions performance."""
+    """Operational scope for emissions performance.
+
+    Supports both GHG Protocol scopes (Scope1/2/3) and lifecycle
+    assessment boundaries (CradleToGate/CradleToGrave).
+    """
 
     NONE = "None"
+    SCOPE1 = "Scope1"
+    SCOPE2 = "Scope2"
+    SCOPE3 = "Scope3"
     CRADLE_TO_GATE = "CradleToGate"
     CRADLE_TO_GRAVE = "CradleToGrave"
 

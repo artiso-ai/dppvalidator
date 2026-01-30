@@ -20,6 +20,52 @@ from dppvalidator.models.primitives import FlexibleUri, Link
 from dppvalidator.models.product import Product
 
 
+class CredentialStatus(UNTPBaseModel):
+    """Credential status for revocation checking per W3C VC v2.
+
+    Used to check if a credential has been revoked or suspended.
+    Supports multiple status mechanisms (BitstringStatusList, StatusList2021, etc.).
+    """
+
+    _jsonld_type: ClassVar[list[str]] = ["CredentialStatus"]
+
+    id: Annotated[
+        FlexibleUri,
+        Field(..., description="URI identifying the status entry"),
+    ]
+    type: Annotated[
+        str,
+        Field(
+            ...,
+            description="Status type (e.g., BitstringStatusListEntry, StatusList2021Entry)",
+        ),
+    ]
+    status_purpose: Annotated[
+        str | None,
+        Field(
+            default=None,
+            alias="statusPurpose",
+            description="Purpose of status (revocation, suspension)",
+        ),
+    ]
+    status_list_index: Annotated[
+        str | None,
+        Field(
+            default=None,
+            alias="statusListIndex",
+            description="Index in the status list",
+        ),
+    ]
+    status_list_credential: Annotated[
+        FlexibleUri | None,
+        Field(
+            default=None,
+            alias="statusListCredential",
+            description="URI of the status list credential",
+        ),
+    ]
+
+
 class CredentialIssuer(UNTPStrictModel):
     """Issuer of a verifiable credential."""
 

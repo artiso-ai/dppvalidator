@@ -175,26 +175,35 @@ engine = ValidationEngine(layers=["model", "semantic"])
 
 ### Plugin System
 
-Extend dppvalidator with custom validators and exporters:
+Extend dppvalidator with custom validators following the `SemanticRule` protocol:
 
 ```python
 from dppvalidator.plugins import PluginRegistry
 
-registry = PluginRegistry()
+
+# Create a custom validator implementing SemanticRule protocol
+class TextileFiberRule:
+    """Custom rule to validate textile fiber composition."""
+
+    rule_id = "TEX001"
+    description = "Fiber composition must sum to 100%"
+    severity = "error"
+    suggestion = "Ensure all fiber percentages add up to 100"
+    docs_url = "https://example.com/textile-rules"
+
+    def check(self, passport):
+        """Return list of (json_path, error_message) tuples."""
+        violations = []
+        # Add your validation logic here
+        return violations
 
 
-# Register a custom validator
-@registry.register_validator("textile")
-class TextileValidator:
-    def validate(self, data: dict) -> list:
-        errors = []
-        if data.get("fiber_composition_total") != 100:
-            errors.append("Fiber composition must sum to 100%")
-        return errors
+# Register with the plugin registry
+registry = PluginRegistry(auto_discover=False)
+registry.register_validator("textile", TextileFiberRule)
 
-
-# Use in validation engine
-engine = ValidationEngine(plugins=registry)
+# ValidationEngine auto-discovers plugins via entry points by default
+engine = ValidationEngine(load_plugins=True)
 ```
 
 ## Documentation
