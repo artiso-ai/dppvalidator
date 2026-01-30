@@ -35,6 +35,8 @@ theme:
 
 plugins:
   - search
+  - meta
+  - social
   - mkdocstrings:
       handlers:
         python:
@@ -76,6 +78,10 @@ extra:
       link: https://github.com/artiso-ai/dppvalidator
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/dppvalidator/
+    - icon: fontawesome/brands/linkedin
+      link: https://es.linkedin.com/company/artiso-ai
+    - icon: fontawesome/solid/globe
+      link: https://artiso.ai/
 
 nav:
   - Home: index.md

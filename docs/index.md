@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## description: Validate EU Digital Product Passports with Python. 80k ops/sec.
+
 # dppvalidator
 
 [![PyPI version](https://img.shields.io/pypi/v/dppvalidator?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/dppvalidator/)

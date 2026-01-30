@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## description: CLI reference for validating and exporting DPPs.
+
 # CLI Usage
 
 The dppvalidator CLI provides commands for validating DPPs, exporting to different formats, and inspecting schemas.
