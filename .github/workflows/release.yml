@@ -52,6 +52,7 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
           attestations: false
+          verbose: true
 
   publish-pypi:
     runs-on: ubuntu-latest
