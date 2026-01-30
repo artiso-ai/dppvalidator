@@ -261,7 +261,7 @@ def run(args: argparse.Namespace, console: Console) -> int:
         # Verify write permissions
         try:
             test_file = project_path / ".dppvalidator_init_test"
-            test_file.write_text("test")
+            test_file.write_text("test", encoding="utf-8")
             test_file.unlink()
         except PermissionError:
             console.print_error(f"No write permission for: {project_path}")
@@ -282,7 +282,7 @@ def run(args: argparse.Namespace, console: Console) -> int:
             console.print(f"  [yellow]○[/yellow] {dpp_file.name} exists (skipped)")
             files_skipped += 1
         else:
-            dpp_file.write_text(json.dumps(template, indent=2) + "\n")
+            dpp_file.write_text(json.dumps(template, indent=2) + "\n", encoding="utf-8")
             console.print(f"  [green]✓[/green] Created {dpp_file.relative_to(project_path)}")
             files_created += 1
 
@@ -292,7 +292,7 @@ def run(args: argparse.Namespace, console: Console) -> int:
             console.print("  [yellow]○[/yellow] .gitignore exists (skipped)")
             files_skipped += 1
         else:
-            gitignore.write_text(GITIGNORE_CONTENT)
+            gitignore.write_text(GITIGNORE_CONTENT, encoding="utf-8")
             console.print("  [green]✓[/green] Created .gitignore")
             files_created += 1
 
@@ -303,7 +303,9 @@ def run(args: argparse.Namespace, console: Console) -> int:
                 console.print("  [yellow]○[/yellow] README.md exists (skipped)")
                 files_skipped += 1
             else:
-                readme.write_text(README_TEMPLATE.format(project_name=project_name))
+                readme.write_text(
+                    README_TEMPLATE.format(project_name=project_name), encoding="utf-8"
+                )
                 console.print("  [green]✓[/green] Created README.md")
                 files_created += 1
 
@@ -314,7 +316,9 @@ def run(args: argparse.Namespace, console: Console) -> int:
                 console.print("  [yellow]○[/yellow] .dppvalidator.json exists (skipped)")
                 files_skipped += 1
             else:
-                config_file.write_text(json.dumps(DPPVALIDATOR_CONFIG, indent=2) + "\n")
+                config_file.write_text(
+                    json.dumps(DPPVALIDATOR_CONFIG, indent=2) + "\n", encoding="utf-8"
+                )
                 console.print("  [green]✓[/green] Created .dppvalidator.json")
                 files_created += 1
 
@@ -325,7 +329,7 @@ def run(args: argparse.Namespace, console: Console) -> int:
                 console.print(f"  [yellow]○[/yellow] {precommit.name} exists (skipped)")
                 files_skipped += 1
             else:
-                precommit.write_text(PRE_COMMIT_CONFIG)
+                precommit.write_text(PRE_COMMIT_CONFIG, encoding="utf-8")
                 console.print("  [green]✓[/green] Created .pre-commit-config.yaml")
                 files_created += 1
 

@@ -114,7 +114,7 @@ def _download_schema(version: str, output_dir: str | None, console: Console) -> 
         out_dir.mkdir(parents=True, exist_ok=True)
 
         out_file = out_dir / f"untp-dpp-schema-{version}.json"
-        out_file.write_text(response.text)
+        out_file.write_text(response.text, encoding="utf-8")
 
         console.print_success(f"Downloaded: {out_file}")
         return EXIT_VALID

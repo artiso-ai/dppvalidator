@@ -27,7 +27,9 @@ class SchemaVersion:
         """
         if self.sha256 is None:
             return True
-        computed = hashlib.sha256(content).hexdigest()
+        # Normalize line endings to LF for consistent hashing across platforms
+        normalized = content.replace(b"\r\n", b"\n")
+        computed = hashlib.sha256(normalized).hexdigest()
         return computed == self.sha256
 
 
