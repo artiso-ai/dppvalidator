@@ -161,7 +161,7 @@ class TestCheckOptionalDeps:
         console = MagicMock()
 
         def mock_version(name):
-            if name == "httpx":
+            if name == "rich":
                 raise Exception("Not found")
             return "1.0.0"
 
