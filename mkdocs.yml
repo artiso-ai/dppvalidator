@@ -4,7 +4,9 @@ site_url: https://artiso-ai.github.io/dppvalidator
 repo_url: https://github.com/artiso-ai/dppvalidator
 repo_name: artiso-ai/dppvalidator
 edit_uri: edit/main/docs/
-copyright: Copyright &copy; 2026 artiso-ai
+copyright: >
+  Copyright &copy; 2026 artiso-ai -
+  <a href="#__consent">Change cookie settings</a>
 
 theme:
   name: material
@@ -37,6 +39,7 @@ plugins:
   - search
   - meta
   - social
+  - privacy
   - mkdocstrings:
       handlers:
         python:
@@ -73,6 +76,36 @@ markdown_extensions:
       custom_checkbox: true
 
 extra:
+  analytics:
+    provider: google
+    property: G-CYYCRW64JY # Replace with your Google Analytics 4 Measurement ID
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: Thanks for your feedback! Help us improve by opening an issue.
+  consent:
+    title: Cookie consent
+    description: >
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better. For more information, see our
+      <a href="https://artiso.ai/privacy-policy" target="_blank">Privacy Policy</a>.
+    cookies:
+      analytics:
+        name: Google Analytics
+        checked: false
+    actions:
+      - accept
+      - reject
+      - manage
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/artiso-ai/dppvalidator
