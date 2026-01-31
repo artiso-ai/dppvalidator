@@ -101,7 +101,7 @@ extra:
     cookies:
       analytics:
         name: Google Analytics
-        checked: false
+        checked: true
     actions:
       - accept
       - reject
