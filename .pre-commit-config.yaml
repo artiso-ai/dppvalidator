@@ -9,7 +9,7 @@ repos:
       - id: detect-private-key
       - id: debug-statements
       - id: check-added-large-files
-        exclude: ^uv\.lock$
+        exclude: ^(uv\.lock|docs/assets/logo\.png)$
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0

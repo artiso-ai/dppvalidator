@@ -1,4 +1,5 @@
 <p align="center">
+  <img src="docs/assets/logo.png" alt="dppvalidator logo" width="120">
   <h1 align="center">dppvalidator</h1>
   <p align="center">
     <strong>The open-source compliance engine for EU Digital Product Passports</strong>
@@ -213,7 +214,7 @@ engine = ValidationEngine(load_plugins=True)
 
 | Guide                                                                                     | Description                                |
 | ----------------------------------------------------------------------------------------- | ------------------------------------------ |
-| [Installation](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)    | Setup and optional dependencies            |
+| [Installation](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)    | Setup and CLI extras                       |
 | [Quick Start](https://artiso-ai.github.io/dppvalidator/getting-started/quickstart/)       | Get started in 5 minutes                   |
 | [CLI Reference](https://artiso-ai.github.io/dppvalidator/guides/cli-usage/)               | Command-line interface                     |
 | [Validation Layers](https://artiso-ai.github.io/dppvalidator/concepts/validation-layers/) | Understanding the three-layer architecture |
@@ -301,12 +302,12 @@ See our [Contributing Guide](https://artiso-ai.github.io/dppvalidator/contributi
 
 ## About ARTISO
 
-<table><tr><td>
+<table border="0" cellspacing="0" cellpadding="0" style="border: none;"><tr><td style="border: none;">
 
 **dppvalidator** is developed and maintained by [ARTISO](https://www.artiso.ai), a Barcelona-based fashion technology company.
 
 </td><td align="right" valign="top">
-<a href="https://www.artiso.ai" style="text-decoration: none;"><img src="https://www.artiso.ai/ARTISO.svg" alt="ARTISO" height="40"></a>
+<a href="https://www.artiso.ai"><img src="https://www.artiso.ai/ARTISO.svg" alt="ARTISO" height="40"></a>
 </td></tr></table>
 
 We believe the fashion industry's transition to sustainability requires **open, accessible tools**. By open-sourcing dppvalidator, we're enabling brands of all sizes - from emerging designers to global retailers - to meet EU compliance requirements without proprietary solutions.

@@ -141,7 +141,10 @@ class ValidationEngine:
             )
             logger.debug("JSON-LD validator initialized")
         except ImportError:
-            logger.warning("pyld not installed, JSON-LD validation disabled")
+            logger.warning(
+                "pyld import failed - JSON-LD validation disabled. "
+                "Try: pip install --force-reinstall dppvalidator"
+            )
 
     def _init_vocabulary_loader(self) -> None:
         """Initialize the vocabulary loader for external vocabulary validation."""
@@ -161,7 +164,10 @@ class ValidationEngine:
             self._credential_verifier = CredentialVerifier()
             logger.debug("Credential verifier initialized")
         except ImportError:
-            logger.warning("cryptography not installed, signature verification disabled")
+            logger.warning(
+                "cryptography import failed - signature verification disabled. "
+                "Try: pip install --force-reinstall dppvalidator"
+            )
 
     def _init_plugin_registry(self) -> None:
         """Initialize the plugin registry for plugin validators."""

@@ -10,6 +10,8 @@ copyright: >
 
 theme:
   name: material
+  logo: assets/logo.png
+  favicon: assets/favicon-32x32.png
   palette:
     - scheme: default
       primary: indigo
@@ -125,6 +127,7 @@ nav:
   - Guides:
       - CLI Usage: guides/cli-usage.md
       - Validation: guides/validation.md
+      - Use Cases: guides/use-cases.md
       - JSON-LD Export: guides/jsonld.md
       - Plugin Development: guides/plugins.md
   - Reference:
@@ -160,4 +163,5 @@ nav:
           - VOC003 - UNECE Material Code: errors/VOC003.md
           - VOC004 - HS Code Validation: errors/VOC004.md
           - VOC005 - GTIN Checksum: errors/VOC005.md
+  - FAQ: faq.md
   - Changelog: changelog.md
