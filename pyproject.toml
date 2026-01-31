@@ -1,6 +1,6 @@
 [project]
 name = "dppvalidator"
-version = "0.2.2"
+version = "0.2.3"
 description = "Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and CIRPASS/UNECE ontologies"
 readme = "README.md"
 requires-python = ">=3.10"
