@@ -9,7 +9,7 @@ repos:
       - id: detect-private-key
       - id: debug-statements
       - id: check-added-large-files
-        exclude: ^uv\.lock$
+        exclude: ^(uv\.lock|docs/assets/logo\.png)$
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
@@ -19,7 +19,7 @@ repos:
           - mdformat-gfm
           - mdformat-black
           - mdformat-admon
-        exclude: ^\.windsurf/(rules|skills|workflows)/.*\.md$
+        exclude: ^(\.windsurf/(rules|skills|workflows)|\.claude)/.*\.md$
 
   - repo: https://github.com/hadialqattan/pycln
     rev: v2.6.0
