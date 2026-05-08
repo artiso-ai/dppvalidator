@@ -4,8 +4,19 @@ repos:
     hooks:
       - id: check-yaml
         args: [ --unsafe ]
+      # ``end-of-file-fixer`` and ``trailing-whitespace`` mutate files —
+      # which is incompatible with the SHA-pinned vendored artefacts
+      # under ``src/dppvalidator/{schemas,vocabularies}/data/``. Those
+      # files are byte-pinned in
+      # ``src/dppvalidator/schemas/data/MANIFEST.json`` and verified by
+      # ``tests/unit/test_manifest_integrity.py``. Adding a trailing
+      # newline silently invalidates the SHA. The exclusion guards
+      # both that contract and the upstream-vendored fixtures under
+      # ``tests/fixtures/upstream/`` (also SHA-recorded in SOURCES.md).
       - id: end-of-file-fixer
+        exclude: ^(src/dppvalidator/(schemas|vocabularies)/data/|tests/fixtures/upstream/).*$
       - id: trailing-whitespace
+        exclude: ^(src/dppvalidator/(schemas|vocabularies)/data/|tests/fixtures/upstream/).*$
       - id: detect-private-key
       - id: debug-statements
       - id: check-added-large-files
