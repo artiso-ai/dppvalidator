@@ -305,21 +305,24 @@ class TestEd25519ProofVerification:
 
         Round-trips the verifier's own canonicalisation: we ask the
         verifier to produce ``verify-data`` for a (credential, proof
-        options) pair, sign **those** bytes with a fresh Ed25519 key,
-        attach the signature as the ``proofValue``, and then call the
-        verifier — which must recompute the same canonical bytes and
+        options) pair, sign **those** bytes with a deterministic Ed25519
+        key, attach the signature as the ``proofValue``, and then call
+        the verifier — which must recompute the same canonical bytes and
         report a valid signature.
 
-        The credential carries an ``@context`` so URDNA2015
-        canonicalisation produces non-empty n-quads (the verifier's
-        primary path since 0.3.2). This avoids the historical flake:
-        signing JSON-canonical bytes while the verifier compares
-        against URDNA2015-canonicalised bytes.
+        Uses a fixed seed so the signature's base64 encoding is
+        reproducible across runs; previously this test generated a
+        random key and flaked ~1.5% of runs when the signature happened
+        to base64-encode with a leading ``z`` (which collides with the
+        multibase base58btc prefix). See
+        ``test_ed25519_proof_with_leading_z_base64_signature`` for the
+        explicit regression covering that case.
         """
         verifier = CredentialVerifier()
 
-        # Generate the signing key.
-        private_key = ed25519.Ed25519PrivateKey.generate()
+        # Deterministic key (32-byte seed). Reproducible across runs.
+        seed = bytes(range(32))
+        private_key = ed25519.Ed25519PrivateKey.from_private_bytes(seed)
         public_key = private_key.public_key()
 
         vm = VerificationMethod(
@@ -354,6 +357,64 @@ class TestEd25519ProofVerification:
 
         signature = private_key.sign(message)
         proof = {**proof_options, "proofValue": base64.b64encode(signature).decode()}
+
+        result = verifier._verify_ed25519_proof(credential, proof, vm)
+        assert result is True
+
+    def test_ed25519_proof_with_leading_z_base64_signature(self) -> None:
+        """Regression: base64 signatures with leading ``z`` are not misread as multibase.
+
+        Standard base64 contains ``z`` in its alphabet, so ~1/64 of
+        Ed25519 signatures encode with a leading ``z`` — colliding with
+        the multibase base58btc prefix. The verifier must fall back to
+        base64 when base58 decode fails on such a value.
+        """
+        verifier = CredentialVerifier()
+
+        credential = {
+            "@context": ["https://www.w3.org/ns/credentials/v2"],
+            "id": "urn:uuid:test-leading-z",
+            "type": ["VerifiableCredential"],
+        }
+        proof_options = {
+            "type": "Ed25519Signature2020",
+            "created": "2024-01-01T00:00:00Z",
+            "verificationMethod": "did:key:z6Mk...#key-1",
+            "proofPurpose": "assertionMethod",
+        }
+        message = verifier._create_verify_data(credential, proof_options)
+        assert message
+
+        # Search seed space deterministically for a (key, signature)
+        # pair whose base64-encoded signature starts with 'z'. Expected
+        # to find one within ~64 tries; cap at 1000 for safety.
+        private_key = None
+        signature = None
+        for seed_int in range(1000):
+            candidate_key = ed25519.Ed25519PrivateKey.from_private_bytes(
+                seed_int.to_bytes(32, "big")
+            )
+            candidate_sig = candidate_key.sign(message)
+            if base64.b64encode(candidate_sig).decode().startswith("z"):
+                private_key = candidate_key
+                signature = candidate_sig
+                break
+        assert private_key is not None, "failed to find leading-z base64 signature in 1000 seeds"
+        assert signature is not None
+
+        public_key = private_key.public_key()
+        vm = VerificationMethod(
+            id="did:key:z6Mk...#key-1",
+            type="Ed25519VerificationKey2020",
+            controller="did:key:z6Mk...",
+            public_key_jwk={
+                "kty": "OKP",
+                "crv": "Ed25519",
+                "x": base64.urlsafe_b64encode(public_key.public_bytes_raw()).rstrip(b"=").decode(),
+            },
+        )
+        proof = {**proof_options, "proofValue": base64.b64encode(signature).decode()}
+        assert proof["proofValue"].startswith("z")
 
         result = verifier._verify_ed25519_proof(credential, proof, vm)
         assert result is True

@@ -194,11 +194,24 @@ class CredentialVerifier:
             if not proof_value:
                 return None
 
-            # Decode multibase-encoded signature (z prefix = base58btc)
+            # Decode the proof value. A leading "z" SHOULD indicate
+            # multibase base58btc per the Data Integrity spec, but
+            # standard base64 also contains "z" in its alphabet — so a
+            # legacy base64-encoded signature may collide with the
+            # multibase prefix. Try base58btc first when the prefix
+            # matches; fall back to base64 if that decode fails or
+            # yields empty bytes.
+            signature = b""
             if proof_value.startswith("z"):
-                signature = self._decode_base58btc(proof_value[1:])
-            else:
-                signature = base64.b64decode(proof_value)
+                try:
+                    signature = self._decode_base58btc(proof_value[1:])
+                except Exception:
+                    signature = b""
+            if not signature:
+                try:
+                    signature = base64.b64decode(proof_value)
+                except Exception:
+                    return None
 
             if not signature:
                 return None
