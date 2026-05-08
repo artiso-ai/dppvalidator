@@ -41,6 +41,12 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Literal
 
 from dppvalidator.vocabularies.code_lists import (
+    is_hs_scheme as _is_hs_scheme,
+)
+from dppvalidator.vocabularies.code_lists import (
+    is_unece_rec46_scheme as _is_unece_rec46_scheme,
+)
+from dppvalidator.vocabularies.code_lists import (
     is_valid_hs_code as _is_valid_hs_code,
 )
 from dppvalidator.vocabularies.code_lists import (
@@ -305,7 +311,18 @@ class GranularitySerialNumberRule:
 
 
 class MaterialCodeRule:
-    """VOC003 (v0.7): material code must be valid per UNECE Rec 46."""
+    """VOC003 (v0.7): material code must be valid per UNECE Rec 46.
+
+    The rule is **scheme-aware**: it only fires when the
+    ``materialType.schemeId`` declares the code as UNECE Rec 46
+    (detected by :func:`_is_unece_rec46_scheme`). Codes drawn from
+    other classifications (UN CPC, GS1 GPC, NACE, …) are skipped —
+    firing the textile-pilot validator on them produced false
+    positives. When ``schemeId`` is missing entirely, the rule falls
+    back to the pre-fix best-effort behaviour (a textile DPP without
+    a declared scheme is the most common producer of legacy v0.6
+    fixtures).
+    """
 
     rule_id: str = "VOC003"
     description: str = "Material code must be in UNECE Rec 46"
@@ -328,8 +345,17 @@ class MaterialCodeRule:
         materials = getattr(product, "material_provenance", []) or []
         for i, material in enumerate(materials):
             mt = getattr(material, "material_type", None)
-            code = getattr(mt, "code", None) if mt else None
-            if code and not self._is_valid_material_code(code):
+            if mt is None:
+                continue
+            code = getattr(mt, "code", None)
+            if not code:
+                continue
+            scheme_id = getattr(mt, "scheme_id", None)
+            # When schemeId is set but isn't UNECE Rec 46, the rule
+            # has no opinion — skip silently rather than false-positive.
+            if scheme_id and not _is_unece_rec46_scheme(scheme_id):
+                continue
+            if not self._is_valid_material_code(code):
                 violations.append(
                     (
                         f"$.credentialSubject.materialProvenance[{i}].materialType.code",
@@ -344,6 +370,14 @@ class HSCodeRule:
 
     v0.7 ``Product.product_category`` is a list of :class:`Classification`
     (was a single Classification in v0.6); this rule iterates over them.
+
+    The rule is **scheme-aware**: it only fires when the
+    ``classification.schemeId`` declares the code as a Harmonized
+    System code (detected by :func:`_is_hs_scheme`). Codes drawn
+    from other classifications are skipped. When ``schemeId`` is
+    missing, the rule falls back to a length+digit heuristic
+    (4+ digits) that matches the pre-fix best-effort behaviour for
+    legacy v0.6 fixtures that don't declare a scheme.
     """
 
     rule_id: str = "VOC004"
@@ -367,7 +401,17 @@ class HSCodeRule:
         categories = getattr(product, "product_category", []) or []
         for i, classification in enumerate(categories):
             code = getattr(classification, "code", None) or ""
-            if code.isdigit() and len(code) >= 4 and not self._is_valid_hs_code(code):
+            scheme_id = getattr(classification, "scheme_id", None)
+            # Scheme-aware gate: when schemeId is set, only fire for
+            # HS schemes. When it isn't, fall back to the length /
+            # digit heuristic (4+ digits looks HS-shaped).
+            if scheme_id is not None:
+                if not _is_hs_scheme(scheme_id):
+                    continue
+                should_check = bool(code)
+            else:
+                should_check = code.isdigit() and len(code) >= 4
+            if should_check and not self._is_valid_hs_code(code):
                 violations.append(
                     (
                         f"$.credentialSubject.productCategory[{i}].code",

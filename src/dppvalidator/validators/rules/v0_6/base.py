@@ -7,6 +7,12 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Literal
 
 from dppvalidator.vocabularies.code_lists import (
+    is_hs_scheme as _is_hs_scheme,
+)
+from dppvalidator.vocabularies.code_lists import (
+    is_unece_rec46_scheme as _is_unece_rec46_scheme,
+)
+from dppvalidator.vocabularies.code_lists import (
     is_valid_hs_code as _is_valid_hs_code,
 )
 from dppvalidator.vocabularies.code_lists import (
@@ -252,6 +258,13 @@ class MaterialCodeRule:
 
     Validates material codes in materialsProvenance against the
     UNECE Recommendation 46 material classification codes.
+
+    The rule is **scheme-aware**: when ``materialType.schemeID``
+    declares a non-Rec46 classification (e.g. UN CPC), the rule
+    skips silently rather than producing false positives. When
+    ``schemeID`` is missing, it falls back to the pre-fix
+    best-effort behaviour for back-compat with legacy v0.6 fixtures.
+    See :func:`dppvalidator.vocabularies.code_lists.is_unece_rec46_scheme`.
     """
 
     rule_id: str = "VOC003"
@@ -279,16 +292,24 @@ class MaterialCodeRule:
             return violations
 
         for i, material in enumerate(materials):
-            # Check material_type.code if present
-            if material.material_type and material.material_type.code:
-                code = material.material_type.code
-                if not self._is_valid_material_code(code):
-                    violations.append(
-                        (
-                            f"$.credentialSubject.materialsProvenance[{i}].materialType.code",
-                            f"Invalid material code '{code}' - not found in UNECE Rec 46",
-                        )
+            mt = material.material_type
+            if not mt or not mt.code:
+                continue
+            code = mt.code
+            # v0.6 ``Classification`` exposes the scheme via the
+            # ``scheme_id`` attribute (alias of ``schemeID`` on the
+            # wire — see ``models/v0_6/primitives.py``).
+            scheme_id = getattr(mt, "scheme_id", None)
+            if scheme_id and not _is_unece_rec46_scheme(scheme_id):
+                # Code claims a different scheme — we have no opinion.
+                continue
+            if not self._is_valid_material_code(code):
+                violations.append(
+                    (
+                        f"$.credentialSubject.materialsProvenance[{i}].materialType.code",
+                        f"Invalid material code '{code}' - not found in UNECE Rec 46",
                     )
+                )
 
         return violations
 
@@ -298,6 +319,12 @@ class HSCodeRule:
 
     Validates HS codes in product information against the
     Harmonized System textile chapters (50-63).
+
+    The rule is **scheme-aware**: when ``classification.schemeID``
+    declares a non-HS classification, the rule skips silently. When
+    ``schemeID`` is missing, it falls back to the
+    length-and-digit heuristic that matches the pre-fix behaviour.
+    See :func:`dppvalidator.vocabularies.code_lists.is_hs_scheme`.
     """
 
     rule_id: str = "VOC004"
@@ -328,8 +355,17 @@ class HSCodeRule:
         if product.product_category:
             for i, classification in enumerate(product.product_category):
                 code = classification.code if classification.code else ""
-                # Only validate if it looks like an HS code (4+ digits)
-                if code.isdigit() and len(code) >= 4 and not self._is_valid_hs_code(code):
+                scheme_id = getattr(classification, "scheme_id", None)
+                # Scheme-aware gate: when schemeID is set, only fire
+                # for HS schemes. When it isn't, fall back to the
+                # length / digit heuristic (4+ digits looks HS-shaped).
+                if scheme_id is not None:
+                    if not _is_hs_scheme(scheme_id):
+                        continue
+                    should_check = bool(code)
+                else:
+                    should_check = code.isdigit() and len(code) >= 4
+                if should_check and not self._is_valid_hs_code(code):
                     violations.append(
                         (
                             f"$.credentialSubject.product.productCategory[{i}].code",

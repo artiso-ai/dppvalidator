@@ -110,6 +110,65 @@ def is_textile_hs_code(code: str) -> bool:
         return False
 
 
+# ---------------------------------------------------------------------------
+# Scheme-id detectors
+#
+# Used by ``MaterialCodeRule`` (VOC003) and ``HSCodeRule`` (VOC004) to gate
+# their checks. A ``Classification.schemeId`` is the contract a payload
+# uses to declare *which* code list a code belongs to. The textile-pilot
+# validators in this module check codes against UNECE Rec 46 and the HS
+# textile chapters specifically — firing them on UN CPC, NACE, GS1 GPC,
+# or any other classification produces false positives. The rules only
+# call ``is_valid_material_code`` / ``is_valid_hs_code`` when the scheme
+# id matches one of the patterns below; otherwise they skip silently.
+#
+# The patterns are deliberately lenient (substring match, case-folded)
+# because UN/CEFACT, WCO, and CIRPASS each publish slightly different
+# canonical URLs over time. Adding a new positive pattern is a one-line
+# change here when fixtures surface a real-world schemeId we want to
+# pick up.
+# ---------------------------------------------------------------------------
+
+
+_UNECE_REC46_SCHEME_TOKENS: tuple[str, ...] = (
+    "unece-rec-46",
+    "unecerec46",
+    "rec-46",
+    "rec46",
+    "uncefact:codelist:standard:unece:material",
+    "vocabulary.uncefact.org/unecerec46",
+)
+
+_HS_SCHEME_TOKENS: tuple[str, ...] = (
+    "wcoomd",
+    "harmonized-system",
+    "harmonized_system",
+    "uncefact:codelist:standard:wco:hs",
+    # ``/hs/`` and ``/hs-`` cover the most common URL paths that publish
+    # Harmonized-System nomenclature variants; the leading slash anchors
+    # the match to a path segment rather than e.g. an arbitrary brand
+    # name that happens to contain ``hs``.
+    "/hs/",
+    "/hs-",
+)
+
+
+def is_unece_rec46_scheme(scheme_id: str | None) -> bool:
+    """True when ``scheme_id`` plausibly identifies UNECE Rec 46."""
+    if not scheme_id:
+        return False
+    s = scheme_id.lower()
+    return any(tok in s for tok in _UNECE_REC46_SCHEME_TOKENS)
+
+
+def is_hs_scheme(scheme_id: str | None) -> bool:
+    """True when ``scheme_id`` plausibly identifies a Harmonized System code list."""
+    if not scheme_id:
+        return False
+    s = scheme_id.lower()
+    return any(tok in s for tok in _HS_SCHEME_TOKENS)
+
+
 def validate_gtin(gtin: str) -> bool:
     """Validate a GTIN (Global Trade Item Number) checksum.
 
