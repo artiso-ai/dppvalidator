@@ -24,8 +24,27 @@ MKDOCS_FILE = PROJECT_ROOT / "mkdocs.yml"
 # Error code pattern: 2-3 uppercase letters followed by 3 digits
 ERROR_CODE_PATTERN = re.compile(r"\b([A-Z]{2,3}\d{3})\b")
 
-# Error code prefixes to check
-KNOWN_PREFIXES = {"SCH", "PRS", "MDL", "SEM", "JLD", "VOC", "SIG", "CQ", "TXT"}
+# Error code prefixes to check.
+#
+# - SCH/PRS/MDL/SEM/JLD/VOC: validator layers.
+# - SIG: VC signature verification (Phase 5 of pre-0.4.0 work).
+# - CQ: CIRPASS-2 conformance.
+# - TXT: textile-pilot rules.
+# - VER: UNTP version-mismatch errors (Phase 3.3 of UNTP 0.7.0 plan).
+# - UPG: 0.6 → 0.7 compat-shim warnings (Phase 4 of UNTP 0.7.0 plan).
+KNOWN_PREFIXES = {
+    "SCH",
+    "PRS",
+    "MDL",
+    "SEM",
+    "JLD",
+    "VOC",
+    "SIG",
+    "CQ",
+    "TXT",
+    "VER",
+    "UPG",
+}
 
 
 def find_error_codes_in_source() -> set[str]:

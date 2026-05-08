@@ -226,6 +226,7 @@ nav:
           - MDL081 - Invalid Emission Value: errors/MDL081.md
           - MDL090 - Invalid Facility: errors/MDL090.md
           - MDL091 - Invalid Facility Location: errors/MDL091.md
+          - MDL098 - No Model Registered for Schema Version: errors/MDL098.md
           - MDL099 - Unknown Model Error: errors/MDL099.md
       - JSON-LD Errors:
           - JLD001 - Missing Context: errors/JLD001.md
@@ -259,5 +260,12 @@ nav:
           - TXT003 - Missing Microplastic Data: errors/TXT003.md
           - TXT004 - Missing Durability Info: errors/TXT004.md
           - TXT005 - Missing Care Instructions: errors/TXT005.md
+      - Version Errors:
+          - VER001 - UNTP Version Mismatch: errors/VER001.md
+      - Upgrade-shim Errors:
+          - UPG001 - Lossy Upgrade Transformation: errors/UPG001.md
+          - UPG002 - Synthesised Value During Upgrade: errors/UPG002.md
+          - UPG003 - Unmapped Country Code: errors/UPG003.md
+          - UPG004 - Required v0.7 Field Missing: errors/UPG004.md
   - FAQ: faq.md
   - Changelog: changelog.md
