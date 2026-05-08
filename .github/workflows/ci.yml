@@ -51,9 +51,19 @@ jobs:
       - name: Run ty type checker
         run: uv run ty check src/dppvalidator/
 
-      # Matches pre-commit: pip-audit (pre-push stage)
+      # Matches pre-commit: pip-audit (pre-push stage).
+      #
+      # We audit a frozen requirements file (the actually-installed
+      # non-editable packages) rather than ``pip-audit --skip-editable``
+      # alone. The plain ``uv run pip-audit`` ships its own pip 25.3 in
+      # the tool environment, which surfaces pip-the-installer CVEs
+      # unrelated to anything dppvalidator imports or ships. ``pip
+      # freeze --exclude-editable`` doesn't emit ``pip`` itself, so the
+      # audit is scoped to runtime + dev dependencies only.
       - name: Run security scan (pip-audit)
-        run: uv run pip-audit --skip-editable
+        run: |
+          uv pip freeze --exclude-editable > /tmp/audit-requirements.txt
+          uv run pip-audit --requirement /tmp/audit-requirements.txt --strict
 
       # Check error documentation coverage
       - name: Check error documentation

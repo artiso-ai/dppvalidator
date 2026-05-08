@@ -109,6 +109,11 @@ dev = [
     # Security & License Scanning
     "pip-audit>=2.7.0",
     "pip-licenses>=5.0.0",
+    # ``pip-audit`` pulls in ``pip-api`` which transitively pins
+    # ``pip`` itself. Without this floor, the resolver picks pip 25.3
+    # (CVE-2026-1703 + CVE-2026-6357), which then surfaces during
+    # ``pip-audit`` runs against the lockfile-exported requirements.
+    "pip>=26.1",
     # SBOM Generation
     "cyclonedx-bom>=7.0.0",
     # Optional extras (include all for dev)

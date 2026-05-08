@@ -67,9 +67,15 @@ repos:
         language: system
         types: [ python ]
         pass_filenames: false
+      # Audit the actually-installed non-editable packages rather than
+      # plain ``uv run pip-audit --skip-editable``. The bare command
+      # ships its own pip 25.3 in the tool environment, which surfaces
+      # pip-the-installer CVEs unrelated to anything dppvalidator
+      # imports or ships. ``pip freeze --exclude-editable`` excludes
+      # both pip itself and our editable package.
       - id: pip-audit
         name: pip-audit
-        entry: uv run pip-audit --skip-editable
+        entry: bash -c 'uv pip freeze --exclude-editable > /tmp/audit-requirements.txt && uv run pip-audit --requirement /tmp/audit-requirements.txt --strict'
         language: system
         pass_filenames: false
         stages: [ pre-push ]
