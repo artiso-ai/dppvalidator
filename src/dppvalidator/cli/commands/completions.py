@@ -70,7 +70,7 @@ _dppvalidator_completions() {
             return
             ;;
         --version)
-            COMPREPLY=($(compgen -W "0.6.0 0.6.1" -- "${cur}"))
+            COMPREPLY=($(compgen -W "__SCHEMA_VERSIONS__" -- "${cur}"))
             return
             ;;
     esac
@@ -129,7 +129,7 @@ _dppvalidator() {
     )
 
     schema_opts=(
-        '--version[Schema version]:version:(0.6.0 0.6.1)'
+        '--version[Schema version]:version:(__SCHEMA_VERSIONS__)'
         '--help[Show help]'
     )
 
@@ -221,7 +221,7 @@ complete -c dppvalidator -n "__fish_seen_subcommand_from export" -F
 complete -c dppvalidator -n "__fish_seen_subcommand_from schema; and not __fish_seen_subcommand_from list info download" -a list -d "List available schemas"
 complete -c dppvalidator -n "__fish_seen_subcommand_from schema; and not __fish_seen_subcommand_from list info download" -a info -d "Show schema information"
 complete -c dppvalidator -n "__fish_seen_subcommand_from schema; and not __fish_seen_subcommand_from list info download" -a download -d "Download a schema"
-complete -c dppvalidator -n "__fish_seen_subcommand_from schema" -l version -d "Schema version" -xa "0.6.0 0.6.1"
+complete -c dppvalidator -n "__fish_seen_subcommand_from schema" -l version -d "Schema version" -xa "__SCHEMA_VERSIONS__"
 
 # completions options
 complete -c dppvalidator -n "__fish_seen_subcommand_from completions" -a "bash zsh fish" -d "Shell type"
@@ -254,6 +254,23 @@ Examples:
     )
 
 
+_SCHEMA_VERSIONS_SENTINEL = "__SCHEMA_VERSIONS__"
+
+
+def _expand_schema_versions(template: str) -> str:
+    """Expand the ``__SCHEMA_VERSIONS__`` sentinel with live registry values.
+
+    The completion templates carry a sentinel rather than a hardcoded version
+    list so that ``dppvalidator completions <shell>`` always reflects whatever
+    is registered in ``SCHEMA_REGISTRY`` at the moment the user generates the
+    completion. See docs/plans/UNTP_0.7.0_MIGRATION.md §Phase 1 / §7.1.
+    """
+    from dppvalidator.schemas.registry import SCHEMA_REGISTRY
+
+    versions = " ".join(sorted(SCHEMA_REGISTRY))
+    return template.replace(_SCHEMA_VERSIONS_SENTINEL, versions)
+
+
 def run(args: argparse.Namespace) -> int:
     """Run the completions command.
 
@@ -278,5 +295,5 @@ def run(args: argparse.Namespace) -> int:
         print(f"Unknown shell: {shell}", file=sys.stderr)
         return 2
 
-    print(completions[shell])
+    print(_expand_schema_versions(completions[shell]))
     return 0

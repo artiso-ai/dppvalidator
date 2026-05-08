@@ -16,18 +16,52 @@ from urllib.parse import urlparse
 import httpx
 
 from dppvalidator.logging import get_logger
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 from dppvalidator.validators.results import ValidationError, ValidationResult
 
 logger = get_logger(__name__)
 
 
-# Default link paths to follow in DPP documents
-DEFAULT_LINK_PATHS = [
-    "credentialSubject.traceabilityEvents",
-    "credentialSubject.conformityClaim",
-    "credentialSubject.product.traceabilityInfo",
-    "credentialSubject.materialsProvenance",
-]
+# Per-version JSON paths the deep crawler follows when looking for linked
+# documents. Each entry is a ``credentialSubject``-rooted dotted path; the
+# crawler walks the parsed payload and dereferences any URL it finds at
+# those paths. Lists in the path use the ``[*]`` syntax to mean "every
+# entry" (handled in :class:`DeepValidator._extract_links`).
+#
+# Adding a new UNTP version means adding one entry here — see Phase 3b of
+# docs/plans/UNTP_0.7.0_MIGRATION.md and the cardinal rule in
+# .claude/rules/untp-versioning.md (rule 2: "one source of truth per
+# surface").
+LINK_PATHS_BY_VERSION: dict[str, list[str]] = {
+    "0.6.0": [
+        "credentialSubject.traceabilityEvents",
+        "credentialSubject.conformityClaim",
+        "credentialSubject.product.traceabilityInfo",
+        "credentialSubject.materialsProvenance",
+    ],
+    "0.6.1": [
+        "credentialSubject.traceabilityEvents",
+        "credentialSubject.conformityClaim",
+        "credentialSubject.product.traceabilityInfo",
+        "credentialSubject.materialsProvenance",
+    ],
+    "0.7.0": [
+        # v0.7.0 envelope: credentialSubject IS the Product, conformity
+        # claims live on it directly, and material provenance is the
+        # singular noun. ``[*]`` means "iterate every list element".
+        "credentialSubject.evidence",
+        "credentialSubject.relatedDocument",
+        "credentialSubject.performanceClaim[*].evidence",
+        "credentialSubject.materialProvenance[*].materialSafetyInformation",
+        "credentialSubject.relatedParty[*].party.id",
+    ],
+}
+
+# Backward-compat alias. Pre-Phase-3b callers that imported
+# ``DEFAULT_LINK_PATHS`` see the v0.6.x list — same value the constant
+# carried before the version-keyed dispatch landed. New code should use
+# :data:`LINK_PATHS_BY_VERSION` keyed on the active schema version.
+DEFAULT_LINK_PATHS = LINK_PATHS_BY_VERSION["0.6.1"]
 
 
 @dataclass
@@ -147,22 +181,38 @@ class DeepValidator:
         retry_config: RetryConfig | None = None,
         timeout: float = 30.0,
         auth_header: dict[str, str] | None = None,
+        schema_version: str = DEFAULT_SCHEMA_VERSION,
     ) -> None:
         """Initialize the deep validator.
 
         Args:
             validator_factory: Factory to create ValidationEngine instances
             max_depth: Maximum depth to traverse (0 = root only)
-            follow_links: JSON paths to follow for links
+            follow_links: JSON paths to follow for links. When ``None``,
+                the path list is selected from :data:`LINK_PATHS_BY_VERSION`
+                keyed on ``schema_version``. The v0.7.0 paths
+                (``performanceClaim[*].evidence``, ``relatedDocument``,
+                ``materialProvenance[*].materialSafetyInformation``,
+                ``relatedParty[*].party.id``, ``evidence``) differ
+                substantially from the v0.6.x set — see Phase 3b of
+                docs/plans/UNTP_0.7.0_MIGRATION.md.
             rate_limiter: Rate limiter for HTTP requests
             retry_config: Retry configuration for failed requests
             timeout: HTTP request timeout in seconds
             auth_header: Authorization headers for requests
+            schema_version: UNTP DPP version. Drives the default
+                ``follow_links`` selection from
+                :data:`LINK_PATHS_BY_VERSION`. Ignored when
+                ``follow_links`` is supplied explicitly.
 
         """
         self._validator_factory = validator_factory
         self.max_depth = max_depth
-        self.follow_links = follow_links or DEFAULT_LINK_PATHS
+        self.schema_version = schema_version
+        if follow_links is not None:
+            self.follow_links = follow_links
+        else:
+            self.follow_links = LINK_PATHS_BY_VERSION.get(schema_version, DEFAULT_LINK_PATHS)
         self.rate_limiter = rate_limiter or RateLimiter()
         self.retry_config = retry_config or RetryConfig()
         self.timeout = timeout
@@ -339,10 +389,25 @@ class DeepValidator:
         return links
 
     def _get_urls_at_path(self, data: dict[str, Any], path: str) -> list[str]:
-        """Get URLs from a JSON path in the data."""
+        """Get URLs from a JSON path in the data.
+
+        Supports two syntactic forms for list traversal:
+
+        - **Implicit:** ``credentialSubject.materialsProvenance.name`` —
+          when the resolver hits a list, it collects ``name`` from every
+          item. This is the v0.6.x convention.
+        - **Explicit:** ``credentialSubject.performanceClaim[*].evidence``
+          — the ``[*]`` token is normalised away (v0.7.0 paths use this
+          form for clarity).
+
+        Both forms produce the same result; ``[*]`` is purely a readability
+        marker for the v0.7 path table in :data:`LINK_PATHS_BY_VERSION`.
+        """
         urls = []
-        parts = path.split(".")
-        current = data
+        # Normalise ``segment[*]`` → ``segment`` so the resolver below
+        # doesn't have to know about the explicit list-iteration token.
+        parts = [segment.replace("[*]", "") for segment in path.split(".")]
+        current: Any = data
 
         for part in parts:
             if current is None:
@@ -401,13 +466,17 @@ async def validate_deep(
     follow_links: list[str] | None = None,
     timeout: float = 30.0,
     auth_header: dict[str, str] | None = None,
+    schema_version: str = DEFAULT_SCHEMA_VERSION,
 ) -> DeepValidationResult:
     """Perform deep validation with default settings.
 
     Args:
         data: Root DPP document data
         max_depth: Maximum depth to traverse
-        follow_links: JSON paths to follow for links
+        follow_links: JSON paths to follow for links. When ``None``,
+            picked from :data:`LINK_PATHS_BY_VERSION` based on
+            ``schema_version`` (Phase 3b).
+        schema_version: UNTP DPP version. Selects the default link paths.
         timeout: HTTP request timeout
         auth_header: Authorization headers
 
@@ -420,5 +489,6 @@ async def validate_deep(
         follow_links=follow_links,
         timeout=timeout,
         auth_header=auth_header,
+        schema_version=schema_version,
     )
     return await validator.validate(data)

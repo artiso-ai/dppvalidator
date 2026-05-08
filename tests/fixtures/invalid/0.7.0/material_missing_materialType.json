@@ -1,0 +1,48 @@
+{
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://vocabulary.uncefact.org/untp/0.7.0/context/"
+  ],
+  "id": "https://example.com/credentials/dpp-material-missing-type",
+  "name": "Material missing required materialType — should fail",
+  "issuer": {
+    "type": ["CredentialIssuer"],
+    "id": "did:example:issuer-001",
+    "name": "Example Company Ltd"
+  },
+  "validFrom": "2024-01-01T00:00:00Z",
+  "credentialSubject": {
+    "type": ["Product"],
+    "id": "https://example.com/products/001",
+    "name": "Example Product",
+    "idScheme": {
+      "type": ["IdentifierScheme"],
+      "id": "https://example.com/schemes/internal",
+      "name": "Internal product scheme"
+    },
+    "idGranularity": "model",
+    "productCategory": [
+      {
+        "type": ["Classification"],
+        "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+        "schemeName": "UN Central Product Classification",
+        "code": "12345",
+        "name": "Example category"
+      }
+    ],
+    "producedAtFacility": {
+      "type": ["Facility"],
+      "id": "https://example.com/facilities/001",
+      "name": "Example facility"
+    },
+    "countryOfProduction": {"countryCode": "DE", "countryName": "Germany"},
+    "materialProvenance": [
+      {
+        "name": "Steel",
+        "originCountry": {"countryCode": "DE", "countryName": "Germany"},
+        "massFraction": 0.5
+      }
+    ]
+  }
+}

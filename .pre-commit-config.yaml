@@ -3,9 +3,20 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-yaml
-        args: [--unsafe]
+        args: [ --unsafe ]
+      # ``end-of-file-fixer`` and ``trailing-whitespace`` mutate files —
+      # which is incompatible with the SHA-pinned vendored artefacts
+      # under ``src/dppvalidator/{schemas,vocabularies}/data/``. Those
+      # files are byte-pinned in
+      # ``src/dppvalidator/schemas/data/MANIFEST.json`` and verified by
+      # ``tests/unit/test_manifest_integrity.py``. Adding a trailing
+      # newline silently invalidates the SHA. The exclusion guards
+      # both that contract and the upstream-vendored fixtures under
+      # ``tests/fixtures/upstream/`` (also SHA-recorded in SOURCES.md).
       - id: end-of-file-fixer
+        exclude: ^(src/dppvalidator/(schemas|vocabularies)/data/|tests/fixtures/upstream/).*$
       - id: trailing-whitespace
+        exclude: ^(src/dppvalidator/(schemas|vocabularies)/data/|tests/fixtures/upstream/).*$
       - id: detect-private-key
       - id: debug-statements
       - id: check-added-large-files
@@ -19,45 +30,47 @@ repos:
           - mdformat-gfm
           - mdformat-black
           - mdformat-admon
-        exclude: ^\.windsurf/(rules|skills|workflows)/.*\.md$
+        exclude: ^(\.windsurf/(rules|skills|workflows)|\.claude|docs/plans|tests/fixtures/upstream)/.*\.md$
 
   - repo: https://github.com/hadialqattan/pycln
     rev: v2.6.0
     hooks:
       - id: pycln
-        args: [--config=pyproject.toml]
+        args: [ --config=pyproject.toml ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.14
     hooks:
       # bandit (security) - exclude notebooks (example code uses random)
+      # ``scripts/`` is excluded too: it holds dev-only utilities (e.g. the
+      # functional smoke test) that legitimately drive ``subprocess.run``
+      # with controlled, env-overridable binary paths — not user input.
       - id: ruff
-        types_or: [python, pyi]
-        args: ["--fix", "--select=S", "--ignore=S101,S110"]
-        exclude: ^(tests/|mutants/|examples/)
+        types_or: [ python, pyi ]
+        args: [ "--fix", "--select=S", "--ignore=S101,S110" ]
+        exclude: ^(tests/|mutants/|examples/|scripts/)
       # isort
       - id: ruff
-        types_or: [python, pyi, jupyter]
-        args: [--fix, "--select=I"]
+        types_or: [ python, pyi, jupyter ]
+        args: [ --fix, "--select=I" ]
       # type annotations - exclude notebooks (educational examples)
       - id: ruff
-        types_or: [python, pyi]
-        args:
-          ["--select", "ANN", "--ignore", "ANN101,ANN102,ANN401,ANN002,ANN003"]
-        exclude: ^(tests/|mutants/|benchmarks/|examples/).*$
+        types_or: [ python, pyi ]
+        args: [ "--select", "ANN", "--ignore", "ANN101,ANN102,ANN401,ANN002,ANN003" ]
+        exclude: ^(tests/|mutants/|benchmarks/|examples/|scripts/).*$
       # Replace %s statements with f-string syntax
       - id: ruff
-        types_or: [python, pyi, jupyter]
-        args: ["--select=FLY002"]
+        types_or: [ python, pyi, jupyter ]
+        args: [ "--select=FLY002" ]
       # Comprehensive ruff check (no auto-fix) - only on src code
       - id: ruff
         name: ruff-check-all
-        types_or: [python, pyi]
-        args: ["--output-format=github"]
-        exclude: ^(tests/|mutants/|benchmarks/|examples/)
+        types_or: [ python, pyi ]
+        args: [ "--output-format=github" ]
+        exclude: ^(tests/|mutants/|benchmarks/|examples/|scripts/)
       # formatting
       - id: ruff-format
-        types_or: [python, pyi, jupyter]
+        types_or: [ python, pyi, jupyter ]
 
   # ty type checking via uv (uses project's dev dependencies)
   - repo: local
@@ -66,11 +79,17 @@ repos:
         name: ty
         entry: uv run ty check src/dppvalidator/
         language: system
-        types: [python]
+        types: [ python ]
         pass_filenames: false
+      # Audit the actually-installed non-editable packages rather than
+      # plain ``uv run pip-audit --skip-editable``. The bare command
+      # ships its own pip 25.3 in the tool environment, which surfaces
+      # pip-the-installer CVEs unrelated to anything dppvalidator
+      # imports or ships. ``pip freeze --exclude-editable`` excludes
+      # both pip itself and our editable package.
       - id: pip-audit
         name: pip-audit
-        entry: uv run pip-audit --skip-editable
+        entry: bash -c 'uv pip freeze --exclude-editable > /tmp/audit-requirements.txt && uv run pip-audit --requirement /tmp/audit-requirements.txt --strict'
         language: system
         pass_filenames: false
-        stages: [pre-push]
+        stages: [ pre-push ]

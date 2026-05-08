@@ -131,6 +131,52 @@ vocabularies/data/schemas/
 └── cirpass_dpp.xsd             # XML Schema (reference)
 ```
 
+## UNTP 0.7.0 schema notes
+
+The bundled UNTP 0.7.0 DPP schema lives at
+`schemas/data/untp-dpp-schema-0.7.0.json` and is byte-for-byte identical
+to two upstream-published copies:
+
+- **Production:**
+  <https://untp.unece.org/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json>
+- **SHA-pinned source:**
+  <https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json>
+
+Both URLs are recorded in `MANIFEST.json` (`production_url` and
+`source_url` respectively); the SHA-256 pin is enforced by
+`tests/unit/test_manifest_integrity.py`.
+
+### Known upstream quirk: `Characteristics` `$def`
+
+The UN/CEFACT split layout publishes the Product schema as a separate
+file
+(<https://untp.unece.org/artefacts/schema/v0.7.0/dpp/Product.json>),
+whose 17 `$defs` are also embedded into the bundled
+`DigitalProductPassport.json`. Verified on 2026-05-08, **the embedded
+`$defs.Characteristics` differs from the standalone version**:
+
+**Bundled `DPP.$defs.Characteristics`** carries an empty
+`"properties": {}` and a description that was clearly copy-pasted from
+`$defs.Claim` ("A declaration of conformance with one or more
+criteria…").
+
+**Standalone `Product.$defs.Characteristics`** has the canonical
+shape: a documented `@context` field in `properties` for JSON-LD
+vocabulary scoping, plus the correct Characteristics-specific
+description.
+
+dppvalidator models `Characteristics` as `extra="allow"` (in both
+[`v0_6/product.py`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/models/v0_6/product.py)
+and
+[`v0_7/primitives.py`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/models/v0_7/primitives.py)),
+so behaviour is identical to the standalone Product.json: arbitrary
+extension fields flow through. The discrepancy is purely documentary
+and is documented in `MANIFEST.json` (notes field on the
+`untp-dpp-schema@0.7.0` entry) for future readers. Vendoring
+`Product.json` was considered but rejected because the validator
+already runs against the bundled file and a second copy would create
+silent-divergence risk if upstream ever fixes one without the other.
+
 ## CLI Usage
 
 Validate with CIRPASS schema from command line:

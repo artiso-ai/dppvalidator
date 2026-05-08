@@ -1,0 +1,89 @@
+{
+  "$schema": "https://artiso-ai.github.io/dppvalidator/schemas/manifest-v1.json",
+  "manifest_version": 1,
+  "description": "Provenance + integrity manifest for every artefact bundled into the dppvalidator wheel under src/dppvalidator/{schemas,vocabularies}/data/. Each artefact carries the upstream URL it was vendored from and a SHA-256 of the bundled bytes; tests/unit/test_manifest_integrity.py (added in Phase 5) re-computes the hashes on every CI run. See docs/plans/UNTP_0.7.0_MIGRATION.md for the migration context.",
+  "artefacts": [
+    {
+      "version": "0.6.1",
+      "kind": "untp-dpp-schema",
+      "path": "src/dppvalidator/schemas/data/untp-dpp-schema-0.6.1.json",
+      "source_url": "https://test.uncefact.org/vocabulary/untp/dpp/untp-dpp-schema-0.6.1.json",
+      "sha256": "c0fdd7da5d23b6aec5d1d0ce198ca8d1cd67ca27609395a1b4961b3d1a8549a8",
+      "bytes": 49381,
+      "pulled_at": "2025-01-30",
+      "notes": "Pulled before this manifest existed; date inferred from git history (commit dd0c84..). Hash verified against the bytes on disk on 2026-05-07."
+    },
+    {
+      "version": "0.6.1",
+      "kind": "untp-jsonld-context",
+      "path": "src/dppvalidator/vocabularies/data/untp-context-0.6.1.jsonld",
+      "source_url": "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+      "sha256": "e956ab00591cebabeb6080eb02cd2f22adbda88c4d7861e8e7f03ea64284370f",
+      "bytes": 34347,
+      "pulled_at": "2026-05-07",
+      "notes": "Vendored in Phase 2 to remove an implicit network dependency. Server: AWS S3, Last-Modified: 2025-06-16T21:40:30Z."
+    },
+    {
+      "version": "0.7.0",
+      "kind": "untp-dpp-schema",
+      "path": "src/dppvalidator/schemas/data/untp-dpp-schema-0.7.0.json",
+      "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json",
+      "production_url": "https://untp.unece.org/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json",
+      "sha256": "42c51943ab23547d5287899fd12b214b19b006c28d105a70ff390f8551b12653",
+      "bytes": 50362,
+      "pulled_at": "2026-05-07",
+      "upstream_tag": "v0.7.0",
+      "upstream_commit": "707cd5267deddede24bb74e453a758561972a109",
+      "notes": "Self-contained: every $ref is internal (#/$defs/...). Product.json from the upstream split layout is intentionally NOT vendored — its $defs are already embedded inside this file's $defs. The bytes at ``production_url`` were re-fetched and verified bit-identical to ``source_url`` on 2026-05-08 (same SHA-256). Known upstream quirk: the embedded ``$defs.Characteristics`` carries an empty ``properties: {}`` and a description that was copy-pasted from ``$defs.Claim`` (\"A declaration of conformance with one or more criteria…\"). The standalone ``Product.json`` upstream file has the canonical, richer Characteristics definition with a ``@context`` field for JSON-LD vocabulary scoping. dppvalidator models Characteristics as ``extra=\"allow\"`` so behaviour is unaffected; this is documented for future readers who hit the discrepancy."
+    },
+    {
+      "version": "0.7.0",
+      "kind": "untp-jsonld-context",
+      "path": "src/dppvalidator/vocabularies/data/untp-context-0.7.0.jsonld",
+      "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/contexts/v0.7.0/untp-context.jsonld",
+      "production_url": "https://vocabulary.uncefact.org/untp/0.7.0/context/",
+      "sha256": "fbd4824e30d3cfc5cba949e1efe19b4c9ebaee056abe7aaf1c6b139a7bf91b0c",
+      "bytes": 105396,
+      "pulled_at": "2026-05-07",
+      "upstream_tag": "v0.7.0",
+      "upstream_commit": "707cd5267deddede24bb74e453a758561972a109",
+      "notes": "Unified context covering DigitalProductPassport, DigitalConformityCredential, DigitalFacilityRecord, DigitalIdentityAnchor, DigitalTraceabilityEvent."
+    },
+    {
+      "version": "0.7.0",
+      "kind": "untp-vocabulary-ontology",
+      "path": "src/dppvalidator/vocabularies/data/untp-ontology.jsonld",
+      "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/vocabularies/untp-core/untp-ontology.jsonld",
+      "sha256": "752060cc15c6c77bfcea8b170f173239a705e9da389314c1cb2dacc8a69d93bc",
+      "bytes": 147724,
+      "pulled_at": "2026-05-07",
+      "upstream_tag": "v0.7.0",
+      "upstream_commit": "707cd5267deddede24bb74e453a758561972a109",
+      "notes": "Core UNTP RDFS/OWL ontology: 74 classes, 2 properties. Used by SHACL-based semantic validation (Phase 3b)."
+    },
+    {
+      "version": "0.7.0",
+      "kind": "untp-vocabulary-metrics",
+      "path": "src/dppvalidator/vocabularies/data/untp-metrics.jsonld",
+      "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/vocabularies/untp-metrics/untp-metrics.jsonld",
+      "sha256": "77900ce1138be124976d138750bea24bacb6c8ba327672fe8598b85db99a0a36",
+      "bytes": 53765,
+      "pulled_at": "2026-05-07",
+      "upstream_tag": "v0.7.0",
+      "upstream_commit": "707cd5267deddede24bb74e453a758561972a109",
+      "notes": "Controlled metric vocabulary referenced by Performance.metric in the DPP schema."
+    },
+    {
+      "version": "0.7.0",
+      "kind": "untp-vocabulary-topics",
+      "path": "src/dppvalidator/vocabularies/data/untp-topics.jsonld",
+      "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/vocabularies/untp-topics/untp-topics.jsonld",
+      "sha256": "49affcb265bdf2a7a92d1b171c49a27543bfb4915bcbd11dd6e571252a57bb12",
+      "bytes": 61045,
+      "pulled_at": "2026-05-07",
+      "upstream_tag": "v0.7.0",
+      "upstream_commit": "707cd5267deddede24bb74e453a758561972a109",
+      "notes": "Conformity-topic taxonomy referenced by Claim.conformityTopic in the DPP schema."
+    }
+  ]
+}

@@ -35,13 +35,17 @@ ______________________________________________________________________
 
 ## Why dppvalidator?
 
+<!-- markdownlint-disable MD013 MD060 -->
+
 | Challenge                         | Solution                                                                                                                |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Complex JSON Schema validation    | **Seven-layer validation** catches errors at schema, model, semantic, JSON-LD, vocabulary, plugin, and signature levels |
-| Evolving UNTP specifications      | **Built-in schema support** for UNTP DPP 0.6.1 with easy version switching                                              |
+| Evolving UNTP specifications      | **Both UNTP DPP 0.6.x and 0.7.0** — auto-detected; `dppvalidator migrate` upgrades 0.6 → 0.7                            |
 | Integration with existing systems | **CLI + Python API** for pipelines, CI/CD, and application integration                                                  |
 | Custom business rules             | **Plugin system** for domain-specific validators and exporters                                                          |
 | Interoperability requirements     | **JSON-LD export** for W3C Verifiable Credentials compliance                                                            |
+
+<!-- markdownlint-enable MD013 MD060 -->
 
 ## Installation
 
@@ -170,6 +174,35 @@ exporter = JSONLDExporter()
 jsonld_output = exporter.export(passport)
 # Ready for W3C Verifiable Credentials ecosystem
 ```
+
+## Supported versions
+
+dppvalidator supports both UNTP DPP wire formats in the same release.
+The version is auto-detected from the payload's `@context` /
+`$schema` URLs; pin explicitly with `--schema-version` (CLI) or
+`schema_version=` (Python).
+
+<!-- markdownlint-disable MD013 MD060 -->
+
+| UNTP DPP  | Status             | Default? | Wire shape                                                                                                                                                                          |
+| --------- | ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.6.0** | Supported (legacy) | no       | `credentialSubject` is `ProductPassport` wrapping `Product`.                                                                                                                        |
+| **0.6.1** | Default            | **yes**  | Same shape as 0.6.0; current `DEFAULT_SCHEMA_VERSION`.                                                                                                                              |
+| **0.7.0** | Fully supported    | no       | `credentialSubject` IS the `Product` directly. New required fields: `name` (envelope), `idScheme`, `idGranularity`, `productCategory`, `producedAtFacility`, `countryOfProduction`. |
+
+<!-- markdownlint-enable MD013 MD060 -->
+
+A compat shim upgrades v0.6.x payloads to v0.7.0 shape:
+
+```bash
+dppvalidator migrate passport-v06.json -o passport-v07.json
+dppvalidator validate passport-v06.json --upgrade-from 0.6.1 --schema-version 0.7.0
+```
+
+The full version-handling story is documented in
+[`docs/concepts/untp-versions.md`](docs/concepts/untp-versions.md);
+the field rename table and warning codes are in
+[`docs/guides/migration-0-6-to-0-7.md`](docs/guides/migration-0-6-to-0-7.md).
 
 ## Features
 

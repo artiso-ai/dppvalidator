@@ -47,6 +47,7 @@ from dppvalidator.exporters import EUDPPJsonLDExporter
 exporter = EUDPPJsonLDExporter(
     map_terms=True,  # Map UNTP terms to EU DPP (default: True)
     include_untp_context=False,  # Include UNTP context in output (default: False)
+    schema_version=None,  # None = auto-detect from passport class
 )
 
 # Export methods
@@ -54,6 +55,41 @@ jsonld_str = exporter.export(passport)  # Returns JSON string
 jsonld_dict = exporter.export_dict(passport)  # Returns dictionary
 exporter.export_to_file(passport, "output.jsonld")  # Writes to file
 ```
+
+### Per-version dispatch (Phase 3c)
+
+The exporter is **version-aware**. UNTP v0.6 and v0.7 use different
+source-side spellings (`serialNumber` vs `itemNumber`,
+`producedByParty` vs `relatedParty`, …) but most map to the same EU
+DPP target URI. The exporter resolves the right column of
+`TermMapping` per call:
+
+- **`schema_version=None` (default)** — auto-detect from the
+  passport class's module path. A `dppvalidator.models.v0_7.*`
+  passport gets the v0.7 mapper, a v0.6 passport gets the v0.6
+  mapper. One exporter instance can serve mixed inputs.
+- **`schema_version="0.6.1"` or `"0.7.0"`** — pin explicitly.
+  Useful when the passport's source version is known up front
+  (e.g. CI pipelines), or when you want to *force* the v0.6 mapping
+  on a v0.7 passport for downstream-compat scenarios.
+
+```python
+from dppvalidator.exporters import EUDPPJsonLDExporter
+from dppvalidator.models.v0_7 import DigitalProductPassport
+
+passport = DigitalProductPassport.model_validate(payload_v07_dict)
+
+# Auto-detect (recommended).
+EUDPPJsonLDExporter().export(passport)
+
+# Pin explicitly.
+EUDPPJsonLDExporter(schema_version="0.7.0").export(passport)
+```
+
+Terms removed in v0.7 (e.g. `gtin`) are skipped from the v0.7
+mapper's index — they don't appear in the exported JSON-LD even if
+the source class somehow carries them. Renamed terms route to the
+correct EU DPP URI regardless of which source spelling was used.
 
 ### Convenience Functions
 
@@ -63,26 +99,48 @@ For simple use cases:
 from dppvalidator.exporters import (
     export_eudpp_jsonld,
     export_eudpp_jsonld_dict,
+    get_term_mapping_summary,
 )
 
-# String output
+# String output (auto-detects version).
 jsonld = export_eudpp_jsonld(passport)
 
-# Dictionary output
-data = export_eudpp_jsonld_dict(passport, map_terms=True)
+# Dictionary output, pinned to v0.7.
+data = export_eudpp_jsonld_dict(passport, map_terms=True, schema_version="0.7.0")
+
+# Inspect the mapping table for a given version.
+summary_v06 = get_term_mapping_summary("0.6.1")
+summary_v07 = get_term_mapping_summary("0.7.0")
 ```
 
 ## Term Mapping
 
-The exporter maps UNTP terms to EU DPP Core Ontology terms:
+The exporter maps UNTP terms to EU DPP Core Ontology terms. The EU
+DPP target URI is the same across UNTP versions; only the source-side
+spelling shifts between v0.6 and v0.7.
 
-| UNTP Term                | EU DPP Term       |
-| ------------------------ | ----------------- |
-| `id`                     | `uniqueDPPID`     |
-| `DigitalProductPassport` | `eudpp:DPP`       |
-| `Product`                | `eudpp:Product`   |
-| `validFrom`              | `eudpp:validFrom` |
-| `issuer`                 | `eudpp:hasIssuer` |
+<!-- markdownlint-disable MD013 MD060 -->
+
+| UNTP v0.6 term           | UNTP v0.7 term                      | EU DPP target URI             |
+| ------------------------ | ----------------------------------- | ----------------------------- |
+| `id`                     | `id`                                | `eudpp:uniqueDPPID`           |
+| `DigitalProductPassport` | `DigitalProductPassport`            | `eudpp:DPP`                   |
+| `Product`                | `Product`                           | `eudpp:Product`               |
+| `serialNumber`           | `itemNumber`                        | `eudpp:uniqueProductID`       |
+| `producedByParty`        | `relatedParty[role="manufacturer"]` | `eudpp:hasManufacturer`       |
+| `granularityLevel`       | `idGranularity`                     | `eudpp:granularity`           |
+| `materialsProvenance`    | `materialProvenance`                | `eudpp:hasMaterialProvenance` |
+| `conformityClaim`        | `performanceClaim`                  | `eudpp:hasPerformanceClaim`   |
+| `gtin`                   | *removed*                           | `eudpp:GTIN` (v0.6 only)      |
+| `validFrom`              | `validFrom`                         | `eudpp:validFrom`             |
+| `issuer`                 | `issuer`                            | `eudpp:hasIssuer`             |
+
+<!-- markdownlint-enable MD013 MD060 -->
+
+The full table lives in
+[`vocabularies/ontology.py:TERM_MAPPINGS`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/vocabularies/ontology.py).
+The `TERM_REMOVED` sentinel marks v0.6 fields with no v0.7 equivalent
+(`gtin` today) — those rows drop out of the v0.7 mapper's index.
 
 ### Viewing Term Mappings
 

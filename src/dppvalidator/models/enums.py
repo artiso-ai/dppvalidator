@@ -1,70 +1,32 @@
-"""Enumeration types for UNTP DPP models."""
+"""Backward-compatibility re-export of v0.6.x ``enums``.
+
+The actual class definitions live in :mod:`dppvalidator.models.v0_6.enums`.
+This shim preserves the import path used by third-party plugins (e.g.
+``from dppvalidator.models.enums import ConformityTopic``) — see Phase 3 of
+docs/plans/UNTP_0.7.0_MIGRATION.md and the public-API stability contract in
+§7.6 of that plan.
+
+Through the 0.4.x line this re-exports v0.6.x classes (the current default
+schema version). Phase 9 (validator 0.5.0) will switch the default to v0.7
+and update this shim accordingly.
+"""
 
 from __future__ import annotations
 
-from enum import Enum
+from dppvalidator.models.v0_6.enums import (
+    ConformityTopic,
+    CriterionStatus,
+    EncryptionMethod,
+    GranularityLevel,
+    HashMethod,
+    OperationalScope,
+)
 
-
-class ConformityTopic(str, Enum):
-    """Conformity topic categories per UNTP specification."""
-
-    ENVIRONMENT_ENERGY = "environment.energy"
-    ENVIRONMENT_EMISSIONS = "environment.emissions"
-    ENVIRONMENT_WATER = "environment.water"
-    ENVIRONMENT_WASTE = "environment.waste"
-    ENVIRONMENT_DEFORESTATION = "environment.deforestation"
-    ENVIRONMENT_BIODIVERSITY = "environment.biodiversity"
-    CIRCULARITY_CONTENT = "circularity.content"
-    CIRCULARITY_DESIGN = "circularity.design"
-    SOCIAL_LABOUR = "social.labour"
-    SOCIAL_RIGHTS = "social.rights"
-    SOCIAL_COMMUNITY = "social.community"
-    SOCIAL_SAFETY = "social.safety"
-    GOVERNANCE_ETHICS = "governance.ethics"
-    GOVERNANCE_COMPLIANCE = "governance.compliance"
-    GOVERNANCE_TRANSPARENCY = "governance.transparency"
-
-
-class GranularityLevel(str, Enum):
-    """Granularity level for product passports."""
-
-    ITEM = "item"
-    BATCH = "batch"
-    MODEL = "model"
-
-
-class OperationalScope(str, Enum):
-    """Operational scope for emissions performance.
-
-    Supports both GHG Protocol scopes (Scope1/2/3) and lifecycle
-    assessment boundaries (CradleToGate/CradleToGrave).
-    """
-
-    NONE = "None"
-    SCOPE1 = "Scope1"
-    SCOPE2 = "Scope2"
-    SCOPE3 = "Scope3"
-    CRADLE_TO_GATE = "CradleToGate"
-    CRADLE_TO_GRAVE = "CradleToGrave"
-
-
-class HashMethod(str, Enum):
-    """Hash algorithm for secure links."""
-
-    SHA_256 = "SHA-256"
-    SHA_1 = "SHA-1"
-
-
-class EncryptionMethod(str, Enum):
-    """Encryption method for secure links."""
-
-    NONE = "none"
-    AES = "AES"
-
-
-class CriterionStatus(str, Enum):
-    """Lifecycle status of a criterion."""
-
-    PROPOSED = "proposed"
-    ACTIVE = "active"
-    DEPRECATED = "deprecated"
+__all__ = [
+    "ConformityTopic",
+    "CriterionStatus",
+    "EncryptionMethod",
+    "GranularityLevel",
+    "HashMethod",
+    "OperationalScope",
+]

@@ -84,13 +84,48 @@ Optional extras:
 
 Currently supported:
 
-- **UNTP DPP 0.6.1** (default)
+- **UNTP DPP 0.6.0** — supported (legacy)
+- **UNTP DPP 0.6.1** — default
+- **UNTP DPP 0.7.0** — fully supported
 
-Schema version is auto-detected from `@context` or `$schema` fields. You can also specify it explicitly:
+Schema version is auto-detected from `@context` or `$schema` fields.
+You can also specify it explicitly:
 
 ```python
-engine = ValidationEngine(schema_version="0.6.1")
+engine = ValidationEngine(schema_version="0.6.1")  # current default
+engine = ValidationEngine(schema_version="0.7.0")  # opt in to v0.7
 ```
+
+For the full version-handling story see
+[UNTP DPP versions](concepts/untp-versions.md).
+
+### Can I migrate v0.6.x payloads to v0.7.0?
+
+Yes — `dppvalidator` ships a compat shim that rewrites v0.6.x
+payloads into v0.7.0 shape with structured warnings for anything it
+can't fully translate:
+
+```bash
+# Upgrade and write to a new file
+dppvalidator migrate passport-v06.json -o passport-v07.json
+
+# Validate-after-upgrade in one shot
+dppvalidator validate passport-v06.json \
+    --upgrade-from 0.6.1 \
+    --schema-version 0.7.0
+```
+
+```python
+from dppvalidator.compat import upgrade
+
+upgraded, warnings = upgrade(payload_v06, country_lookup={"DE": "Germany"})
+```
+
+The shim emits four warning codes (`UPG001`–`UPG004`) covering
+lossy transformations, synthesised values, unmapped country codes,
+and required-field gaps. See the
+[migration guide](guides/migration-0-6-to-0-7.md) for the field
+rename table and the documented limitations.
 
 ______________________________________________________________________
 

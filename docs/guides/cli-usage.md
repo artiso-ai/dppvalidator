@@ -24,15 +24,22 @@ dppvalidator validate <input>... [options]
 
 - `-s, --strict` — Enable strict JSON Schema validation
 - `-f, --format` — Output format: `text`, `json`, `table` (default: text)
-- `--schema-version` — Schema version (default: 0.6.1)
+- `--schema-version` — Schema version (default: `0.6.1`; one of
+  `0.6.0`, `0.6.1`, `0.7.0`)
+- `--upgrade-from` — Run the v0.6 → v0.7 compat shim before validating
+  (Phase 4); accepts `0.6.0` / `0.6.1`
 - `--fail-fast` — Stop on first error
 - `--max-errors` — Maximum errors to report (default: 100)
 
-**Examples:**
+**v0.6.x examples:**
 
 ```bash
-# Validate a single file
+# Validate a single file (default schema-version is 0.6.1)
 dppvalidator validate passport.json
+
+# Pin v0.6.1 explicitly. A v0.7.0 payload through this command fails
+# fast with VER001 (version mismatch).
+dppvalidator validate passport.json --schema-version 0.6.1
 
 # Validate multiple files
 dppvalidator validate passport1.json passport2.json passport3.json
@@ -51,6 +58,20 @@ dppvalidator validate "*.json" --format json
 
 # Table output for quick overview
 dppvalidator validate "*.json" --format table
+```
+
+**v0.7.0 examples:**
+
+```bash
+# Pin v0.7.0 explicitly. The detection layer otherwise auto-detects
+# from the payload's @context URL.
+dppvalidator validate passport-v07.json --schema-version 0.7.0
+
+# Run the compat shim, then validate as v0.7.0. Upgrade warnings are
+# inlined in the validation output.
+dppvalidator validate passport-v06.json \
+    --upgrade-from 0.6.1 \
+    --schema-version 0.7.0
 ```
 
 **Batch Output:**
@@ -105,16 +126,69 @@ dppvalidator schema <subcommand> [options]
 
 **Examples:**
 
-```
-# List available versions
+```bash
+# List every registered version (currently 0.6.0, 0.6.1, 0.7.0).
 dppvalidator schema list
 
-# Show schema info
+# Show schema info for v0.6.1.
 dppvalidator schema info -v 0.6.1
 
-# Download schema to local directory
-dppvalidator schema download -v 0.6.1 -o ./schemas/
+# Show schema info for v0.7.0.
+dppvalidator schema info -v 0.7.0
+
+# Download schema to local directory.
+dppvalidator schema download -v 0.7.0 -o ./schemas/
 ```
+
+### migrate
+
+Upgrade a v0.6.x DPP payload to v0.7.0 shape via the compat shim
+(Phase 4). The full reference for the warning codes and field
+renames is the [migration guide](migration-0-6-to-0-7.md).
+
+```text
+dppvalidator migrate <input> [options]
+```
+
+**Arguments:**
+
+- `input` — Path to v0.6.x JSON file, or `-` for stdin.
+
+**Options:**
+
+- `-o, --output` — Output file path (default: stdout)
+- `--in-place` — Write the upgraded JSON back to the input path
+  (overwrites). Mutually exclusive with `-o`.
+- `--accept-warnings` — Write the upgraded JSON even when the shim
+  emits warning- or error-severity events. Without this, the command
+  exits with code 1 on any non-info warning.
+- `--from` — Source UNTP version family (default: `0.6.x`). Pass an
+  explicit `X.Y.Z` to pin.
+
+**Examples:**
+
+```bash
+# Default — upgrade to stdout, refuse if warnings fire.
+dppvalidator migrate passport.json
+
+# Write to an explicit output path.
+dppvalidator migrate passport.json -o passport-v07.json
+
+# Overwrite the input.
+dppvalidator migrate passport.json --in-place
+
+# Accept warnings; sidecar passport-v07.json.warnings.json is written
+# alongside the upgraded payload.
+dppvalidator migrate passport.json -o passport-v07.json --accept-warnings
+```
+
+**Exit codes:**
+
+- `0` — Upgrade succeeded with no blocking warnings (or
+  `--accept-warnings` was given).
+- `1` — Blocking warnings fired and `--accept-warnings` was not given;
+  the sidecar warnings file is still written.
+- `2` — Error (file not found, invalid JSON, unknown source version).
 
 ## Exit Codes
 

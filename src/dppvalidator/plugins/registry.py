@@ -119,6 +119,7 @@ class PluginRegistry:
         passport: DigitalProductPassport,
         *,
         strict: bool = False,
+        schema_version: str | None = None,
     ) -> list[ValidationError]:
         """Run all registered validator plugins.
 
@@ -126,6 +127,13 @@ class PluginRegistry:
             passport: Parsed passport to validate
             strict: If True, raise PluginError on plugin failures instead of
                 returning a warning. Useful for CI/CD pipelines.
+            schema_version: Resolved UNTP DPP version of the payload. When
+                supplied, plugins that declare an ``applies_to_versions``
+                tuple are skipped for non-matching versions (the engine's
+                per-version dispatch contract — same pattern the built-in
+                semantic-rule registry uses via ``ALL_RULES_BY_VERSION``).
+                Plugins without that attribute keep running for every
+                payload — back-compat for pre-Phase-6 plugins.
 
         Returns:
             List of validation errors from all plugins
@@ -138,6 +146,16 @@ class PluginRegistry:
         for name, validator in self._validators.items():
             try:
                 instance = validator() if isinstance(validator, type) else validator
+
+                # Per-version filter. ``applies_to_versions`` is the
+                # declarative version-pin contract documented in
+                # ``docs/guides/plugins.md``. We honour it on both
+                # the class and the instance so authors can set it
+                # either way. Plugins that don't declare it run for
+                # every version (back-compat).
+                applies = getattr(instance, "applies_to_versions", None)
+                if applies and schema_version and schema_version not in applies:
+                    continue
 
                 if hasattr(instance, "check"):
                     violations = instance.check(passport)

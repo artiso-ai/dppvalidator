@@ -12,8 +12,14 @@ from dppvalidator.validators import ValidationEngine
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 
 
+@pytest.mark.dpp_version("0.6.1")
 class TestValidationEngine:
-    """Tests for ValidationEngine."""
+    """Tests for ValidationEngine.
+
+    Pinned to v0.6.1 via the class-level marker because the ``engine``
+    fixture hardcodes ``schema_version="0.6.1"`` — see Phase 5 of
+    ``docs/plans/UNTP_0.7.0_MIGRATION.md`` for the matrix design.
+    """
 
     @pytest.fixture
     def engine(self) -> ValidationEngine:
@@ -120,6 +126,7 @@ class TestValidationEngine:
         assert passport.product.name == "EV battery 300Ah."
 
 
+@pytest.mark.dpp_version("0.6.1")
 class TestValidationEngineExtended:
     """Extended tests for ValidationEngine."""
 
@@ -244,6 +251,7 @@ class TestEngineFullCoverage:
 class TestValidationEngineBehavior:
     """Behavior tests for ValidationEngine."""
 
+    @pytest.mark.dpp_version("0.6.1")
     def test_engine_validates_real_dpp_structure(self, valid_dpp_data: dict):
         """Test engine validates a complete DPP with all components."""
         engine = ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])

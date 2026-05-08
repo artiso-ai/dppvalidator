@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
+
 if TYPE_CHECKING:
     from dppvalidator.cli.console import Console
 
@@ -155,12 +157,16 @@ dppvalidator watch data/
 - [UNTP DPP Schema](https://untp.unece.org/specification/DigitalProductPassport)
 """
 
-DPPVALIDATOR_CONFIG = {
+DPPVALIDATOR_CONFIG: dict[str, Any] = {
     "$schema": "https://artiso-ai.github.io/dppvalidator/schemas/config.json",
     "version": "1.0",
     "validation": {
         "strict": False,
-        "schema_version": "0.6.1",
+        # Resolved at template-emission time so a generated project always
+        # gets the validator's currently-shipping default UNTP version.
+        # Phase 3 will introduce a `--schema-version` flag on `init` so users
+        # can pin a specific version (e.g. `0.7.0`) at scaffolding time.
+        "schema_version": DEFAULT_SCHEMA_VERSION,
         "fail_on_warning": False,
     },
     "paths": {

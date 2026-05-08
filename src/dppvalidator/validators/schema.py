@@ -11,6 +11,7 @@ from typing import Any, Literal
 
 from jsonschema import Draft202012Validator
 
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 from dppvalidator.validators.results import ValidationError, ValidationResult
 
 # Schema type for dual-mode validation (Phase 6)
@@ -54,7 +55,7 @@ class SchemaValidator:
 
     def __init__(
         self,
-        schema_version: str = "0.6.1",
+        schema_version: str = DEFAULT_SCHEMA_VERSION,
         schema_type: SchemaType = "untp",
         schema_path: Path | None = None,
         strict: bool = False,
@@ -62,7 +63,10 @@ class SchemaValidator:
         """Initialize schema validator.
 
         Args:
-            schema_version: Schema version ("0.6.1" for UNTP, "1.3.0" for CIRPASS)
+            schema_version: Schema version. For ``schema_type="untp"`` use a
+                version registered in ``dppvalidator.schemas.SCHEMA_REGISTRY``;
+                for ``schema_type="cirpass"`` use a CIRPASS DPP version. Defaults
+                to ``DEFAULT_SCHEMA_VERSION``.
             schema_type: Schema type - "untp" (default) or "cirpass" for EU DPP
             schema_path: Optional custom schema path. If None, uses bundled schema.
             strict: If True, disallows additional properties not in schema

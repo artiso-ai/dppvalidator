@@ -1,68 +1,26 @@
-"""Identifier-related models for UNTP DPP."""
+"""Backward-compatibility re-export of v0.6.x ``identifiers``.
+
+The actual class definitions live in :mod:`dppvalidator.models.v0_6.identifiers`.
+This shim preserves the import path used by third-party plugins (e.g.
+``from dppvalidator.models.identifiers import Facility``) — see Phase 3 of
+docs/plans/UNTP_0.7.0_MIGRATION.md and the public-API stability contract in
+§7.6 of that plan.
+
+Through the 0.4.x line this re-exports v0.6.x classes (the current default
+schema version). Phase 9 (validator 0.5.0) will switch the default to v0.7
+and update this shim accordingly.
+"""
 
 from __future__ import annotations
 
-from typing import Annotated, ClassVar
+from dppvalidator.models.v0_6.identifiers import (
+    Facility,
+    IdentifierScheme,
+    Party,
+)
 
-from pydantic import Field
-
-from dppvalidator.models.base import UNTPBaseModel, UNTPStrictModel
-from dppvalidator.models.primitives import FlexibleUri
-
-
-class IdentifierScheme(UNTPStrictModel):
-    """Identifier registration scheme for products, facilities, or organisations."""
-
-    _jsonld_type: ClassVar[list[str]] = ["IdentifierScheme"]
-
-    id: Annotated[
-        FlexibleUri | None,
-        Field(
-            default=None,
-            description="Globally unique identifier of the registration scheme",
-        ),
-    ]
-    name: Annotated[
-        str | None,
-        Field(default=None, description="Name of the identifier scheme"),
-    ]
-
-
-class Party(UNTPBaseModel):
-    """A party (person or organisation) with identifier."""
-
-    _jsonld_type: ClassVar[list[str]] = ["Party"]
-
-    id: Annotated[
-        FlexibleUri,
-        Field(..., description="Globally unique ID of the party as a URI"),
-    ]
-    name: str = Field(..., description="Registered name of the party")
-    registered_id: Annotated[
-        str | None,
-        Field(
-            default=None,
-            alias="registeredId",
-            description="Registration number within the register",
-        ),
-    ]
-
-
-class Facility(UNTPBaseModel):
-    """A facility where products are manufactured."""
-
-    _jsonld_type: ClassVar[list[str]] = ["Facility"]
-
-    id: Annotated[
-        FlexibleUri,
-        Field(..., description="Globally unique ID of the facility as URI"),
-    ]
-    name: str = Field(..., description="Registered name of the facility")
-    registered_id: Annotated[
-        str | None,
-        Field(
-            default=None,
-            alias="registeredId",
-            description="Registration number within the identifier scheme",
-        ),
-    ]
+__all__ = [
+    "Facility",
+    "IdentifierScheme",
+    "Party",
+]

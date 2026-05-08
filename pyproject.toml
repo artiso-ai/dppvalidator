@@ -1,6 +1,6 @@
 [project]
 name = "dppvalidator"
-version = "0.3.2"
+version = "0.4.0"
 description = "Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and CIRPASS/UNECE ontologies"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -50,8 +50,12 @@ dependencies = [
     "httpx>=0.28.0",
     "jsonschema>=4.23.0",
     "pyld>=2.0.4",
-    "cryptography>=43.0.0",
-    "PyJWT>=2.9.0",
+    # cryptography: floor lifted to >=46.0.7 to pull in fixes for
+    # CVE-2026-26007 (46.0.5), CVE-2026-34073 (46.0.6),
+    # CVE-2026-39892 (46.0.7).
+    "cryptography>=46.0.7",
+    # PyJWT: floor lifted to >=2.12.0 for CVE-2026-32597.
+    "PyJWT>=2.12.0",
     "base58>=2.1.0",
 ]
 
@@ -89,11 +93,14 @@ include = [
     "src/dppvalidator/**/*.xsd",
     "src/dppvalidator/**/*.yaml",
 ]
+exclude = [
+    "scripts/**",
+]
 
 [dependency-groups]
 dev = [
-    # Testing
-    "pytest>=8.0.0",
+    # Testing — pytest >=9.0.3 closes CVE-2025-71176.
+    "pytest>=9.0.3",
     "pytest-cov>=4.1.0",
     "pytest-asyncio>=0.24.0",
     "hypothesis>=6.100.0",
@@ -105,6 +112,11 @@ dev = [
     # Security & License Scanning
     "pip-audit>=2.7.0",
     "pip-licenses>=5.0.0",
+    # ``pip-audit`` pulls in ``pip-api`` which transitively pins
+    # ``pip`` itself. Without this floor, the resolver picks pip 25.3
+    # (CVE-2026-1703 + CVE-2026-6357), which then surfaces during
+    # ``pip-audit`` runs against the lockfile-exported requirements.
+    "pip>=26.1",
     # SBOM Generation
     "cyclonedx-bom>=7.0.0",
     # Optional extras (include all for dev)

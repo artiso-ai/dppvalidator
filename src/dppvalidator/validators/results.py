@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal
 
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
+
 if TYPE_CHECKING:
     from dppvalidator.models.passport import DigitalProductPassport
 
@@ -30,7 +32,7 @@ class ValidationError:
     path: str
     message: str
     code: str
-    layer: Literal["schema", "model", "semantic", "jsonld", "plugin", "vocabulary"]
+    layer: Literal["schema", "model", "semantic", "jsonld", "plugin", "vocabulary", "engine"]
     severity: Literal["error", "warning", "info"] = "error"
     suggestion: str | None = None
     docs_url: str | None = None
@@ -79,7 +81,7 @@ class ValidationResult:
     errors: list[ValidationError] = field(default_factory=list)
     warnings: list[ValidationError] = field(default_factory=list)
     info: list[ValidationError] = field(default_factory=list)
-    schema_version: str = "0.6.1"
+    schema_version: str = DEFAULT_SCHEMA_VERSION
     validated_at: datetime = field(default_factory=datetime.now)
     passport: DigitalProductPassport | None = None
     parse_time_ms: float = 0.0

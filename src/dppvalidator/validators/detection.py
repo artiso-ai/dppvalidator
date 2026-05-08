@@ -7,9 +7,28 @@ from typing import Any
 
 from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION, SCHEMA_REGISTRY
 
-# Patterns for extracting version from URLs
-_SCHEMA_URL_PATTERN = re.compile(r"untp-dpp-schema-(\d+\.\d+\.\d+)\.json")
-_CONTEXT_URL_PATTERN = re.compile(r"/untp/dpp/(\d+\.\d+\.\d+)/?")
+# Patterns for extracting version from URLs.
+#
+# Two URL conventions are recognised, in priority order:
+#   1. Legacy (UNTP 0.6.x): schema basename `untp-dpp-schema-X.Y.Z.json` and
+#      context `/untp/dpp/X.Y.Z/` under `test.uncefact.org`.
+#   2. Modern (UNTP 0.7.0+): schema lives at any path containing the version
+#      as a `/X.Y.Z/` or `/vX.Y.Z/` segment followed by a credential-type
+#      basename (`DigitalProductPassport.json`), and the context lives at
+#      `/untp/X.Y.Z/context/?` under `vocabulary.uncefact.org`.
+#
+# False positives are guarded by the `version in SCHEMA_REGISTRY` membership
+# check at the call sites, so unrelated `/X.Y.Z/` path segments cannot smuggle
+# in unsupported versions. Adding a new URL convention means appending a
+# pattern here — see docs/plans/UNTP_0.7.0_MIGRATION.md §Phase 1 and §7.
+_SCHEMA_URL_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"untp-dpp-schema-(\d+\.\d+\.\d+)\.json"),
+    re.compile(r"/v?(\d+\.\d+\.\d+)/[^?#]*DigitalProductPassport[^?#]*\.json"),
+)
+_CONTEXT_URL_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"/untp/dpp/(\d+\.\d+\.\d+)/?"),
+    re.compile(r"/untp/(\d+\.\d+\.\d+)/(?:context/?)?"),
+)
 
 # Expected types for UNTP DPP
 _DPP_TYPES = frozenset({"DigitalProductPassport", "VerifiableCredential"})
@@ -28,7 +47,8 @@ def detect_schema_version(data: dict[str, Any]) -> str:
         data: Raw DPP JSON data
 
     Returns:
-        Detected schema version string (e.g., "0.6.1")
+        Detected schema version string (one of `SCHEMA_REGISTRY.keys()`).
+        Falls back to ``DEFAULT_SCHEMA_VERSION`` when no marker is present.
     """
     # Priority 1: Check $schema URL
     version = _detect_from_schema_url(data)
@@ -48,6 +68,28 @@ def detect_schema_version(data: dict[str, Any]) -> str:
     return DEFAULT_SCHEMA_VERSION
 
 
+def detect_declared_version(data: dict[str, Any]) -> str | None:
+    """Return the version a payload **explicitly declares**, or ``None``.
+
+    Distinct from :func:`detect_schema_version`: this helper returns
+    ``None`` when no UNTP-versioned ``$schema`` URL or UNTP-versioned
+    ``@context`` URL is present, instead of falling back to a default. The
+    engine uses this for the VER001 mismatch check (see Phase 3.3 of
+    docs/plans/UNTP_0.7.0_MIGRATION.md): if a payload declares a version
+    that conflicts with the engine's explicitly-configured version, fail
+    fast — but if the payload declares no version at all, trust the
+    user's configuration without complaint.
+
+    Args:
+        data: Raw DPP JSON data
+
+    Returns:
+        The declared version (one of ``SCHEMA_REGISTRY.keys()``), or
+        ``None`` when the payload carries no version markers.
+    """
+    return _detect_from_schema_url(data) or _detect_from_context(data)
+
+
 def _detect_from_schema_url(data: dict[str, Any]) -> str | None:
     """Extract version from $schema URL.
 
@@ -61,11 +103,10 @@ def _detect_from_schema_url(data: dict[str, Any]) -> str | None:
     if not isinstance(schema_url, str):
         return None
 
-    match = _SCHEMA_URL_PATTERN.search(schema_url)
-    if match:
-        version = match.group(1)
-        if version in SCHEMA_REGISTRY:
-            return version
+    for pattern in _SCHEMA_URL_PATTERNS:
+        match = pattern.search(schema_url)
+        if match and match.group(1) in SCHEMA_REGISTRY:
+            return match.group(1)
 
     return None
 
@@ -93,11 +134,10 @@ def _detect_from_context(data: dict[str, Any]) -> str | None:
 
     # Search for version pattern in any context URL
     for url in urls:
-        match = _CONTEXT_URL_PATTERN.search(url)
-        if match:
-            version = match.group(1)
-            if version in SCHEMA_REGISTRY:
-                return version
+        for pattern in _CONTEXT_URL_PATTERNS:
+            match = pattern.search(url)
+            if match and match.group(1) in SCHEMA_REGISTRY:
+                return match.group(1)
 
     return None
 

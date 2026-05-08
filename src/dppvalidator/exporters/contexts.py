@@ -31,9 +31,21 @@ CONTEXTS: dict[str, ContextDefinition] = {
         ),
         default_type=("DigitalProductPassport", "VerifiableCredential"),
     ),
+    # UNTP 0.7.0 unifies DPP, DCC, DFR, DIA and DTE under one context served
+    # at vocabulary.uncefact.org/untp/0.7.0/context/. The DigitalProductPassport
+    # type itself is unchanged in name; the credentialSubject envelope is what
+    # restructures (see docs/plans/UNTP_0.7.0_MIGRATION.md §2.3).
+    "0.7.0": ContextDefinition(
+        version="0.7.0",
+        contexts=(
+            "https://www.w3.org/ns/credentials/v2",
+            "https://vocabulary.uncefact.org/untp/0.7.0/context/",
+        ),
+        default_type=("DigitalProductPassport", "VerifiableCredential"),
+    ),
 }
 
-DEFAULT_VERSION = "0.6.1"
+DEFAULT_VERSION = "0.6.1"  # Phase 9 will flip this to "0.7.0" in dppvalidator 0.5.0.
 
 
 class ContextManager:

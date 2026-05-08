@@ -5,15 +5,21 @@ produce across its seven-layer validation architecture.
 
 ## Error Code Categories
 
-| Prefix | Layer      | Description                          |
-| ------ | ---------- | ------------------------------------ |
-| SCH    | Schema     | JSON Schema structural validation    |
-| PRS    | Parsing    | Input parsing and file handling      |
-| MOD    | Model      | Pydantic model type validation       |
-| JLD    | JSON-LD    | Context and term resolution errors   |
-| SEM    | Semantic   | Business logic and cross-field rules |
-| VOC    | Vocabulary | Controlled vocabulary and code lists |
-| SIG    | Signature  | VC signature verification errors     |
+<!-- markdownlint-disable MD013 -->
+
+| Prefix | Layer        | Description                                                           |
+| ------ | ------------ | --------------------------------------------------------------------- |
+| SCH    | Schema       | JSON Schema structural validation                                     |
+| PRS    | Parsing      | Input parsing and file handling                                       |
+| MOD    | Model        | Pydantic model type validation                                        |
+| JLD    | JSON-LD      | Context and term resolution errors                                    |
+| SEM    | Semantic     | Business logic and cross-field rules                                  |
+| VOC    | Vocabulary   | Controlled vocabulary and code lists                                  |
+| SIG    | Signature    | VC signature verification errors                                      |
+| VER    | Version      | UNTP version mismatch (engine pin vs declared payload version)        |
+| UPG    | Upgrade shim | v0.6.x → v0.7.0 compat-shim warnings (lossy / synthesised / required) |
+
+<!-- markdownlint-enable MD013 -->
 
 ## Schema Rules (SCH)
 
@@ -60,3 +66,31 @@ produce across its seven-layer validation architecture.
 | [VOC003](VOC003.md) | Warning  | Material code must be valid per UNECE Rec 46 |
 | [VOC004](VOC004.md) | Warning  | HS code must be valid for product category   |
 | [VOC005](VOC005.md) | Error    | GTIN must have valid check digit             |
+
+## Version Rules (VER)
+
+<!-- markdownlint-disable MD013 MD060 -->
+
+| Code                | Severity | Description                                                        |
+| ------------------- | -------- | ------------------------------------------------------------------ |
+| [VER001](VER001.md) | Error    | UNTP version mismatch — engine `schema_version` vs payload version |
+
+<!-- markdownlint-enable MD013 MD060 -->
+
+## Upgrade-shim Rules (UPG)
+
+Emitted by `dppvalidator.compat.upgrade_0_6_to_0_7.upgrade` and the
+`dppvalidator migrate` / `dppvalidator validate --upgrade-from`
+CLI surfaces. See the [migration guide](../guides/migration-0-6-to-0-7.md)
+for the full field rename / shape-change context.
+
+<!-- markdownlint-disable MD013 MD060 -->
+
+| Code                | Severity       | Description                                                                                       |
+| ------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
+| [UPG001](UPG001.md) | Warning / Info | Lossy — a v0.6 field has no v0.7 equivalent and was dropped (e.g. `Product.registeredId`).        |
+| [UPG002](UPG002.md) | Warning / Info | Synthesised — a v0.7-required field was filled from a related v0.6 source and should be reviewed. |
+| [UPG003](UPG003.md) | Warning        | Unmapped country code — wrapped structurally but the value will fail v0.7 validation.             |
+| [UPG004](UPG004.md) | Error          | Required v0.7 field is missing from the v0.6 source AND cannot be synthesised; provide manually.  |
+
+<!-- markdownlint-enable MD013 MD060 -->

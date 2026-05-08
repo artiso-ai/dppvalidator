@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 from dppvalidator.validators import ValidationEngine
 
 if TYPE_CHECKING:
@@ -216,8 +217,13 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--schema-version",
-        default="0.6.1",
-        help="Schema version (default: 0.6.1)",
+        default="auto",
+        help=(
+            "UNTP DPP schema version. Defaults to 'auto' — detected "
+            "from each watched payload's $schema or @context. Pass an "
+            "explicit version to fail-fast on payloads that declare a "
+            f"different one. Default-version fallback: {DEFAULT_SCHEMA_VERSION}."
+        ),
     )
     return parser
 

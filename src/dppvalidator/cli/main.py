@@ -7,7 +7,16 @@ import sys
 from collections.abc import Callable
 from typing import NoReturn
 
-from dppvalidator.cli.commands import completions, doctor, export, init, schema, validate, watch
+from dppvalidator.cli.commands import (
+    completions,
+    doctor,
+    export,
+    init,
+    migrate,
+    schema,
+    validate,
+    watch,
+)
 from dppvalidator.cli.console import Console
 from dppvalidator.logging import configure_logging
 
@@ -26,6 +35,7 @@ COMMAND_HANDLERS: dict[str, CommandHandler] = {
     "init": init.run,
     "doctor": doctor.run,
     "watch": watch.run,
+    "migrate": migrate.run,
     "completions": lambda args, _: completions.run(args),
 }
 
@@ -72,6 +82,7 @@ Examples:
     init.add_parser(subparsers)
     doctor.add_parser(subparsers)
     watch.add_parser(subparsers)
+    migrate.add_parser(subparsers)
     completions.add_parser(subparsers)
 
     return parser

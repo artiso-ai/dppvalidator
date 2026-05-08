@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from dppvalidator.logging import get_logger
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 
 if TYPE_CHECKING:
     from dppvalidator.cli.console import Console
@@ -48,8 +49,15 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--schema-version",
-        default="0.6.1",
-        help="Schema version (default: 0.6.1)",
+        default="auto",
+        help=(
+            "UNTP DPP schema version to validate against. Defaults to "
+            "'auto' — the engine detects the version from the payload's "
+            "$schema or @context URLs. Pass an explicit version (e.g. "
+            "'0.6.1', '0.7.0') to fail fast with VER001 when the payload "
+            f"declares a different version. Default-version fallback when "
+            f"detection finds nothing: {DEFAULT_SCHEMA_VERSION}."
+        ),
     )
     parser.add_argument(
         "--fail-fast",
@@ -61,6 +69,15 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
         type=int,
         default=100,
         help="Maximum errors to report (default: 100)",
+    )
+    parser.add_argument(
+        "--upgrade-from",
+        default=None,
+        help=(
+            "Run the input through the compat shim from the named UNTP version "
+            "(e.g. 0.6.1) up to --schema-version before validating. Upgrade "
+            "warnings are reported alongside validation issues."
+        ),
     )
     return parser
 
@@ -79,6 +96,10 @@ def run(args: argparse.Namespace, console: Console) -> int:
         strict_mode=args.strict,
     )
 
+    upgrade_from = getattr(args, "upgrade_from", None)
+    if upgrade_from is not None:
+        _verify_upgrade_path(upgrade_from, args.schema_version, console)
+
     all_valid = True
     has_load_error = False
     results: list[tuple[str, Any]] = []
@@ -88,6 +109,11 @@ def run(args: argparse.Namespace, console: Console) -> int:
         if data is None:
             has_load_error = True
             continue
+
+        if upgrade_from is not None:
+            data, upgrade_warnings = _apply_upgrade(data, upgrade_from, file_path, console)
+            if upgrade_warnings:
+                _print_upgrade_warnings(upgrade_warnings, file_path, console)
 
         result = engine.validate(
             data,
@@ -145,6 +171,50 @@ def _resolve_inputs(inputs: list[str], console: Console) -> list[str]:
             console.print_error(f"No files match pattern: {pattern}")
 
     return files
+
+
+def _verify_upgrade_path(source: str, target: str, console: Console) -> None:
+    """Confirm we have a registered shim for ``source → target``.
+
+    The current matrix is just ``0.6.x → 0.7.0`` (Phase 4). Anything else
+    is reported as a warning so the caller knows their flag had no effect;
+    we don't raise so the rest of the validation still runs.
+    """
+    from dppvalidator.compat.upgrade_0_6_to_0_7 import upgrade as _u  # noqa: F401
+
+    if not (source.startswith("0.6") and target.startswith("0.7")):
+        console.print_warning(
+            f"No upgrade shim registered for {source!r} → {target!r}; "
+            "input will be validated without transformation.",
+        )
+
+
+def _apply_upgrade(
+    data: dict[str, Any], source: str, path: str, console: Console
+) -> tuple[dict[str, Any], list[Any]]:
+    """Run the v0.6 → v0.7 shim on ``data`` and return ``(upgraded, warnings)``."""
+    if source.startswith("0.6"):
+        from dppvalidator.compat.upgrade_0_6_to_0_7 import upgrade
+
+        try:
+            return upgrade(data)
+        except Exception as exc:  # pragma: no cover — defensive
+            logger.exception("Upgrade shim crashed on %s", path)
+            console.print_error(f"Upgrade shim failed for {path}: {exc}")
+            return data, []
+    return data, []
+
+
+def _print_upgrade_warnings(warnings: list[Any], input_path: str, console: Console) -> None:
+    """Print upgrade-shim warnings inline with validation output."""
+    if not warnings:
+        return
+    console.print(
+        f"\n[bold yellow]Upgrade warnings ({len(warnings)})[/bold yellow] — {input_path}",
+        style="yellow",
+    )
+    for w in warnings:
+        console.print(f"  [{w.code}] ({w.severity.value}) {w.path}: {w.message}")
 
 
 def _load_input(input_path: str, console: Console) -> dict[str, Any] | None:

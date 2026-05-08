@@ -26,19 +26,54 @@ else:
 The engine automatically detects the schema version from your document:
 
 ```python
-# Auto-detection is the default
-engine = ValidationEngine()  # schema_version="auto"
+# Auto-detection — engine reads $schema / @context / type from the payload.
+engine = ValidationEngine()
 
-# Or specify explicitly for deterministic behavior
+# Pin v0.6.1 explicitly. A v0.7.0 payload through this engine fails fast
+# with VER001 (version mismatch).
 engine = ValidationEngine(schema_version="0.6.1")
+
+# Pin v0.7.0 explicitly.
+engine = ValidationEngine(schema_version="0.7.0")
 ```
 
 Detection checks (in order):
 
 1. `$schema` URL pattern
-1. `@context` URLs
+1. `@context` URLs (`https://test.uncefact.org/vocabulary/untp/dpp/0.6.x/`
+   for v0.6.x; `https://vocabulary.uncefact.org/untp/0.7.0/context/` for
+   v0.7.0)
 1. `type` array presence
-1. Fallback to default version
+1. Fallback to `dppvalidator.schemas.registry.DEFAULT_SCHEMA_VERSION`
+
+The full version-handling story is in
+[UNTP DPP versions](../concepts/untp-versions.md).
+
+### Validating v0.6.x payloads against v0.7.0
+
+If you have v0.6.x payloads but want to validate them against the
+v0.7.0 schema (because your downstream consumers have moved to
+v0.7.0), use the **compat shim** via `--upgrade-from`:
+
+```bash
+# Run the v0.6 → v0.7 shim, then validate against v0.7.0.
+dppvalidator validate passport.json \
+    --upgrade-from 0.6.1 \
+    --schema-version 0.7.0
+```
+
+```python
+from dppvalidator.compat import upgrade
+from dppvalidator import ValidationEngine
+
+upgraded, warnings = upgrade(payload_v06)
+result = ValidationEngine(schema_version="0.7.0").validate(upgraded)
+```
+
+The shim emits structured warnings (`UPG001`–`UPG004`) for fields it
+can't fully translate. See the
+[migration guide](migration-0-6-to-0-7.md) for the warning codes,
+field rename table, and known limitations.
 
 ## Validation Layers
 

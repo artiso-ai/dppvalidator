@@ -61,20 +61,52 @@ Automatically detects the DPP schema version from the input document.
 
 **Detection priority:**
 
-1. `$schema` URL pattern (e.g., `untp-dpp-schema-0.6.1.json`)
-1. `@context` URLs (e.g., `/untp/dpp/0.6.1/`)
+1. `$schema` URL pattern (e.g., `untp-dpp-schema-0.6.1.json` or
+   `…/v0.7.0/.../DigitalProductPassport.json`)
+1. `@context` URLs:
+   - Legacy (0.6.x): `https://test.uncefact.org/vocabulary/untp/dpp/X.Y.Z/`
+   - Modern (0.7.0+): `https://vocabulary.uncefact.org/untp/X.Y.Z/context/`
 1. `type` array presence → default version
-1. Fallback to default (0.6.1)
+1. Fallback to `dppvalidator.schemas.registry.DEFAULT_SCHEMA_VERSION`
+   (currently `0.6.1`)
 
 ```python
 from dppvalidator import ValidationEngine
 
-# Auto-detection is the default
-engine = ValidationEngine()  # schema_version="auto"
+# Auto-detection (default)
+engine = ValidationEngine()
 
-# Or explicit version for deterministic behavior
+# Pin v0.6.1 explicitly. A v0.7.0 payload through this engine fails
+# fast with VER001 (version mismatch).
 engine = ValidationEngine(schema_version="0.6.1")
+
+# Pin v0.7.0 explicitly.
+engine = ValidationEngine(schema_version="0.7.0")
 ```
+
+The full version-handling story (detection internals, default-version
+constant, adding a new UNTP version) lives in
+[UNTP DPP versions](untp-versions.md).
+
+### Per-version layer dispatch
+
+Layers 1–3 below dispatch through version-keyed tables — the engine
+selects the right model / rule set / link paths for the detected
+version. The dispatch is centralised in three tables:
+
+<!-- markdownlint-disable MD013 MD060 -->
+
+| Table                   | Module                                                                                                                              | Layer it powers                           |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `_MODEL_BY_VERSION`     | [`validators/model.py`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/validators/model.py)                   | Model layer (Layer 2)                     |
+| `ALL_RULES_BY_VERSION`  | [`validators/rules/__init__.py`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/validators/rules/__init__.py) | Semantic layer (Layer 4)                  |
+| `LINK_PATHS_BY_VERSION` | [`validators/deep.py`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/validators/deep.py)                     | Deep validator (separate from layers 1–5) |
+
+<!-- markdownlint-enable MD013 MD060 -->
+
+Plugin authors can opt into version-aware dispatch by setting
+`applies_to_versions = ("0.7.0",)` on their rule class — see the
+[plugin development guide](../guides/plugins.md#writing-a-version-aware-rule).
 
 ## Layer 1: Schema Validation
 

@@ -5,6 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-05-08
+
+This release adds first-class support for **UNTP DPP 0.7.0** alongside
+the existing 0.6.x. Both wire formats coexist and are auto-detected
+from `@context` / `$schema` URLs. The plan is captured in
+[`docs/plans/UNTP_0.7.0_MIGRATION.md`](docs/plans/UNTP_0.7.0_MIGRATION.md);
+each phase has its own implementation log there.
+
+### Added
+
+- **UNTP DPP 0.7.0 schema, context, and Pydantic models**. Vendored
+  upstream artefacts under `src/dppvalidator/{schemas,vocabularies}/data/`
+  with SHA-256 pins. New version-namespaced model package
+  `dppvalidator.models.v0_7.*` (envelope, product, materials, claims,
+  identifiers, primitives) covering every required field per the
+  upstream schema. The existing top-level `dppvalidator.models.*`
+  imports continue to resolve to v0.6 for back-compat.
+- **Per-version validator dispatch**. New `_MODEL_BY_VERSION`
+  (model layer), `ALL_RULES_BY_VERSION` (semantic-rule layer),
+  `LINK_PATHS_BY_VERSION` (deep validator) tables; `ValidationEngine`
+  selects the right artefact set per detected version.
+- **VER001 version-mismatch fail-fast**. Engine raises `VER001` when
+  `schema_version` is pinned and the payload's declared version
+  conflicts.
+- **Compat shim 0.6.x → 0.7.0**. New `dppvalidator.compat` package
+  exporting `upgrade(data, *, country_lookup=None) -> (dict, list[UpgradeWarning])`,
+  plus `active_version()` / `is_version()` helpers and four warning
+  codes (`UPG001`–`UPG004`). Implements all 17 transformation steps
+  from §Phase 4 of the migration plan.
+- **`dppvalidator migrate` CLI**. Writes the upgraded JSON to
+  `-o` / `--in-place` / stdout; refuses on warnings unless
+  `--accept-warnings`; always emits a sidecar
+  `<output>.warnings.json` when blocking warnings fire.
+- **`dppvalidator validate --upgrade-from <ver>`**. Runs the shim
+  before validating; surfaces upgrade + validation issues in one
+  report.
+- **Per-version EU DPP exporter mapping**. `TermMapping` extended
+  with `untp_v0_6` / `untp_v0_7` columns + a `TERM_REMOVED` sentinel;
+  `EUDPPJsonLDExporter(schema_version=…)` dispatches per-call;
+  auto-detect resolves the source version from the passport's class.
+- **Plugin version-awareness**. New
+  `BrandNameRuleV07` in the example plugin demonstrates the
+  `applies_to_versions` opt-in pattern; the example plugin is now a
+  CI-tested target via `tests/integration/test_example_plugin.py`.
+- **Manifest integrity test**.
+  `tests/unit/test_manifest_integrity.py` SHA-256-verifies every
+  vendored `.json` / `.jsonld` artefact and includes a drift-catch
+  for un-manifested files.
+- **Sample classification test**.
+  `tests/unit/test_samples_classification.py` pins
+  `detect_schema_version()` per real-world sample under
+  `tests/fixtures/samples/`.
+- **Production-URL split per artefact**. `SchemaVersion` and
+  `MANIFEST.json` now carry both an SHA-pinned `source_url` and a
+  human-friendly `production_url` (e.g. `untp.unece.org`).
+- **Documentation**. New
+  [`docs/concepts/untp-versions.md`](docs/concepts/untp-versions.md)
+  and [`docs/guides/migration-0-6-to-0-7.md`](docs/guides/migration-0-6-to-0-7.md);
+  refreshed schema, JSON-LD, validation, CLI, FAQ, and index pages
+  with both v0.6 and v0.7 examples.
+
+### Changed
+
+- `dppvalidator schema list` reports all three registered versions
+  (0.6.0, 0.6.1, 0.7.0).
+- `valid_dpp_data` pytest fixture is now parametrised over both
+  matrix versions; tests pin to a single version with
+  `@pytest.mark.dpp_version("X.Y.Z")`.
+- v0.6 model files were relocated to `dppvalidator.models.v0_6/`
+  with thin re-export shims at the top level — no callers should
+  notice.
+- v0.6 semantic rules likewise relocated to
+  `dppvalidator.validators.rules.v0_6/`; new
+  `dppvalidator.validators.rules.v0_7/` carries the v0.7 ports.
+- `EUDPPJsonLDExporter` no longer hardcodes a single mapping table;
+  the new auto-detection reads the passport's module path.
+- The `Characteristics` `$def` quirk in the upstream UNTP 0.7.0 DPP
+  schema (empty `properties`, description copy-pasted from `Claim`)
+  is documented in `MANIFEST.json` and
+  `docs/concepts/cirpass-implementation.md`.
+
+### Deprecated
+
+- Hardcoded version literals (`"0.6.1"` / `"0.7.0"`) in feature code
+  outside `schemas/registry.py` and `exporters/contexts.py`. The
+  `tests/unit/test_no_version_literals.py` guard rejects new
+  occurrences. Feature code should call
+  `dppvalidator.compat.active_version()` instead.
+
+### Fixed
+
+- Credential verifier: `proofValue` decoding no longer misroutes
+  base64-encoded Ed25519 signatures whose first character happens to
+  be `z` (~1.5% of random signatures). The verifier now treats the
+  leading `z` as a multibase base58btc hint and falls back to base64
+  if base58 decode fails, instead of raising and returning `None`.
+
+### Tests
+
+- 2019 passing, 13 skipped (by-design via the dpp_version marker),
+  1 xfailed; coverage 92.20 % (above the 90 % gate).
+- Net new tests added across the migration: ~150+ unit cases, the
+  17-case version matrix, the 13-case manifest integrity, the
+  27-case samples classification, the 17-case plugin integration,
+  the 50-case compat shim, the 10-case CLI migrate, the 4-case
+  round-trip integration, and 10 production-URL pins.
+
 ## [0.3.2] - 2026-02-01
 
 ### Added

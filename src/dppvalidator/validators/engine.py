@@ -19,7 +19,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 from dppvalidator.logging import get_logger
-from dppvalidator.validators.detection import detect_schema_version
+from dppvalidator.validators.detection import (
+    detect_declared_version,
+    detect_schema_version,
+)
 from dppvalidator.validators.layers import (
     JsonLdLayer,
     ModelLayer,
@@ -289,6 +292,36 @@ class ValidationEngine:
             max_errors=max_errors,
         )
         context.result.parse_time_ms = parse_time
+
+        # VER001: when the user explicitly configured a version (NOT
+        # auto-detect) and the payload itself declares a different version
+        # via ``$schema`` or ``@context`` URLs, fail fast. UNTPBaseModel
+        # has ``extra="allow"``, so without this check a mis-versioned
+        # payload would silently lose fields. See plan §4.1.7.
+        if not self._auto_detect:
+            declared = detect_declared_version(parsed_data)
+            if declared is not None and declared != effective_version:
+                context.result.errors.append(
+                    ValidationError(
+                        path="$",
+                        message=(
+                            f"Payload declares UNTP version {declared!r} but the engine is "
+                            f"configured for {effective_version!r}. Re-run with "
+                            f"`schema_version={declared!r}` (or `schema_version='auto'`) "
+                            "to validate against the version the payload actually claims."
+                        ),
+                        code="VER001",
+                        layer="engine",
+                        severity="error",
+                        context={
+                            "declared_version": declared,
+                            "configured_version": effective_version,
+                        },
+                    ),
+                )
+                context.result.valid = False
+                context.result.schema_version = effective_version
+                return context.result
 
         # Build and execute validation layers
         validation_layers = self._build_layers(effective_version)

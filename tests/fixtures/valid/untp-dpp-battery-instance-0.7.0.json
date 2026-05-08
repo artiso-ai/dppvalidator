@@ -1,0 +1,720 @@
+{
+  "type": [
+    "DigitalProductPassport",
+    "VerifiableCredential"
+  ],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://vocabulary.uncefact.org/untp/0.7.0/context/"
+  ],
+  "id": "https://credentials.sample-battery.example.com/dpp/bat-75kwh-2025",
+  "issuer": {
+    "type": [
+      "CredentialIssuer"
+    ],
+    "id": "did:web:sample-battery.example.com",
+    "name": "Sample Battery Mfg GmbH",
+    "issuerAlsoKnownAs": [
+      {
+        "type": [
+          "Party"
+        ],
+        "id": "https://sample-register.example.com/companies/BAT-001",
+        "name": "Sample Battery Mfg GmbH",
+        "registeredId": "BAT-001",
+        "idScheme": {
+          "type": [
+            "IdentifierScheme"
+          ],
+          "id": "https://sample-register.example.com",
+          "name": "Sample Commercial Register"
+        }
+      }
+    ]
+  },
+  "validFrom": "2025-03-01T00:00:00Z",
+  "validUntil": "2035-03-01T00:00:00Z",
+  "name": "Digital Product Passport — 75 kWh Li-ion Battery Pack",
+  "issuingSoftware": {
+    "id": "https://sample-software-vendor.example.com/.well-known/untp/software/passport-builder/2026.04.1",
+    "name": "Sample Passport Builder",
+    "version": "2026.04.1",
+    "vendor": {
+      "id": "did:web:sample-software-vendor.example.com",
+      "name": "Sample Software Vendor Inc"
+    }
+  },
+  "credentialSubject": {
+    "type": [
+      "Product"
+    ],
+    "id": "https://id.sample-battery.example.com/product/bat-75kwh-2025",
+    "name": "75 kWh Li-ion Battery Pack",
+    "description": "75 kWh NMC 811 lithium-ion battery pack for electric vehicle applications. Assembled at the Sample Battery Factory in Salzgitter, Germany. Energy density 166 Wh/kg, designed for 1500+ charge cycles.",
+    "idScheme": {
+      "type": [
+        "IdentifierScheme"
+      ],
+      "id": "https://id.sample-battery.example.com",
+      "name": "Sample Product Identifier Scheme"
+    },
+    "modelNumber": "BAT-NMC811-75",
+    "batchNumber": "2025-SZG-0342",
+    "itemNumber": "BAT-75-2025-00471",
+    "idGranularity": "item",
+    "productCategory": [
+      {
+        "code": "46410",
+        "name": "Primary cells and primary batteries",
+        "definition": "Primary cells and primary batteries and parts thereof.",
+        "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+        "schemeName": "UN Central Product Classification (CPC)"
+      }
+    ],
+    "characteristics": {
+      "batteryChemistry": "NMC 811 (LiNi0.8Mn0.1Co0.1O2)",
+      "batteryCategory": "EV",
+      "ratedCapacity": {
+        "value": 150,
+        "unit": "Ah"
+      },
+      "certifiedUsableEnergy": {
+        "value": 75,
+        "unit": "kWh"
+      },
+      "nominalVoltage": {
+        "value": 400,
+        "unit": "V"
+      },
+      "minimumVoltage": {
+        "value": 280,
+        "unit": "V"
+      },
+      "maximumVoltage": {
+        "value": 450,
+        "unit": "V"
+      },
+      "originalPowerCapability": {
+        "value": 250000,
+        "unit": "W"
+      },
+      "maximumPermittedPower": {
+        "value": 270000,
+        "unit": "W"
+      },
+      "initialInternalResistance": {
+        "cell": {
+          "value": 0.8,
+          "unit": "mOhm"
+        },
+        "pack": {
+          "value": 45,
+          "unit": "mOhm"
+        }
+      },
+      "expectedLifetimeYears": 15,
+      "expectedLifetimeCycles": 1500,
+      "capacityThresholdForExhaustion": 80,
+      "temperatureRangeIdleState": {
+        "lower": -20,
+        "upper": 50,
+        "unit": "CEL"
+      },
+      "initialSelfDischargeRate": {
+        "value": 2,
+        "unit": "%/month"
+      },
+      "initialRoundTripEnergyEfficiency": 95,
+      "extinguishingAgent": "Class D dry powder or CO2",
+      "warrantyPeriodMonths": 96
+    },
+    "relatedDocument": [
+      {
+        "linkURL": "https://credentials.sample-vap-cab.example.com/dcc/battery-003",
+        "linkName": "RBA VAP Certification — Sample Battery Factory",
+        "mediaType": "application/ld+json",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/dcc"
+      },
+      {
+        "linkURL": "https://docs.sample-battery.example.com/dismantling/BAT-NMC811-75-manual.pdf",
+        "linkName": "Dismantling and Disassembly Manual",
+        "mediaType": "application/pdf",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/dismantlingInfo"
+      },
+      {
+        "linkURL": "https://docs.sample-battery.example.com/due-diligence/2025-report.pdf",
+        "linkName": "Supply Chain Due Diligence Report 2025",
+        "mediaType": "application/pdf",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/dueDiligenceReport"
+      },
+      {
+        "linkURL": "https://docs.sample-battery.example.com/carbon-footprint/BAT-NMC811-75-study.pdf",
+        "linkName": "Carbon Footprint Study — 75 kWh Battery Pack",
+        "mediaType": "application/pdf",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/carbonFootprintStudy"
+      },
+      {
+        "linkURL": "https://docs.sample-battery.example.com/spare-parts/BAT-NMC811-75.html",
+        "linkName": "Spare Parts and Service Information",
+        "mediaType": "text/html",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/sparePartsInfo"
+      },
+      {
+        "linkURL": "https://docs.sample-battery.example.com/safety/BAT-NMC811-75-measures.pdf",
+        "linkName": "Safety Measures",
+        "mediaType": "application/pdf",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/safetyMeasures"
+      },
+      {
+        "linkURL": "https://docs.sample-battery.example.com/end-of-life/battery-collection-guidance.pdf",
+        "linkName": "Battery Collection and End-of-Life Treatment Guidance",
+        "mediaType": "application/pdf",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/endOfLifeInfo"
+      },
+      {
+        "linkURL": "https://docs.sample-battery.example.com/conformity/eu-doc-BAT-NMC811-75.pdf",
+        "linkName": "EU Declaration of Conformity",
+        "mediaType": "application/pdf",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/euDeclarationOfConformity"
+      }
+    ],
+    "relatedParty": [
+      {
+        "role": "manufacturer",
+        "party": {
+          "type": [
+            "Party"
+          ],
+          "id": "did:web:sample-battery.example.com",
+          "name": "Sample Battery Mfg GmbH",
+          "registeredId": "BAT-001",
+          "idScheme": {
+            "type": [
+              "IdentifierScheme"
+            ],
+            "id": "https://sample-register.example.com",
+            "name": "Sample Commercial Register"
+          },
+          "registrationCountry": {
+            "countryCode": "DE",
+            "countryName": "Germany"
+          }
+        }
+      }
+    ],
+    "producedAtFacility": {
+      "type": [
+        "Facility"
+      ],
+      "id": "https://facility-register.example.com/fac-003",
+      "name": "Sample Battery Factory",
+      "registeredId": "fac-003",
+      "idScheme": {
+        "type": [
+          "IdentifierScheme"
+        ],
+        "id": "https://facility-register.example.com",
+        "name": "UNTP Sample Facility Register"
+      }
+    },
+    "productionDate": "2025-03-01",
+    "countryOfProduction": {
+      "countryCode": "DE",
+      "countryName": "Germany"
+    },
+    "dimensions": {
+      "weight": {
+        "value": 450,
+        "unit": "KGM"
+      },
+      "length": {
+        "value": 2100,
+        "unit": "MMT"
+      },
+      "width": {
+        "value": 1500,
+        "unit": "MMT"
+      },
+      "height": {
+        "value": 150,
+        "unit": "MMT"
+      }
+    },
+    "materialProvenance": [
+      {
+        "name": "Copper cathode",
+        "originCountry": {
+          "countryCode": "JP",
+          "countryName": "Japan"
+        },
+        "materialType": {
+          "code": "41521",
+          "name": "Unwrought copper",
+          "definition": "Copper, unrefined; copper anodes for electrolytic refining; refined copper and copper alloys, unwrought.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.08,
+        "mass": {
+          "value": 36,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 0.12,
+        "hazardous": false
+      },
+      {
+        "name": "Cobalt sulphate",
+        "originCountry": {
+          "countryCode": "CD",
+          "countryName": "Congo (Democratic Republic of the)"
+        },
+        "materialType": {
+          "code": "14210",
+          "name": "Cobalt ores and concentrates",
+          "definition": "Cobalt ores and concentrates.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.05,
+        "mass": {
+          "value": 22.5,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 0.16,
+        "hazardous": false
+      },
+      {
+        "name": "Lithium carbonate",
+        "originCountry": {
+          "countryCode": "CL",
+          "countryName": "Chile"
+        },
+        "materialType": {
+          "code": "14290",
+          "name": "Other non-ferrous metal ores and concentrates",
+          "definition": "Lithium, beryllium, and other non-ferrous metal ores and concentrates.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.12,
+        "mass": {
+          "value": 54,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 0.06,
+        "hazardous": false
+      },
+      {
+        "name": "Nickel sulphate",
+        "originCountry": {
+          "countryCode": "ID",
+          "countryName": "Indonesia"
+        },
+        "materialType": {
+          "code": "14230",
+          "name": "Nickel ores and concentrates",
+          "definition": "Nickel ores and concentrates.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.35,
+        "mass": {
+          "value": 157.5,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 0.08,
+        "hazardous": false
+      },
+      {
+        "name": "Graphite (anode material)",
+        "originCountry": {
+          "countryCode": "MZ",
+          "countryName": "Mozambique"
+        },
+        "materialType": {
+          "code": "15310",
+          "name": "Natural graphite",
+          "definition": "Natural graphite.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.18,
+        "mass": {
+          "value": 81,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 0,
+        "hazardous": false
+      },
+      {
+        "name": "Other components (electrolyte, separator, casing, BMS)",
+        "originCountry": {
+          "countryCode": "DE",
+          "countryName": "Germany"
+        },
+        "materialType": {
+          "code": "46410",
+          "name": "Primary cells and primary batteries",
+          "definition": "Primary cells and primary batteries and parts thereof.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.22,
+        "mass": {
+          "value": 99,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 0.25,
+        "hazardous": false
+      }
+    ],
+    "packaging": {
+      "description": "Reinforced steel transit crate with foam inserts",
+      "dimensions": {
+        "weight": {
+          "value": 35,
+          "unit": "KGM"
+        },
+        "length": {
+          "value": 2300,
+          "unit": "MMT"
+        },
+        "width": {
+          "value": 1700,
+          "unit": "MMT"
+        },
+        "height": {
+          "value": 350,
+          "unit": "MMT"
+        }
+      },
+      "materialUsed": [
+        {
+          "name": "Steel crate",
+          "originCountry": {
+            "countryCode": "DE",
+            "countryName": "Germany"
+          },
+          "materialType": {
+            "code": "41211",
+            "name": "Flat-rolled products of iron or non-alloy steel",
+            "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+            "schemeName": "UN Central Product Classification (CPC)"
+          },
+          "massFraction": 0.85,
+          "recycledMassFraction": 0.7,
+          "hazardous": false
+        }
+      ]
+    },
+    "productLabel": [
+      {
+        "name": "CE Marking",
+        "description": "EU conformity marking for the battery pack",
+        "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "mediaType": "image/png"
+      },
+      {
+        "name": "Separate Collection Symbol",
+        "description": "Crossed-out wheeled bin indicating separate collection requirement per EU Battery Regulation Article 13",
+        "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "mediaType": "image/png"
+      },
+      {
+        "name": "Carbon Footprint Performance Class",
+        "description": "Battery carbon footprint class label (Class B) per EU Battery Regulation Article 7",
+        "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "mediaType": "image/png"
+      }
+    ],
+    "performanceClaim": [
+      {
+        "type": [
+          "Claim"
+        ],
+        "id": "https://sample-battery.example.com/claims/battery-carbon-2025",
+        "name": "Battery Carbon Footprint",
+        "description": "Cradle-to-gate carbon footprint of the 75 kWh battery pack per kWh of capacity, covering all lifecycle stages as required by EU Battery Regulation Article 7.",
+        "referenceRegulation": [
+          {
+            "type": [
+              "Regulation"
+            ],
+            "id": "https://eur-lex.europa.eu/eli/reg/2023/1542/oj",
+            "name": "EU Battery Regulation (EU) 2023/1542"
+          }
+        ],
+        "referenceCriteria": [
+          {
+            "type": [
+              "Criterion"
+            ],
+            "id": "https://sample-scheme.responsiblebusiness.org/criteria/ghg-reporting/v8",
+            "name": "GHG Emissions Reporting (RBA Code of Conduct Section C.1)"
+          }
+        ],
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/product-carbon-footprint",
+              "name": "Product Carbon Footprint"
+            },
+            "measure": {
+              "value": 61,
+              "unit": "KGM"
+            },
+            "score": {
+              "code": "B",
+              "rank": 2,
+              "definition": "Carbon footprint performance class B per EU Battery Regulation"
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "linkURL": "https://credentials.sample-cab.example.com/dcc/carbon-verification-bat-75kwh",
+            "linkName": "Carbon Footprint Verification — Sample CAB",
+            "mediaType": "application/ld+json",
+            "linkType": "https://test.uncefact.org/vocabulary/linkTypes/dcc"
+          }
+        ],
+        "conformityTopic": [
+          {
+            "type": [
+              "ConformityTopic"
+            ],
+            "id": "https://vocabulary.uncefact.org/conformity-topic/greenhouse-gas-emissions",
+            "name": "Greenhouse Gas Emissions"
+          }
+        ]
+      },
+      {
+        "type": [
+          "Claim"
+        ],
+        "id": "https://sample-battery.example.com/claims/battery-recycled-2025",
+        "name": "Recycled Content — Battery Pack",
+        "description": "Recycled content percentages for critical raw materials (cobalt, lithium, nickel, lead) as required by EU Battery Regulation Article 8.",
+        "referenceRegulation": [
+          {
+            "type": [
+              "Regulation"
+            ],
+            "id": "https://eur-lex.europa.eu/eli/reg/2023/1542/oj",
+            "name": "EU Battery Regulation (EU) 2023/1542"
+          }
+        ],
+        "referenceCriteria": [
+          {
+            "type": [
+              "Criterion"
+            ],
+            "id": "https://sample-scheme.responsiblebusiness.org/criteria/recycled-content/v8",
+            "name": "Recycled Content Requirements (RBA Code of Conduct Section C.5)"
+          }
+        ],
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/recycled-content-percentage",
+              "name": "Recycled Content Percentage"
+            },
+            "measure": {
+              "value": 16,
+              "unit": "P1"
+            }
+          },
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/recycled-content-percentage",
+              "name": "Cobalt Recycled Content"
+            },
+            "measure": {
+              "value": 16,
+              "unit": "P1"
+            }
+          },
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/recycled-content-percentage",
+              "name": "Lithium Recycled Content"
+            },
+            "measure": {
+              "value": 6,
+              "unit": "P1"
+            }
+          },
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/recycled-content-percentage",
+              "name": "Nickel Recycled Content"
+            },
+            "measure": {
+              "value": 8,
+              "unit": "P1"
+            }
+          }
+        ],
+        "conformityTopic": [
+          {
+            "type": [
+              "ConformityTopic"
+            ],
+            "id": "https://vocabulary.uncefact.org/conformity-topic/recycled-material-integration",
+            "name": "Recycled Material Integration"
+          }
+        ]
+      },
+      {
+        "type": [
+          "Claim"
+        ],
+        "id": "https://sample-battery.example.com/claims/battery-efficiency-2025",
+        "name": "Round Trip Energy Efficiency",
+        "description": "Initial round trip energy efficiency and projected efficiency at 50% of cycle-life.",
+        "referenceRegulation": [
+          {
+            "type": [
+              "Regulation"
+            ],
+            "id": "https://eur-lex.europa.eu/eli/reg/2023/1542/oj",
+            "name": "EU Battery Regulation (EU) 2023/1542"
+          }
+        ],
+        "referenceCriteria": [
+          {
+            "type": [
+              "Criterion"
+            ],
+            "id": "https://sample-scheme.responsiblebusiness.org/criteria/energy-efficiency/v8",
+            "name": "Energy Efficiency (RBA Code of Conduct Section C.3)"
+          }
+        ],
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/energy-intensity",
+              "name": "Initial Round Trip Energy Efficiency"
+            },
+            "measure": {
+              "value": 95,
+              "unit": "P1"
+            }
+          },
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/energy-intensity",
+              "name": "Round Trip Energy Efficiency at 50% Cycle-life"
+            },
+            "measure": {
+              "value": 90,
+              "unit": "P1"
+            }
+          }
+        ],
+        "conformityTopic": [
+          {
+            "type": [
+              "ConformityTopic"
+            ],
+            "id": "https://vocabulary.uncefact.org/conformity-topic/energy-optimization",
+            "name": "Energy Optimization"
+          }
+        ]
+      },
+      {
+        "type": [
+          "Claim"
+        ],
+        "id": "https://sample-battery.example.com/claims/battery-due-diligence-2025",
+        "name": "Ethical Material Sourcing",
+        "description": "Compliance with supply chain due diligence obligations under EU Battery Regulation Articles 48-52 and OECD Due Diligence Guidance for Responsible Supply Chains of Minerals.",
+        "referenceRegulation": [
+          {
+            "type": [
+              "Regulation"
+            ],
+            "id": "https://eur-lex.europa.eu/eli/reg/2023/1542/oj",
+            "name": "EU Battery Regulation (EU) 2023/1542"
+          }
+        ],
+        "referenceStandard": [
+          {
+            "type": [
+              "Standard"
+            ],
+            "id": "https://www.oecd.org/corporate/mne/mining.htm",
+            "name": "OECD Due Diligence Guidance for Responsible Supply Chains of Minerals"
+          }
+        ],
+        "referenceCriteria": [
+          {
+            "type": [
+              "Criterion"
+            ],
+            "id": "https://sample-scheme.responsiblebusiness.org/criteria/responsible-minerals/v8",
+            "name": "Responsible Minerals Sourcing (RBA Code of Conduct Section C.7)"
+          }
+        ],
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/supplier-due-diligence-coverage",
+              "name": "Supplier Due Diligence Coverage"
+            },
+            "score": {
+              "code": "compliant",
+              "rank": 1,
+              "definition": "Fully compliant with due diligence obligations"
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "linkURL": "https://credentials.sample-cab.example.com/dcc/due-diligence-bat-2025",
+            "linkName": "Third-party Due Diligence Assurance — Sample CAB",
+            "mediaType": "application/ld+json",
+            "linkType": "https://test.uncefact.org/vocabulary/linkTypes/dcc"
+          }
+        ],
+        "conformityTopic": [
+          {
+            "type": [
+              "ConformityTopic"
+            ],
+            "id": "https://vocabulary.uncefact.org/conformity-topic/ethical-material-sourcing",
+            "name": "Ethical Material Sourcing"
+          }
+        ]
+      }
+    ]
+  }
+}

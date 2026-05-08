@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import json
 import time
 from functools import lru_cache
+from importlib import resources
 from typing import Any
 
 from pyld import jsonld
 from pyld.jsonld import JsonLdError
 
 from dppvalidator.logging import get_logger
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION, SCHEMA_REGISTRY
 from dppvalidator.validators.results import ValidationError, ValidationResult
 
 logger = get_logger(__name__)
@@ -56,9 +59,53 @@ _BUNDLED_VC_V2_CONTEXT = {
     }
 }
 
-# URLs that map to bundled contexts
-BUNDLED_CONTEXT_URLS = {
+
+def _load_bundled_untp_contexts() -> dict[str, dict[str, Any]]:
+    """Map every registered UNTP context URL to its bundled document.
+
+    Walks ``SCHEMA_REGISTRY`` and reads
+    ``src/dppvalidator/vocabularies/data/untp-context-<version>.jsonld`` for
+    each entry. Each ``SchemaVersion.context_urls`` tuple is ``(VC v2 URL,
+    UNTP URL)``; this function maps that second URL → bundled JSON-LD doc.
+
+    Versions whose context file is not vendored are silently skipped, so a
+    partial install still works (and the network fallback in
+    :class:`CachingDocumentLoader` handles the rest).
+
+    Returns:
+        Mapping ``{untp_context_url: parsed_jsonld_document}`` registered by
+        Phase 2 of docs/plans/UNTP_0.7.0_MIGRATION.md.
+    """
+    out: dict[str, dict[str, Any]] = {}
+    for version, schema in SCHEMA_REGISTRY.items():
+        if len(schema.context_urls) < 2:
+            continue
+        untp_url = schema.context_urls[1]
+        try:
+            ctx_file = resources.files("dppvalidator.vocabularies.data").joinpath(
+                f"untp-context-{version}.jsonld"
+            )
+            content = ctx_file.read_text(encoding="utf-8")
+        except (FileNotFoundError, ModuleNotFoundError):
+            continue
+        try:
+            out[untp_url] = json.loads(content)
+        except json.JSONDecodeError:
+            logger.warning(
+                "Bundled UNTP context for %s is not valid JSON; skipping bundling",
+                version,
+            )
+    return out
+
+
+# URLs that map to bundled contexts. The W3C VC v2 entry is hand-crafted (the
+# real document is huge but we only need a minimal subset for DPP expansion);
+# the UNTP entries come from the bundled files registered in Phase 2 so the
+# JSON-LD layer is fully offline-capable for both the legacy 0.6.x and the
+# modern 0.7.0 namespaces.
+BUNDLED_CONTEXT_URLS: dict[str, dict[str, Any]] = {
     "https://www.w3.org/ns/credentials/v2": _BUNDLED_VC_V2_CONTEXT,
+    **_load_bundled_untp_contexts(),
 }
 
 
@@ -131,7 +178,7 @@ class JSONLDValidator:
 
     def __init__(
         self,
-        schema_version: str = "0.6.1",
+        schema_version: str = DEFAULT_SCHEMA_VERSION,
         strict: bool = False,
         cache_contexts: bool = True,
     ) -> None:

@@ -14,11 +14,11 @@ FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 
 
 class TestValidFixtures:
-    """Integration tests validating known-good DPP fixtures."""
+    """Integration tests validating known-good v0.6.x DPP fixtures."""
 
     @pytest.fixture
     def engine(self) -> ValidationEngine:
-        """Create validation engine with all layers."""
+        """Create validation engine with all layers (pinned to v0.6.1)."""
         return ValidationEngine(schema_version="0.6.1", layers=["model", "semantic"])
 
     def test_minimal_dpp_passes_validation(self, engine):
@@ -50,6 +50,73 @@ class TestValidFixtures:
         assert isinstance(result, ValidationResult)
         # May have warnings but should be structurally valid
         assert result.passport is not None or len(result.errors) > 0
+
+
+class TestValidV07Fixtures:
+    """Integration tests validating the vendored v0.7.0 upstream fixtures.
+
+    Phase 5 vendored the upstream UNTP 0.7.0 sample DPPs into
+    ``tests/fixtures/valid/``. This class pins the contract that the
+    full validation pipeline (model + semantic layers) accepts each
+    of them — a regression here means either the v0.7 model has
+    drifted from the upstream schema, or a semantic rule started
+    rejecting a sample we previously accepted.
+    """
+
+    @pytest.fixture
+    def engine(self) -> ValidationEngine:
+        """Create validation engine with all layers (pinned to v0.7.0)."""
+        return ValidationEngine(schema_version="0.7.0", layers=["model", "semantic"])
+
+    @pytest.mark.parametrize(
+        "fixture_name",
+        [
+            "untp-dpp-instance-0.7.0.json",
+            "untp-dpp-battery-instance-0.7.0.json",
+            "untp-dpp-cathode-instance-0.7.0.json",
+        ],
+    )
+    def test_canonical_v07_fixture_passes_pipeline(
+        self, engine: ValidationEngine, fixture_name: str
+    ) -> None:
+        """Each canonical v0.7.0 sample validates cleanly through the pipeline.
+
+        The vendored fixtures are bit-identical to the upstream samples
+        published at ``untp.unece.org/artefacts/samples/v0.7.0/dpp/``;
+        they're the highest-fidelity smoke test we have for the v0.7
+        model + semantic-rule combination.
+        """
+        fixture_path = FIXTURES_DIR / "valid" / fixture_name
+        if not fixture_path.exists():
+            pytest.skip(f"v0.7 fixture not vendored: {fixture_name}")
+
+        result = engine.validate_file(fixture_path)
+
+        assert result.valid, f"{fixture_name} unexpectedly rejected:\n" + "\n".join(
+            f"  [{e.code}] {e.path}: {e.message}" for e in result.errors
+        )
+        assert result.passport is not None
+
+    def test_v06_fixture_through_v07_engine_fails_with_VER001(
+        self, engine: ValidationEngine
+    ) -> None:
+        """Feeding a v0.6.x payload to a v0.7.0-pinned engine is fail-fast.
+
+        Pins the VER001 contract from Phase 3.3 — the engine must not
+        silently coerce across versions. See
+        ``docs/errors/VER001.md`` for the user-facing remediation.
+        """
+        fixture_path = FIXTURES_DIR / "valid" / "untp-dpp-instance-0.6.1.json"
+        if not fixture_path.exists():
+            pytest.skip("v0.6 fixture not available")
+
+        result = engine.validate_file(fixture_path)
+
+        assert result.valid is False
+        assert any(e.code == "VER001" for e in result.errors), (
+            "Expected VER001 (version mismatch) when v0.6.x payload "
+            "flows through a v0.7.0-pinned engine."
+        )
 
 
 class TestInvalidFixtures:

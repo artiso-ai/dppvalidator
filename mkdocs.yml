@@ -4,9 +4,17 @@ site_url: https://artiso-ai.github.io/dppvalidator
 repo_url: https://github.com/artiso-ai/dppvalidator
 repo_name: artiso-ai/dppvalidator
 edit_uri: edit/main/docs/
+
+# Exclude engineering artefacts from the docs build. The migration plans
+# under docs/plans/ are change-tracking documents (implementation logs,
+# audit notes, tracking issues); they're not part of the user-facing
+# docs site and contain cross-tree relative links to src/ and tests/
+# that mkdocs (rightly) flags as broken in strict mode.
+exclude_docs: |
+  plans/
 copyright: >
-  Copyright &copy; 2026 artiso-ai -
-  <a href="#__consent">Change cookie settings</a>
+  Copyright &copy; 2026 artiso-ai - <a href="#__consent">Change cookie
+  settings</a>
 
 theme:
   name: material
@@ -46,7 +54,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [src]
+          paths: [ src ]
           options:
             show_source: true
             show_root_heading: true
@@ -56,17 +64,27 @@ plugins:
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
+      # Force a non-None ``title`` for every code block. Without
+      # this, ``pymdownx.highlight`` passes ``filename=None`` to
+      # pygments' ``HtmlFormatter``, which crashes with
+      # ``AttributeError: 'NoneType' object has no attribute 'replace'``
+      # under pygments >=2.20.0 (the latter tightened None handling
+      # in ``html.escape(self._decodeifneeded(...))``). Enabling
+      # ``auto_title`` makes pymdownx fill ``title`` from the lexer
+      # name when the markdown didn't set one. Tracked upstream as a
+      # pymdown-extensions / pygments compatibility issue.
+      auto_title: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+          format: !!python/name:pymdownx.superfences.fence_code_format ""
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.snippets
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji ""
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg ""
   - admonition
   - pymdownx.details
   - attr_list
@@ -102,8 +120,9 @@ extra:
       We use cookies to recognize your repeated visits and preferences, as well
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
-      make our documentation better. For more information, see our
-      <a href="https://artiso.ai/privacy-policy" target="_blank">Privacy Policy</a>.
+      make our documentation better. For more information, see our <a
+      href="https://artiso.ai/privacy-policy" target="_blank">Privacy
+      Policy</a>.
     cookies:
       analytics:
         name: Google Analytics
@@ -134,6 +153,7 @@ nav:
       - Use Cases: guides/use-cases.md
       - JSON-LD Export: guides/jsonld.md
       - EU DPP Export: guides/eudpp-export.md
+      - Migration 0.6 → 0.7: guides/migration-0-6-to-0-7.md
       - Plugin Development: guides/plugins.md
   - Reference:
       - CLI Reference: reference/cli.md
@@ -143,6 +163,7 @@ nav:
           - Exporters: reference/api/exporters.md
           - Plugins: reference/api/plugins.md
   - Concepts:
+      - UNTP DPP versions: concepts/untp-versions.md
       - UNTP DPP Schema: concepts/untp-schema.md
       - Five-Layer Validation: concepts/validation-layers.md
       - EU DPP Ontology Alignment: concepts/eudpp-ontology-alignment.md
@@ -215,6 +236,7 @@ nav:
           - MDL081 - Invalid Emission Value: errors/MDL081.md
           - MDL090 - Invalid Facility: errors/MDL090.md
           - MDL091 - Invalid Facility Location: errors/MDL091.md
+          - MDL098 - No Model Registered for Schema Version: errors/MDL098.md
           - MDL099 - Unknown Model Error: errors/MDL099.md
       - JSON-LD Errors:
           - JLD001 - Missing Context: errors/JLD001.md
@@ -248,5 +270,12 @@ nav:
           - TXT003 - Missing Microplastic Data: errors/TXT003.md
           - TXT004 - Missing Durability Info: errors/TXT004.md
           - TXT005 - Missing Care Instructions: errors/TXT005.md
+      - Version Errors:
+          - VER001 - UNTP Version Mismatch: errors/VER001.md
+      - Upgrade-shim Errors:
+          - UPG001 - Lossy Upgrade Transformation: errors/UPG001.md
+          - UPG002 - Synthesised Value During Upgrade: errors/UPG002.md
+          - UPG003 - Unmapped Country Code: errors/UPG003.md
+          - UPG004 - Required v0.7 Field Missing: errors/UPG004.md
   - FAQ: faq.md
   - Changelog: changelog.md

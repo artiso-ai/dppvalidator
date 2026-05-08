@@ -112,6 +112,85 @@ class TestDetectSchemaVersion:
         data = {"@context": None, "type": ["DigitalProductPassport"]}
         assert detect_schema_version(data) == "0.6.1"
 
+    # ---- UNTP 0.7.0 detection (Phase 1) ----------------------------------
+
+    def test_detect_from_context_url_070_production(self) -> None:
+        """Detect 0.7.0 from the production CloudFront context URL."""
+        data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://vocabulary.uncefact.org/untp/0.7.0/context/",
+            ],
+            "type": ["DigitalProductPassport"],
+        }
+        assert detect_schema_version(data) == "0.7.0"
+
+    def test_detect_from_context_url_070_no_trailing_slash(self) -> None:
+        """``/context`` (no trailing slash) is also valid."""
+        data = {
+            "@context": [
+                "https://www.w3.org/ns/credentials/v2",
+                "https://vocabulary.uncefact.org/untp/0.7.0/context",
+            ],
+            "type": ["DigitalProductPassport"],
+        }
+        assert detect_schema_version(data) == "0.7.0"
+
+    def test_detect_from_schema_url_070_modern(self) -> None:
+        """Detect 0.7.0 from a modern ``…/v0.7.0/dpp/DigitalProductPassport.json`` URL."""
+        data = {
+            "$schema": (
+                "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/"
+                "707cd5267deddede24bb74e453a758561972a109/artefacts/schema/v0.7.0/"
+                "dpp/DigitalProductPassport.json"
+            ),
+            "type": ["DigitalProductPassport"],
+        }
+        assert detect_schema_version(data) == "0.7.0"
+
+    def test_detect_from_schema_url_070_cloudfront(self) -> None:
+        """Detect 0.7.0 from a CloudFront-style schema URL (no ``v`` prefix)."""
+        data = {
+            "$schema": (
+                "https://vocabulary.uncefact.org/untp/0.7.0/schema/dpp/DigitalProductPassport.json"
+            ),
+            "type": ["DigitalProductPassport"],
+        }
+        assert detect_schema_version(data) == "0.7.0"
+
+    def test_unregistered_modern_version_falls_back(self) -> None:
+        """An unregistered version in a modern URL falls back to default."""
+        data = {
+            "$schema": ("https://example.com/foo/v9.9.9/bar/DigitalProductPassport.json"),
+            "type": ["DigitalProductPassport"],
+        }
+        # 9.9.9 is not in SCHEMA_REGISTRY so detection ignores it.
+        assert detect_schema_version(data) == "0.6.1"
+
+    def test_detect_from_upstream_070_sample(self) -> None:
+        """Real-world: vendored 0.7.0 sample is detected as 0.7.0."""
+        import json
+        from pathlib import Path
+
+        sample_path = (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "upstream"
+            / "v0.7.0"
+            / "samples"
+            / "DigitalProductPassport_instance.json"
+        )
+        if not sample_path.is_file():  # pragma: no cover - vendored in Phase 0
+            import pytest
+
+            pytest.skip(
+                "Upstream 0.7.0 sample missing; vendor via Phase 0 of "
+                "docs/plans/UNTP_0.7.0_MIGRATION.md."
+            )
+        with sample_path.open() as f:
+            data = json.load(f)
+        assert detect_schema_version(data) == "0.7.0"
+
 
 class TestIsDppDocument:
     """Tests for is_dpp_document function."""

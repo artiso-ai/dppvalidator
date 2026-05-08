@@ -22,18 +22,43 @@ print(jsonld_string)
 
 ## Output Format
 
-The JSON-LD output includes the W3C VC context:
+The JSON-LD output always includes the W3C VC v2 context plus the
+UNTP context for the active version. The exporter auto-detects the
+source version from the passport's class (Phase 3c — the
+`EUDPPJsonLDExporter` reads the module path); `EUDPPJsonLDExporter(schema_version=…)`
+pins it explicitly.
+
+### v0.6.x output
 
 ```json
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
-    "https://vocabulary.uncefact.org/untp/dpp/0.6.1"
+    "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/"
   ],
   "type": ["DigitalProductPassport", "VerifiableCredential"],
   "id": "https://example.com/dpp/001",
   "issuer": {
     "id": "https://example.com/issuer",
+    "name": "Acme Corp"
+  }
+}
+```
+
+### v0.7.0 output
+
+```json
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://vocabulary.uncefact.org/untp/0.7.0/context/"
+  ],
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "id": "https://example.com/dpp/001",
+  "name": "Acme DPP",
+  "issuer": {
+    "type": ["CredentialIssuer"],
+    "id": "did:web:example.com:issuer",
     "name": "Acme Corp"
   }
 }

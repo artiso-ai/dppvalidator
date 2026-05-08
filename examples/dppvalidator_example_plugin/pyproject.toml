@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dppvalidator-example-plugin"
-version = "0.1.0"
+version = "0.2.0"
 description = "Example plugin for dppvalidator demonstrating custom validators and exporters"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,6 +25,7 @@ dependencies = ["dppvalidator>=0.3.0"]
 
 [project.entry-points."dppvalidator.validators"]
 brand_name = "dppvalidator_example_plugin.validators:BrandNameRule"
+brand_name_v07 = "dppvalidator_example_plugin.brand_name_v07:BrandNameRuleV07"
 min_materials = "dppvalidator_example_plugin.validators:MinMaterialsRule"
 
 [project.entry-points."dppvalidator.exporters"]

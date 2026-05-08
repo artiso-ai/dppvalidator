@@ -109,10 +109,32 @@ engine = ValidationEngine()
 result = engine.validate(dpp_data)
 
 if result.valid and result.passport:
-    # Export to EU DPP format
+    # Export to EU DPP format (auto-detects UNTP version from the
+    # passport's class — works for both v0.6 and v0.7 inputs).
     exporter = EUDPPJsonLDExporter()
     eudpp_jsonld = exporter.export(result.passport)
 ```
+
+### Per-version mapping (Phase 3c)
+
+The exporter is **version-aware**. UNTP v0.6 and v0.7 use different
+source-side spellings (`serialNumber` vs `itemNumber`,
+`producedByParty` vs `relatedParty`, …) but most map to the same EU
+DPP target URI. The mapping table in
+[`vocabularies/ontology.py:TermMapping`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/vocabularies/ontology.py)
+carries `untp_v0_6` / `untp_v0_7` columns; the exporter reads the
+right one per call.
+
+- **`schema_version=None` (default)** — auto-detect from the passport
+  class's module path (`dppvalidator.models.v0_X.*`).
+- **`schema_version="0.6.1"` or `"0.7.0"`** — pin explicitly. Useful
+  for downstream-compat scenarios (e.g. forcing v0.6 mapping on a
+  v0.7 passport).
+
+Terms removed in a given version (the `TERM_REMOVED` sentinel —
+currently `gtin` for v0.7) drop out of that version's mapper index.
+The full mapping table and per-version usage examples are in the
+[EU DPP export guide](../guides/eudpp-export.md).
 
 ## Ontology Data Files
 

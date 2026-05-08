@@ -283,3 +283,83 @@ class TestHSChapterDescriptionEdgeCases:
         """Unknown chapter returns None."""
         assert get_hs_chapter_description("9901") is None
         assert get_hs_chapter_description("0100") is None
+
+
+class TestSchemeDetectors:
+    """``is_unece_rec46_scheme`` / ``is_hs_scheme`` — added with the
+    VOC003 / VOC004 scheme-aware fix.
+
+    These detectors decide whether the textile-pilot code validators
+    should fire for a given ``Classification.schemeId`` value.
+    Conservative substring matching (case-folded) avoids false
+    positives on UN CPC, NACE, GS1 GPC, and other classifications.
+    """
+
+    def test_unece_rec46_recognises_canonical_url_forms(self) -> None:
+        from dppvalidator.vocabularies.code_lists import is_unece_rec46_scheme
+
+        assert is_unece_rec46_scheme("https://vocabulary.uncefact.org/unecerec46/")
+        assert is_unece_rec46_scheme("urn:un:unece:uncefact:codelist:standard:UNECE:Material:46")
+        assert is_unece_rec46_scheme("https://example.com/unece-rec-46/codes")
+        assert is_unece_rec46_scheme("https://example.com/unece/rec46/")
+
+    def test_unece_rec46_rejects_other_classifications(self) -> None:
+        from dppvalidator.vocabularies.code_lists import is_unece_rec46_scheme
+
+        # UN CPC — the scheme used by every v0.7 fixture under
+        # tests/fixtures/valid/. This is the failure mode the fix
+        # exists to prevent.
+        assert not is_unece_rec46_scheme("https://unstats.un.org/unsd/classifications/Econ/cpc/")
+        # Other common non-Rec46 schemes.
+        assert not is_unece_rec46_scheme("https://gs1.org/voc/CategoryCode")
+        assert not is_unece_rec46_scheme("https://wcoomd.org/hs-nomenclature")
+        assert not is_unece_rec46_scheme("urn:nace:r2:2008")
+
+    def test_unece_rec46_rejects_falsy_inputs(self) -> None:
+        from dppvalidator.vocabularies.code_lists import is_unece_rec46_scheme
+
+        assert not is_unece_rec46_scheme(None)
+        assert not is_unece_rec46_scheme("")
+
+    def test_unece_rec46_is_case_insensitive(self) -> None:
+        from dppvalidator.vocabularies.code_lists import is_unece_rec46_scheme
+
+        assert is_unece_rec46_scheme("HTTPS://EXAMPLE.COM/UNECE-REC-46")
+        assert is_unece_rec46_scheme("Rec46")
+
+    def test_hs_scheme_recognises_canonical_url_forms(self) -> None:
+        from dppvalidator.vocabularies.code_lists import is_hs_scheme
+
+        assert is_hs_scheme("https://wcoomd.org/hs-nomenclature/2017")
+        assert is_hs_scheme("urn:un:unece:uncefact:codelist:standard:WCO:HS:2022")
+        assert is_hs_scheme("https://example.com/harmonized-system/")
+        assert is_hs_scheme("https://example.com/customs/hs/")
+
+    def test_hs_scheme_rejects_other_classifications(self) -> None:
+        from dppvalidator.vocabularies.code_lists import is_hs_scheme
+
+        # UN CPC again — this is what the v0.7 fixtures use; the fix
+        # prevents VOC004 from firing on these.
+        assert not is_hs_scheme("https://unstats.un.org/unsd/classifications/Econ/cpc/")
+        assert not is_hs_scheme("urn:nace:r2:2008")
+        assert not is_hs_scheme("https://example.com/cpc/")
+
+    def test_hs_scheme_rejects_falsy_inputs(self) -> None:
+        from dppvalidator.vocabularies.code_lists import is_hs_scheme
+
+        assert not is_hs_scheme(None)
+        assert not is_hs_scheme("")
+
+    def test_hs_scheme_anchors_path_tokens(self) -> None:
+        """``/hs/`` and ``/hs-`` only match path segments, not arbitrary text.
+
+        The leading slash anchors the substring so e.g. ``brands.example.com``
+        doesn't get false-matched by the ``hs`` substring.
+        """
+        from dppvalidator.vocabularies.code_lists import is_hs_scheme
+
+        # Negative — the bare ``hs`` substring inside a domain shouldn't
+        # match (it's not in a path segment).
+        assert not is_hs_scheme("https://example.com/things/")
+        # Positive — actual HS path segment.
+        assert is_hs_scheme("https://example.com/customs/hs/2022/")
