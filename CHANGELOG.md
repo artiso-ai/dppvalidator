@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - _unreleased_
+## [0.4.0] - 2026-05-08
 
 This release adds first-class support for **UNTP DPP 0.7.0** alongside
 the existing 0.6.x. Both wire formats coexist and are auto-detected
@@ -93,6 +93,14 @@ each phase has its own implementation log there.
   `tests/unit/test_no_version_literals.py` guard rejects new
   occurrences. Feature code should call
   `dppvalidator.compat.active_version()` instead.
+
+### Fixed
+
+- Credential verifier: `proofValue` decoding no longer misroutes
+  base64-encoded Ed25519 signatures whose first character happens to
+  be `z` (~1.5% of random signatures). The verifier now treats the
+  leading `z` as a multibase base58btc hint and falls back to base64
+  if base58 decode fails, instead of raising and returning `None`.
 
 ### Tests
 
