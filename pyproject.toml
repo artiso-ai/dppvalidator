@@ -50,8 +50,12 @@ dependencies = [
     "httpx>=0.28.0",
     "jsonschema>=4.23.0",
     "pyld>=2.0.4",
-    "cryptography>=43.0.0",
-    "PyJWT>=2.9.0",
+    # cryptography: floor lifted to >=46.0.7 to pull in fixes for
+    # CVE-2026-26007 (46.0.5), CVE-2026-34073 (46.0.6),
+    # CVE-2026-39892 (46.0.7).
+    "cryptography>=46.0.7",
+    # PyJWT: floor lifted to >=2.12.0 for CVE-2026-32597.
+    "PyJWT>=2.12.0",
     "base58>=2.1.0",
 ]
 
@@ -92,8 +96,8 @@ include = [
 
 [dependency-groups]
 dev = [
-    # Testing
-    "pytest>=8.0.0",
+    # Testing — pytest >=9.0.3 closes CVE-2025-71176.
+    "pytest>=9.0.3",
     "pytest-cov>=4.1.0",
     "pytest-asyncio>=0.24.0",
     "hypothesis>=6.100.0",
