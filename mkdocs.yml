@@ -64,6 +64,16 @@ plugins:
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
+      # Force a non-None ``title`` for every code block. Without
+      # this, ``pymdownx.highlight`` passes ``filename=None`` to
+      # pygments' ``HtmlFormatter``, which crashes with
+      # ``AttributeError: 'NoneType' object has no attribute 'replace'``
+      # under pygments >=2.20.0 (the latter tightened None handling
+      # in ``html.escape(self._decodeifneeded(...))``). Enabling
+      # ``auto_title`` makes pymdownx fill ``title`` from the lexer
+      # name when the markdown didn't set one. Tracked upstream as a
+      # pymdown-extensions / pygments compatibility issue.
+      auto_title: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
