@@ -93,6 +93,9 @@ include = [
     "src/dppvalidator/**/*.xsd",
     "src/dppvalidator/**/*.yaml",
 ]
+exclude = [
+    "scripts/**",
+]
 
 [dependency-groups]
 dev = [

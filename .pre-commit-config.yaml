@@ -42,10 +42,13 @@ repos:
     rev: v0.14.14
     hooks:
       # bandit (security) - exclude notebooks (example code uses random)
+      # ``scripts/`` is excluded too: it holds dev-only utilities (e.g. the
+      # functional smoke test) that legitimately drive ``subprocess.run``
+      # with controlled, env-overridable binary paths — not user input.
       - id: ruff
         types_or: [ python, pyi ]
         args: [ "--fix", "--select=S", "--ignore=S101,S110" ]
-        exclude: ^(tests/|mutants/|examples/)
+        exclude: ^(tests/|mutants/|examples/|scripts/)
       # isort
       - id: ruff
         types_or: [ python, pyi, jupyter ]
@@ -54,7 +57,7 @@ repos:
       - id: ruff
         types_or: [ python, pyi ]
         args: [ "--select", "ANN", "--ignore", "ANN101,ANN102,ANN401,ANN002,ANN003" ]
-        exclude: ^(tests/|mutants/|benchmarks/|examples/).*$
+        exclude: ^(tests/|mutants/|benchmarks/|examples/|scripts/).*$
       # Replace %s statements with f-string syntax
       - id: ruff
         types_or: [ python, pyi, jupyter ]
@@ -64,7 +67,7 @@ repos:
         name: ruff-check-all
         types_or: [ python, pyi ]
         args: [ "--output-format=github" ]
-        exclude: ^(tests/|mutants/|benchmarks/|examples/)
+        exclude: ^(tests/|mutants/|benchmarks/|examples/|scripts/)
       # formatting
       - id: ruff-format
         types_or: [ python, pyi, jupyter ]
