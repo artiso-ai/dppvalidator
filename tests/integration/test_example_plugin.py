@@ -241,6 +241,27 @@ class TestV06BrandNameRule:
         path, _ = violations[0]
         assert path == "$.credentialSubject.product.name"
 
+    def test_applies_to_versions_pins_v06(self) -> None:
+        """Pins the per-version dispatch contract (Phase 6 / 0.4.0 polish)."""
+        from dppvalidator_example_plugin.validators import BrandNameRule
+
+        assert BrandNameRule.applies_to_versions == ("0.6.0", "0.6.1")
+
+    def test_silently_skips_v07_passports(self, v07_passport: Any) -> None:
+        """Defensive duck-typing: v0.7 input never crashes the rule.
+
+        The engine's per-version dispatch normally filters this rule
+        out for v0.7 payloads (because ``applies_to_versions`` is
+        v0.6.x). This test exercises the **belt-and-braces path**:
+        if a caller bypasses dispatch (e.g. by invoking ``check()``
+        directly), the rule must still no-op cleanly rather than
+        crash with ``AttributeError``.
+        """
+        from dppvalidator_example_plugin.validators import BrandNameRule
+
+        rule = BrandNameRule()
+        assert rule.check(v07_passport) == []
+
 
 class TestV06MinMaterialsRule:
     """The v0.6 ``MinMaterialsRule`` keeps its pre-Phase-3 behaviour."""
@@ -261,6 +282,18 @@ class TestV06MinMaterialsRule:
         rule = MinMaterialsRule()
         violations = rule.check(v06_passport)
         assert len(violations) == 1
+
+    def test_applies_to_versions_pins_v06(self) -> None:
+        from dppvalidator_example_plugin.validators import MinMaterialsRule
+
+        assert MinMaterialsRule.applies_to_versions == ("0.6.0", "0.6.1")
+
+    def test_silently_skips_v07_passports(self, v07_passport: Any) -> None:
+        """Defensive duck-typing — same contract as ``BrandNameRule``."""
+        from dppvalidator_example_plugin.validators import MinMaterialsRule
+
+        rule = MinMaterialsRule()
+        assert rule.check(v07_passport) == []
 
 
 # ---------------------------------------------------------------------------
@@ -324,6 +357,88 @@ class TestV07BrandNameRule:
         # not look at the wrapped product — it returns no violations
         # because the shape didn't match.
         assert rule.check(v06_passport) == []
+
+
+# ---------------------------------------------------------------------------
+# Engine-level per-version dispatch (Phase 6 / 0.4.0 polish)
+# ---------------------------------------------------------------------------
+
+
+class TestEnginePerVersionPluginDispatch:
+    """The engine's plugin layer routes plugins by ``applies_to_versions``.
+
+    Prior to the 0.4.0 polish round, all installed plugins ran for
+    every payload. v0.6 plugins reading ``credential_subject.product``
+    crashed on v0.7 payloads, surfacing as ``PLG001`` warnings. The
+    fix wires ``schema_version`` through to ``run_all_validators`` so
+    plugins that pin to a specific version are silently skipped on
+    non-matching payloads.
+
+    These tests pin the contract end-to-end through the engine.
+    """
+
+    def test_v07_engine_does_not_trip_v06_plugins(self) -> None:
+        """A v0.7 payload validated end-to-end produces zero PLG001 entries.
+
+        Pre-fix this test would fail: v0.6 ``BrandNameRule`` and
+        ``MinMaterialsRule`` would crash on the v0.7 shape and emit
+        ``PLG001`` warnings.
+        """
+        import json
+        from pathlib import Path
+
+        from dppvalidator import ValidationEngine
+
+        fixture = (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "valid"
+            / "untp-dpp-instance-0.7.0.json"
+        )
+        if not fixture.is_file():
+            pytest.skip("v0.7 fixture not vendored")
+        data = json.loads(fixture.read_text(encoding="utf-8"))
+
+        engine = ValidationEngine(schema_version="0.7.0")
+        result = engine.validate(data)
+
+        plg001 = [
+            issue
+            for issue in result.errors + result.warnings + result.info
+            if issue.code == "PLG001"
+        ]
+        assert plg001 == [], (
+            "Plugin filter regressed — PLG001 entries leaked into a v0.7 "
+            "validation:\n" + "\n".join(f"  [{e.code}] {e.path}: {e.message}" for e in plg001)
+        )
+
+    def test_v06_engine_runs_v06_plugins(self) -> None:
+        """The v0.6 plugins still run for v0.6 payloads (no regression)."""
+        import json
+        from pathlib import Path
+
+        from dppvalidator import ValidationEngine
+
+        fixture = (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "valid"
+            / "untp-dpp-instance-0.6.1.json"
+        )
+        if not fixture.is_file():
+            pytest.skip("v0.6 fixture not vendored")
+        data = json.loads(fixture.read_text(encoding="utf-8"))
+
+        engine = ValidationEngine(schema_version="0.6.1")
+        result = engine.validate(data)
+
+        # No PLG001 (the rules don't crash on a valid v0.6 payload).
+        plg001 = [
+            issue
+            for issue in result.errors + result.warnings + result.info
+            if issue.code == "PLG001"
+        ]
+        assert plg001 == []
 
 
 # ---------------------------------------------------------------------------

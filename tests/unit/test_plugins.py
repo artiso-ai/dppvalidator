@@ -259,6 +259,121 @@ class TestRunAllValidators:
         assert len(errors) == 2
 
 
+class TestRunAllValidatorsVersionFilter:
+    """Per-version plugin dispatch — Phase 6 of UNTP 0.7.0 migration.
+
+    Plugins that declare ``applies_to_versions`` are skipped when the
+    payload's resolved version doesn't match. Plugins without that
+    attribute keep running for every version (back-compat).
+    """
+
+    @pytest.fixture
+    def passport(self) -> DigitalProductPassport:
+        """Minimal passport — the rules below don't introspect it."""
+        return DigitalProductPassport(
+            id="https://example.com/dpp",
+            issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
+        )
+
+    def test_plugin_with_matching_applies_to_versions_runs(self, passport):
+        """Plugin runs when ``schema_version`` is in ``applies_to_versions``."""
+        registry = PluginRegistry(auto_discover=False)
+
+        class V07OnlyRule:
+            rule_id = "V07_ONLY"
+            severity = "warning"
+            applies_to_versions = ("0.7.0",)
+
+            def check(self, _p):  # noqa: ARG002
+                return [("$", "v0.7-only violation")]
+
+        registry.register_validator("v07_only", V07OnlyRule())
+        errors = registry.run_all_validators(passport, schema_version="0.7.0")
+        assert len(errors) == 1
+        assert errors[0].code == "V07_ONLY"
+
+    def test_plugin_with_non_matching_applies_to_versions_is_skipped(self, passport):
+        """Plugin is silently skipped when ``schema_version`` doesn't match.
+
+        Critically: the skipped plugin must NOT raise and must NOT
+        produce a PLG001 entry — it's filtered before ``check()``
+        is called.
+        """
+        registry = PluginRegistry(auto_discover=False)
+
+        class V07OnlyRuleThatWouldCrashOnV06:
+            rule_id = "V07_ONLY"
+            severity = "warning"
+            applies_to_versions = ("0.7.0",)
+
+            def check(self, passport):
+                # Reach for a v0.7 attribute. If the engine routed a
+                # v0.6 passport here this would AttributeError.
+                return [(passport.credential_subject.does_not_exist, "x")]
+
+        registry.register_validator("v07_only", V07OnlyRuleThatWouldCrashOnV06())
+        errors = registry.run_all_validators(passport, schema_version="0.6.1")
+        # Filter applied, ``check()`` never called — zero errors.
+        assert errors == []
+
+    def test_plugin_without_applies_to_versions_runs_for_every_version(self, passport):
+        """Plugins predating Phase 6 still run for every version."""
+        registry = PluginRegistry(auto_discover=False)
+
+        class LegacyRule:
+            rule_id = "LEGACY"
+            severity = "info"
+            # No ``applies_to_versions``.
+
+            def check(self, _p):  # noqa: ARG002
+                return [("$", "legacy violation")]
+
+        registry.register_validator("legacy", LegacyRule())
+        for version in ("0.6.0", "0.6.1", "0.7.0", "9.9.9"):
+            errors = registry.run_all_validators(passport, schema_version=version)
+            assert len(errors) == 1, f"legacy plugin should run for {version}"
+
+    def test_no_schema_version_arg_runs_every_plugin(self, passport):
+        """Calling without ``schema_version`` ignores the filter entirely.
+
+        Pre-Phase-6 callers (e.g. anyone invoking
+        ``PluginRegistry.run_all_validators(passport)``) get the same
+        behaviour they always had.
+        """
+        registry = PluginRegistry(auto_discover=False)
+
+        class V07OnlyRule:
+            rule_id = "V07_ONLY"
+            severity = "warning"
+            applies_to_versions = ("0.7.0",)
+
+            def check(self, _p):  # noqa: ARG002
+                return [("$", "v0.7-only violation")]
+
+        registry.register_validator("v07", V07OnlyRule())
+        errors = registry.run_all_validators(passport)  # no schema_version=
+        assert len(errors) == 1, "back-compat path: no version → no filter"
+
+    def test_filter_works_on_class_registration_too(self, passport):
+        """``applies_to_versions`` on a class is honoured (not just on instances)."""
+        registry = PluginRegistry(auto_discover=False)
+
+        class V07ClassRule:
+            rule_id = "V07_CLASS"
+            severity = "warning"
+            applies_to_versions = ("0.7.0",)
+
+            def check(self, _p):  # noqa: ARG002
+                return [("$", "x")]
+
+        # Register the class, not an instance — the filter must still see it.
+        registry.register_validator("v07_class", V07ClassRule)
+        errors_06 = registry.run_all_validators(passport, schema_version="0.6.1")
+        errors_07 = registry.run_all_validators(passport, schema_version="0.7.0")
+        assert errors_06 == []
+        assert len(errors_07) == 1
+
+
 class TestDefaultRegistry:
     """Tests for default registry singleton."""
 

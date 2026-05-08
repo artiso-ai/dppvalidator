@@ -44,8 +44,12 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--schema-version",
-        default=DEFAULT_SCHEMA_VERSION,
-        help=f"Schema version (default: {DEFAULT_SCHEMA_VERSION})",
+        default="auto",
+        help=(
+            "UNTP DPP schema version. Defaults to 'auto' — detected "
+            "from the payload's $schema or @context. Default-version "
+            f"fallback when detection finds nothing: {DEFAULT_SCHEMA_VERSION}."
+        ),
     )
     parser.add_argument(
         "--compact",
@@ -79,8 +83,14 @@ def run(args: argparse.Namespace, console: Console) -> int:
 
     indent = None if args.compact else 2
 
+    # When the user passed --schema-version=auto (the default), the
+    # validator resolved a concrete version into ``result.schema_version``.
+    # Use that for the exporter so the output's @context URL matches the
+    # payload's actual version, not the literal 'auto' sentinel.
+    resolved_version = result.schema_version or args.schema_version
+
     if args.format == "jsonld":
-        exporter = JSONLDExporter(version=args.schema_version)
+        exporter = JSONLDExporter(version=resolved_version)
         output = exporter.export(result.passport, indent=indent)
     else:
         exporter = JSONExporter()

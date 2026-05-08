@@ -49,8 +49,15 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--schema-version",
-        default=DEFAULT_SCHEMA_VERSION,
-        help=f"Schema version (default: {DEFAULT_SCHEMA_VERSION})",
+        default="auto",
+        help=(
+            "UNTP DPP schema version to validate against. Defaults to "
+            "'auto' — the engine detects the version from the payload's "
+            "$schema or @context URLs. Pass an explicit version (e.g. "
+            "'0.6.1', '0.7.0') to fail fast with VER001 when the payload "
+            f"declares a different version. Default-version fallback when "
+            f"detection finds nothing: {DEFAULT_SCHEMA_VERSION}."
+        ),
     )
     parser.add_argument(
         "--fail-fast",

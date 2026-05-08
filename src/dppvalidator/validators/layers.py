@@ -244,7 +244,14 @@ class PluginLayer(ValidationLayer):
 
         if self._registry is None:
             return ValidationResult(valid=True, schema_version=self._schema_version)
-        plugin_errors = self._registry.run_all_validators(context.passport)
+        # Pass the engine's resolved version so plugins that declare
+        # ``applies_to_versions`` get filtered out for non-matching
+        # payloads. Plugins without that attribute keep running for
+        # every payload (back-compat for pre-Phase-6 plugins).
+        plugin_errors = self._registry.run_all_validators(
+            context.passport,
+            schema_version=self._schema_version,
+        )
 
         errors = [e for e in plugin_errors if e.severity == "error"]
         warnings = [e for e in plugin_errors if e.severity == "warning"]
