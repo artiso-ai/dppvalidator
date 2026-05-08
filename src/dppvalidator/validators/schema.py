@@ -7,20 +7,15 @@ import json
 import time
 from importlib import resources
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
+from jsonschema import Draft202012Validator
+
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 from dppvalidator.validators.results import ValidationError, ValidationResult
 
-try:
-    from jsonschema import Draft202012Validator
-    from jsonschema import ValidationError as JsonSchemaError
-
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
-    Draft202012Validator = None  # type: ignore[misc, assignment]
-    JsonSchemaError = Exception  # type: ignore[misc, assignment]
-
+# Schema type for dual-mode validation (Phase 6)
+SchemaType = Literal["untp", "cirpass"]
 
 # Stable error code mapping based on JSON Schema validator type
 SCHEMA_ERROR_CODES: dict[str, str] = {
@@ -60,18 +55,29 @@ class SchemaValidator:
 
     def __init__(
         self,
-        schema_version: str = "0.6.1",
+        schema_version: str = DEFAULT_SCHEMA_VERSION,
+        schema_type: SchemaType = "untp",
         schema_path: Path | None = None,
         strict: bool = False,
     ) -> None:
         """Initialize schema validator.
 
         Args:
-            schema_version: UNTP DPP schema version
+            schema_version: Schema version. For ``schema_type="untp"`` use a
+                version registered in ``dppvalidator.schemas.SCHEMA_REGISTRY``;
+                for ``schema_type="cirpass"`` use a CIRPASS DPP version. Defaults
+                to ``DEFAULT_SCHEMA_VERSION``.
+            schema_type: Schema type - "untp" (default) or "cirpass" for EU DPP
             schema_path: Optional custom schema path. If None, uses bundled schema.
             strict: If True, disallows additional properties not in schema
+
+        Raises:
+            ValueError: If schema_type is not "untp" or "cirpass"
         """
+        if schema_type not in ("untp", "cirpass"):
+            raise ValueError(f"Invalid schema_type '{schema_type}'. Must be 'untp' or 'cirpass'.")
         self.schema_version = schema_version
+        self.schema_type = schema_type
         self.strict = strict
         self._schema: dict[str, Any] | None = None
         self._schema_path = schema_path
@@ -83,22 +89,45 @@ class SchemaValidator:
             return self._schema
 
         if self._schema_path:
-            self._schema = json.loads(self._schema_path.read_text())
+            self._schema = json.loads(self._schema_path.read_text(encoding="utf-8"))
+        elif self.schema_type == "cirpass":
+            self._schema = self._load_cirpass_schema()
         else:
-            try:
-                schema_file = resources.files("dppvalidator.schemas.data").joinpath(
-                    f"untp-dpp-schema-{self.schema_version}.json"
-                )
-                self._schema = json.loads(schema_file.read_text())
-            except (FileNotFoundError, ModuleNotFoundError):
-                # No bundled schema available - validation will be skipped
-                self._schema = {}
+            self._schema = self._load_untp_schema()
 
         # Apply strict mode: set additionalProperties to false
         if self.strict and self._schema:
             self._schema = self._apply_strict_mode(self._schema)
 
         return self._schema
+
+    def _load_untp_schema(self) -> dict[str, Any]:
+        """Load UNTP DPP schema from bundled resources."""
+        try:
+            schema_file = resources.files("dppvalidator.schemas.data").joinpath(
+                f"untp-dpp-schema-{self.schema_version}.json"
+            )
+            return json.loads(schema_file.read_text(encoding="utf-8"))
+        except (FileNotFoundError, ModuleNotFoundError):
+            # No bundled schema available - validation will be skipped
+            return {}
+
+    def _load_cirpass_schema(self) -> dict[str, Any]:
+        """Load CIRPASS DPP schema from bundled resources."""
+        try:
+            from dppvalidator.schemas.cirpass_loader import CIRPASSSchemaLoader
+
+            loader = CIRPASSSchemaLoader()
+            return loader.load()
+        except (ImportError, RuntimeError):
+            # Fall back to direct file loading
+            try:
+                schema_file = resources.files("dppvalidator.vocabularies.data.schemas").joinpath(
+                    "cirpass_dpp_schema.json"
+                )
+                return json.loads(schema_file.read_text(encoding="utf-8"))
+            except (FileNotFoundError, ModuleNotFoundError):
+                return {}
 
     def _apply_strict_mode(self, schema: dict[str, Any]) -> dict[str, Any]:
         """Apply strict mode by setting additionalProperties to false.
@@ -143,9 +172,6 @@ class SchemaValidator:
 
     def _get_validator(self) -> Any:
         """Get or create the JSON Schema validator."""
-        if not HAS_JSONSCHEMA:
-            return None
-
         if self._validator is None:
             schema = self._load_schema()
             if schema:
@@ -163,22 +189,6 @@ class SchemaValidator:
             ValidationResult with any schema violations
         """
         start_time = time.perf_counter()
-
-        if not HAS_JSONSCHEMA:
-            return ValidationResult(
-                valid=True,
-                warnings=[
-                    ValidationError(
-                        path="$",
-                        message="jsonschema not installed, skipping schema validation",
-                        code="SCH000",
-                        layer="schema",
-                        severity="warning",
-                    )
-                ],
-                schema_version=self.schema_version,
-                validation_time_ms=(time.perf_counter() - start_time) * 1000,
-            )
 
         validator = self._get_validator()
         if validator is None:

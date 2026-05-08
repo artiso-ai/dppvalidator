@@ -33,8 +33,16 @@ class TestPrecommitCommand:
                         "https://www.w3.org/ns/credentials/v2",
                         "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
                     ],
+                    "type": ["DigitalProductPassport", "VerifiableCredential"],
                     "id": "https://example.com/dpp",
                     "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+                    "validFrom": "2024-01-01T00:00:00Z",
+                    "validUntil": "2034-01-01T00:00:00Z",
+                    "credentialSubject": {
+                        "id": "https://example.com/subject/001",
+                        "type": ["ProductPassport"],
+                        "product": {"id": "https://example.com/products/001", "name": "Test"},
+                    },
                 }
             )
         )
@@ -103,6 +111,41 @@ class TestPrecommitCommand:
 
         result = main(["--fail-on-warning", str(dpp_file)])
         assert result in (0, 1)
+
+    def test_precommit_fail_on_warning_with_warnings(self, tmp_path):
+        """Pre-commit with --fail-on-warning fails when warnings are present."""
+        from unittest.mock import MagicMock, patch
+
+        from dppvalidator.cli.commands.precommit import main
+        from dppvalidator.validators.results import ValidationError, ValidationResult
+
+        dpp_file = tmp_path / "passport.json"
+        dpp_file.write_text(
+            json.dumps({"id": "https://example.com/dpp", "type": ["DigitalProductPassport"]})
+        )
+
+        # Create a mock result that is valid but has warnings
+        mock_result = ValidationResult(
+            valid=True,
+            warnings=[
+                ValidationError(
+                    path="$.field",
+                    message="This is a warning",
+                    code="WARN001",
+                    layer="semantic",
+                    severity="warning",
+                )
+            ],
+            schema_version="0.6.1",
+        )
+
+        with patch("dppvalidator.cli.commands.precommit.ValidationEngine") as mock_engine:
+            mock_instance = MagicMock()
+            mock_instance.validate_file.return_value = mock_result
+            mock_engine.return_value = mock_instance
+
+            result = main(["--fail-on-warning", str(dpp_file)])
+            assert result == 1  # Should fail due to warnings
 
     def test_precommit_multiple_files(self, tmp_path):
         """Pre-commit validates multiple files."""
@@ -658,7 +701,9 @@ class TestInitCommand:
         result = run(args, console)
         assert result == 0
 
-        dpp_content = json.loads((project_dir / "data" / "sample_passport.json").read_text())
+        dpp_content = json.loads(
+            (project_dir / "data" / "sample_passport.json").read_text(encoding="utf-8")
+        )
         assert "materialsProvenance" in dpp_content.get("credentialSubject", {})
 
     def test_init_with_config(self, tmp_path):
@@ -745,7 +790,7 @@ class TestInitCommand:
 
         result = run(args, console)
         assert result == 0
-        assert (project_dir / ".gitignore").read_text() == "existing content"
+        assert (project_dir / ".gitignore").read_text(encoding="utf-8") == "existing content"
 
     def test_init_force_overwrites(self, tmp_path):
         """Init with --force overwrites existing files."""
@@ -769,7 +814,7 @@ class TestInitCommand:
 
         result = run(args, console)
         assert result == 0
-        assert (project_dir / ".gitignore").read_text() != "old content"
+        assert (project_dir / ".gitignore").read_text(encoding="utf-8") != "old content"
 
     def test_init_no_readme(self, tmp_path):
         """Init with --no-readme skips README creation."""
@@ -855,7 +900,7 @@ class TestInitCommand:
 
         result = run(args, console)
         assert result == 0
-        content = json.loads((data_dir / "sample_passport.json").read_text())
+        content = json.loads((data_dir / "sample_passport.json").read_text(encoding="utf-8"))
         assert content == {"existing": True}
 
     def test_init_existing_readme_skipped(self, tmp_path):
@@ -880,7 +925,7 @@ class TestInitCommand:
 
         result = run(args, console)
         assert result == 0
-        assert "Existing README" in (project_dir / "README.md").read_text()
+        assert "Existing README" in (project_dir / "README.md").read_text(encoding="utf-8")
 
     def test_init_existing_config_skipped(self, tmp_path):
         """Init skips existing .dppvalidator.json."""
@@ -904,7 +949,7 @@ class TestInitCommand:
 
         result = run(args, console)
         assert result == 0
-        content = json.loads((project_dir / ".dppvalidator.json").read_text())
+        content = json.loads((project_dir / ".dppvalidator.json").read_text(encoding="utf-8"))
         assert content == {"existing": True}
 
     def test_init_existing_precommit_skipped(self, tmp_path):
@@ -913,7 +958,7 @@ class TestInitCommand:
 
         project_dir = tmp_path / "project"
         project_dir.mkdir()
-        (project_dir / ".pre-commit-config.yaml").write_text("repos: []")
+        (project_dir / ".pre-commit-config.yaml").write_text("repos: []", encoding="utf-8")
 
         args = argparse.Namespace(
             path=str(project_dir),
@@ -929,7 +974,7 @@ class TestInitCommand:
 
         result = run(args, console)
         assert result == 0
-        assert "repos: []" in (project_dir / ".pre-commit-config.yaml").read_text()
+        assert "repos: []" in (project_dir / ".pre-commit-config.yaml").read_text(encoding="utf-8")
 
     def test_init_all_files_skipped_message(self, tmp_path):
         """Init shows message when no files created."""

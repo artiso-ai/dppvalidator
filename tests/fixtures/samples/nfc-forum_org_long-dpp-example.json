@@ -1,0 +1,43 @@
+{
+  "productID": "12345-67890",
+  "productName": "Eco-Friendly Water Bottle",
+  "manufacturer": {
+    "name": "Green Products Ltd.",
+    "address": "123 Green Way, Sustainability City, EC1 2AB, Country"
+  },
+  "productionDate": "2023-05-20",
+  "expiryDate": "2026-05-20",
+  "materials": [
+    {
+      "materialID": "M-001",
+      "materialName": "Recycled PET",
+      "percentage": 80
+    },
+    {
+      "materialID": "M-002",
+      "materialName": "Stainless Steel",
+      "percentage": 20
+    }
+  ],
+  "environmentalImpact": {
+    "carbonFootprint": "2.5 kg CO2",
+    "waterUsage": "10 liters",
+    "recyclability": "95%"
+  },
+  "compliance": [
+    {
+      "standard": "ISO 14001",
+      "certificationDate": "2023-06-15"
+    },
+    {
+      "standard": "ISO 45001",
+      "certificationDate": "2023-07-01"
+    }
+  ],
+  "endOfLifeInstructions": {
+    "recycling": "Place in plastic recycling bin",
+    "disposal": "Dispose of at designated recycling center",
+    "reuse": "Refill and reuse as water bottle"
+  },
+  "digitalPassportLink": "https/nfc-forum.org/ndpp/12345-67890.json"
+}

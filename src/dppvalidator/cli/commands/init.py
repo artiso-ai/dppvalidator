@@ -5,9 +5,13 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 
 if TYPE_CHECKING:
     from dppvalidator.cli.console import Console
@@ -150,15 +154,19 @@ dppvalidator watch data/
 ## Documentation
 
 - [dppvalidator docs](https://artiso-ai.github.io/dppvalidator/)
-- [UNTP DPP Schema](https://uncefact.github.io/spec-untp/docs/specification/DigitalProductPassport)
+- [UNTP DPP Schema](https://untp.unece.org/specification/DigitalProductPassport)
 """
 
-DPPVALIDATOR_CONFIG = {
+DPPVALIDATOR_CONFIG: dict[str, Any] = {
     "$schema": "https://artiso-ai.github.io/dppvalidator/schemas/config.json",
     "version": "1.0",
     "validation": {
         "strict": False,
-        "schema_version": "0.6.1",
+        # Resolved at template-emission time so a generated project always
+        # gets the validator's currently-shipping default UNTP version.
+        # Phase 3 will introduce a `--schema-version` flag on `init` so users
+        # can pin a specific version (e.g. `0.7.0`) at scaffolding time.
+        "schema_version": DEFAULT_SCHEMA_VERSION,
         "fail_on_warning": False,
     },
     "paths": {
@@ -177,6 +185,82 @@ PRE_COMMIT_CONFIG = """repos:
         files: \\.json$
         types: [json]
 """
+
+
+@dataclass
+class FileSpec:
+    """Specification for a file to create (Data-Driven Pattern)."""
+
+    relative_path: str
+    content_factory: Callable[[InitContext], str]
+    condition: Callable[[argparse.Namespace], bool] = lambda _: True
+    display_name: str | None = None
+
+    def get_display_name(self) -> str:
+        """Get name for console output."""
+        return self.display_name or self.relative_path
+
+
+@dataclass
+class InitContext:
+    """Context for file creation."""
+
+    project_path: Path
+    project_name: str
+    args: argparse.Namespace
+
+
+def _create_file(
+    spec: FileSpec,
+    context: InitContext,
+    console: Console,
+) -> tuple[int, int]:
+    """Create a single file from spec. Returns (created, skipped) counts."""
+    if not spec.condition(context.args):
+        return 0, 0
+
+    filepath = context.project_path / spec.relative_path
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    if filepath.exists() and not context.args.force:
+        console.print(f"  [yellow]○[/yellow] {spec.get_display_name()} exists (skipped)")
+        return 0, 1
+
+    content = spec.content_factory(context)
+    filepath.write_text(content, encoding="utf-8")
+    console.print(f"  [green]✓[/green] Created {spec.get_display_name()}")
+    return 1, 0
+
+
+def _build_file_specs() -> list[FileSpec]:
+    """Build the list of file specifications."""
+    return [
+        FileSpec(
+            relative_path="data/sample_passport.json",
+            content_factory=lambda ctx: json.dumps(_get_template(ctx.args.template), indent=2)
+            + "\n",
+            display_name="data/sample_passport.json",
+        ),
+        FileSpec(
+            relative_path=".gitignore",
+            content_factory=lambda _: GITIGNORE_CONTENT,
+        ),
+        FileSpec(
+            relative_path="README.md",
+            content_factory=lambda ctx: README_TEMPLATE.format(project_name=ctx.project_name),
+            condition=lambda args: args.readme,
+        ),
+        FileSpec(
+            relative_path=".dppvalidator.json",
+            content_factory=lambda _: json.dumps(DPPVALIDATOR_CONFIG, indent=2) + "\n",
+            condition=lambda args: args.config,
+        ),
+        FileSpec(
+            relative_path=".pre-commit-config.yaml",
+            content_factory=lambda _: PRE_COMMIT_CONFIG,
+            condition=lambda args: args.pre_commit,
+        ),
+    ]
 
 
 def add_parser(subparsers: Any) -> argparse.ArgumentParser:
@@ -234,116 +318,82 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
     return parser
 
 
-def run(args: argparse.Namespace, console: Console) -> int:
-    """Execute init command."""
+def _validate_project(args: argparse.Namespace, console: Console) -> tuple[Path, str] | None:
+    """Validate project setup. Returns (project_path, project_name) or None on error."""
     project_path = Path(args.path).resolve()
     project_name = args.name or project_path.name
 
-    # Validate project name
     if not PROJECT_NAME_PATTERN.match(project_name):
         console.print_error(
             f"Invalid project name: '{project_name}'. "
             "Use letters, numbers, hyphens, and underscores only."
         )
+        return None
+
+    return project_path, project_name
+
+
+def _setup_project_directory(
+    project_path: Path, args: argparse.Namespace, console: Console
+) -> bool:
+    """Set up project directory. Returns True on success."""
+    if project_path.exists() and any(project_path.iterdir()) and not args.force:
+        console.print("  [yellow]⚠[/yellow] Directory not empty. Use --force to overwrite files.")
+
+    project_path.mkdir(parents=True, exist_ok=True)
+
+    try:
+        test_file = project_path / ".dppvalidator_init_test"
+        test_file.write_text("test", encoding="utf-8")
+        test_file.unlink()
+    except PermissionError:
+        console.print_error(f"No write permission for: {project_path}")
+        return False
+
+    return True
+
+
+def _print_success_message(files_created: int, console: Console) -> None:
+    """Print success message with next steps."""
+    if files_created > 0:
+        console.print("\n[bold green]✓ Project initialized successfully![/bold green]")
+        console.print("\nNext steps:")
+        console.print("  1. Edit data/sample_passport.json with your product data")
+        console.print("  2. Run: dppvalidator validate data/sample_passport.json")
+        console.print("  3. Run: dppvalidator doctor (to check your environment)")
+    else:
+        console.print("\n[yellow]No files created.[/yellow] Use --force to overwrite.")
+
+
+def run(args: argparse.Namespace, console: Console) -> int:
+    """Execute init command."""
+    result = _validate_project(args, console)
+    if result is None:
         return EXIT_ERROR
 
+    project_path, project_name = result
     console.print(f"\n📦 Initializing DPP project in [bold]{project_path}[/bold]\n")
 
     try:
-        # Check if path exists and is not empty
-        if project_path.exists() and any(project_path.iterdir()) and not args.force:
-            console.print(
-                "  [yellow]⚠[/yellow] Directory not empty. Use --force to overwrite files."
-            )
-
-        project_path.mkdir(parents=True, exist_ok=True)
-
-        # Verify write permissions
-        try:
-            test_file = project_path / ".dppvalidator_init_test"
-            test_file.write_text("test", encoding="utf-8")
-            test_file.unlink()
-        except PermissionError:
-            console.print_error(f"No write permission for: {project_path}")
+        if not _setup_project_directory(project_path, args, console):
             return EXIT_ERROR
+
+        context = InitContext(
+            project_path=project_path,
+            project_name=project_name,
+            args=args,
+        )
 
         files_created = 0
         files_skipped = 0
 
-        # Create data directory
-        data_dir = project_path / "data"
-        data_dir.mkdir(exist_ok=True)
+        for spec in _build_file_specs():
+            created, skipped = _create_file(spec, context, console)
+            files_created += created
+            files_skipped += skipped
 
-        # Create sample DPP file with current dates
-        template = _get_template(args.template)
-        dpp_file = data_dir / "sample_passport.json"
-
-        if dpp_file.exists() and not args.force:
-            console.print(f"  [yellow]○[/yellow] {dpp_file.name} exists (skipped)")
-            files_skipped += 1
-        else:
-            dpp_file.write_text(json.dumps(template, indent=2) + "\n", encoding="utf-8")
-            console.print(f"  [green]✓[/green] Created {dpp_file.relative_to(project_path)}")
-            files_created += 1
-
-        # Create .gitignore
-        gitignore = project_path / ".gitignore"
-        if gitignore.exists() and not args.force:
-            console.print("  [yellow]○[/yellow] .gitignore exists (skipped)")
-            files_skipped += 1
-        else:
-            gitignore.write_text(GITIGNORE_CONTENT, encoding="utf-8")
-            console.print("  [green]✓[/green] Created .gitignore")
-            files_created += 1
-
-        # Create README.md
-        if args.readme:
-            readme = project_path / "README.md"
-            if readme.exists() and not args.force:
-                console.print("  [yellow]○[/yellow] README.md exists (skipped)")
-                files_skipped += 1
-            else:
-                readme.write_text(
-                    README_TEMPLATE.format(project_name=project_name), encoding="utf-8"
-                )
-                console.print("  [green]✓[/green] Created README.md")
-                files_created += 1
-
-        # Create config file if requested
-        if args.config:
-            config_file = project_path / ".dppvalidator.json"
-            if config_file.exists() and not args.force:
-                console.print("  [yellow]○[/yellow] .dppvalidator.json exists (skipped)")
-                files_skipped += 1
-            else:
-                config_file.write_text(
-                    json.dumps(DPPVALIDATOR_CONFIG, indent=2) + "\n", encoding="utf-8"
-                )
-                console.print("  [green]✓[/green] Created .dppvalidator.json")
-                files_created += 1
-
-        # Create pre-commit config if requested
-        if args.pre_commit:
-            precommit = project_path / ".pre-commit-config.yaml"
-            if precommit.exists() and not args.force:
-                console.print(f"  [yellow]○[/yellow] {precommit.name} exists (skipped)")
-                files_skipped += 1
-            else:
-                precommit.write_text(PRE_COMMIT_CONFIG, encoding="utf-8")
-                console.print("  [green]✓[/green] Created .pre-commit-config.yaml")
-                files_created += 1
-
-        # Summary
         console.print(f"\n  Files created: {files_created}, skipped: {files_skipped}")
-
-        if files_created > 0:
-            console.print("\n[bold green]✓ Project initialized successfully![/bold green]")
-            console.print("\nNext steps:")
-            console.print("  1. Edit data/sample_passport.json with your product data")
-            console.print("  2. Run: dppvalidator validate data/sample_passport.json")
-            console.print("  3. Run: dppvalidator doctor (to check your environment)")
-        else:
-            console.print("\n[yellow]No files created.[/yellow] Use --force to overwrite.")
+        _print_success_message(files_created, console)
 
         return EXIT_SUCCESS
 

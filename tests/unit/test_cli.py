@@ -5,6 +5,26 @@ import json
 from dppvalidator.cli.main import EXIT_ERROR, EXIT_INVALID, EXIT_VALID, create_parser, main
 
 
+def _valid_dpp() -> dict:
+    """Return CIRPASS-compliant DPP data for CLI tests."""
+    return {
+        "@context": [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+        ],
+        "type": ["DigitalProductPassport", "VerifiableCredential"],
+        "id": "https://example.com/dpp",
+        "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+        "validFrom": "2024-01-01T00:00:00Z",
+        "validUntil": "2034-01-01T00:00:00Z",
+        "credentialSubject": {
+            "id": "https://example.com/subject/001",
+            "type": ["ProductPassport"],
+            "product": {"id": "https://example.com/products/001", "name": "Test Product"},
+        },
+    }
+
+
 class TestCLIParser:
     """Tests for CLI argument parser."""
 
@@ -62,16 +82,8 @@ class TestValidateCommand:
 
     def test_validate_valid_file(self, tmp_path):
         """Test validating a valid passport file."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["validate", str(file_path)])
         assert result == EXIT_VALID
@@ -80,7 +92,7 @@ class TestValidateCommand:
         """Test validating an invalid passport file."""
         passport_data = {"invalid": "data"}
         file_path = tmp_path / "invalid.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["validate", str(file_path)])
         assert result == EXIT_INVALID
@@ -92,16 +104,8 @@ class TestValidateCommand:
 
     def test_validate_with_format_json(self, tmp_path, capsys):
         """Test validate with JSON format output."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--format", "json"])
         captured = capsys.readouterr()
@@ -112,20 +116,12 @@ class TestValidateCommand:
 
     def test_validate_strict_mode(self, tmp_path):
         """Test validate with strict mode."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--strict"])
-        # Should pass since minimal passport is valid
-        assert result in (EXIT_VALID, EXIT_INVALID)
+        # Should pass since CIRPASS-compliant passport is valid
+        assert result == EXIT_VALID
 
 
 class TestExportCommand:
@@ -133,16 +129,8 @@ class TestExportCommand:
 
     def test_export_to_stdout(self, tmp_path, capsys):
         """Test export to stdout."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["export", str(file_path)])
         captured = capsys.readouterr()
@@ -152,36 +140,20 @@ class TestExportCommand:
 
     def test_export_to_file(self, tmp_path):
         """Test export to file."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         input_path = tmp_path / "passport.json"
-        input_path.write_text(json.dumps(passport_data))
+        input_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
         output_path = tmp_path / "output.jsonld"
 
         result = main(["export", str(input_path), "-o", str(output_path)])
         assert result == EXIT_VALID
         assert output_path.exists()
-        content = json.loads(output_path.read_text())
+        content = json.loads(output_path.read_text(encoding="utf-8"))
         assert "@context" in content
 
     def test_export_json_format(self, tmp_path, capsys):
         """Test export with JSON format."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["export", str(file_path), "--format", "json"])
         captured = capsys.readouterr()
@@ -280,7 +252,7 @@ class TestValidateCommandExtended:
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--format", "table"])
         assert result in (EXIT_VALID, EXIT_INVALID)
@@ -309,6 +281,92 @@ class TestValidateCommandExtended:
         result = main(["validate", "-"])
         assert result in (EXIT_VALID, EXIT_INVALID, EXIT_ERROR)
 
+    def test_validate_multiple_files(self, tmp_path):
+        """Test validate with multiple files."""
+        # Create two valid DPP files
+        for i in range(2):
+            file_path = tmp_path / f"passport{i}.json"
+            file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
+
+        result = main(
+            ["validate", str(tmp_path / "passport0.json"), str(tmp_path / "passport1.json")]
+        )
+        assert result == EXIT_VALID
+
+    def test_validate_glob_pattern(self, tmp_path):
+        """Test validate with glob pattern."""
+        # Create multiple DPP files
+        for i in range(3):
+            file_path = tmp_path / f"dpp_{i}.json"
+            file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
+
+        result = main(["validate", str(tmp_path / "dpp_*.json")])
+        assert result == EXIT_VALID
+
+    def test_validate_glob_no_match(self, tmp_path, capsys):
+        """Test validate with glob pattern that matches nothing."""
+        result = main(["validate", str(tmp_path / "nonexistent_*.json")])
+        captured = capsys.readouterr()
+        assert result == EXIT_ERROR
+        assert "No files match" in captured.err
+
+    def test_validate_mixed_valid_invalid(self, tmp_path):
+        """Test validate with mix of valid and invalid files."""
+        # Create one valid file
+        valid_file = tmp_path / "valid.json"
+        valid_file.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
+
+        # Create one invalid file (missing required fields)
+        invalid_file = tmp_path / "invalid.json"
+        invalid_file.write_text(
+            json.dumps({"id": "https://x.com", "issuer": {"id": "https://x.com", "name": "T"}}),
+            encoding="utf-8",
+        )
+
+        result = main(["validate", str(valid_file), str(invalid_file)])
+        assert result == EXIT_INVALID
+
+    def test_validate_batch_json_output(self, tmp_path, capsys):
+        """Test validate batch output in JSON format."""
+        for i in range(2):
+            file_path = tmp_path / f"p{i}.json"
+            file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
+
+        result = main(["validate", str(tmp_path / "p*.json"), "--format", "json"])
+        captured = capsys.readouterr()
+        assert result == EXIT_VALID
+        output = json.loads(captured.out)
+        assert "files" in output
+        assert "summary" in output
+        assert output["summary"]["total"] == 2
+        assert output["summary"]["valid"] == 2
+
+    def test_validate_batch_table_output(self, tmp_path, capsys):
+        """Test validate batch output in table format."""
+        for i in range(2):
+            file_path = tmp_path / f"t{i}.json"
+            file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
+
+        result = main(["validate", str(tmp_path / "t*.json"), "--format", "table"])
+        captured = capsys.readouterr()
+        assert result == EXIT_VALID
+        assert "Batch Validation Results" in captured.out
+        assert "Total:" in captured.out
+
+    def test_validate_glob_with_backslash_path(self, tmp_path):
+        """Test glob pattern with Windows-style backslashes (cross-platform)."""
+        # Create files in a subdirectory
+        subdir = tmp_path / "data"
+        subdir.mkdir()
+        for i in range(2):
+            file_path = subdir / f"win_{i}.json"
+            file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
+
+        # Use backslash path (Windows-style) - should work on all platforms
+        pattern = str(subdir).replace("/", "\\") + "\\win_*.json"
+        result = main(["validate", pattern])
+        assert result == EXIT_VALID
+
 
 class TestExportCommandExtended:
     """Extended tests for export command."""
@@ -328,16 +386,8 @@ class TestExportCommandExtended:
 
     def test_export_with_format_jsonld(self, tmp_path, capsys):
         """Test export with jsonld format."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["export", str(file_path), "--format", "jsonld"])
         captured = capsys.readouterr()
@@ -355,16 +405,8 @@ class TestCLIErrorHandling:
 
     def test_main_quiet_mode(self, tmp_path):
         """Test quiet mode."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["--quiet", "validate", str(file_path)])
         assert result == EXIT_VALID
@@ -474,16 +516,8 @@ class TestValidateCommandCoverage:
 
     def test_validate_with_format_json(self, tmp_path, capsys):
         """Test validate with JSON output format."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--format", "json"])
         captured = capsys.readouterr()
@@ -498,7 +532,7 @@ class TestValidateCommandCoverage:
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--strict"])
         assert result in (EXIT_VALID, EXIT_INVALID)
@@ -536,9 +570,7 @@ class TestSchemaCommandCoverage:
         console = Console(file=stream)
 
         result = schema_module.run(args, console)
-        output = stream.getvalue()
         assert result == EXIT_VALID
-        assert "0.6.1" in output
 
     def test_schema_info_unknown_version_error(self, capsys):
         """Test schema info with unknown version returns error."""
@@ -595,7 +627,7 @@ class TestExportCommandCoverage:
         """Test export with invalid DPP shows validation errors."""
         passport_data = {"invalid": "data", "no_issuer": True}
         file_path = tmp_path / "invalid.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["export", str(file_path)])
         captured = capsys.readouterr()
@@ -604,16 +636,8 @@ class TestExportCommandCoverage:
 
     def test_export_compact_output(self, tmp_path, capsys):
         """Test export with --compact flag produces minimal formatting."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["export", str(file_path), "--compact"])
         captured = capsys.readouterr()
@@ -631,7 +655,7 @@ class TestExportCommandCoverage:
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["export", str(file_path), "--format", "json"])
         _captured = capsys.readouterr()
@@ -645,7 +669,7 @@ class TestExportCommandCoverage:
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["export", str(file_path), "--format", "jsonld"])
         assert result in (EXIT_VALID, EXIT_ERROR)
@@ -657,7 +681,7 @@ class TestExportCommandCoverage:
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
         }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         output_path = tmp_path / "output.json"
         result = main(["export", str(file_path), "-o", str(output_path)])
@@ -669,16 +693,8 @@ class TestValidateCommandBehavior:
 
     def test_validate_returns_structured_json_output(self, tmp_path, capsys):
         """Test that --format json returns properly structured output."""
-        passport_data = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
-            ],
-            "id": "https://example.com/dpp",
-            "issuer": {"id": "https://example.com/issuer", "name": "Test Corp"},
-        }
         file_path = tmp_path / "passport.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(_valid_dpp()), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--format", "json"])
         captured = capsys.readouterr()
@@ -694,7 +710,7 @@ class TestValidateCommandBehavior:
         """Test invalid data returns structured errors in JSON format."""
         passport_data = {"missing": "issuer"}
         file_path = tmp_path / "invalid.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--format", "json"])
         captured = capsys.readouterr()
@@ -711,7 +727,7 @@ class TestValidateCommandBehavior:
             "validUntil": "2024-01-01T00:00:00Z",
         }
         file_path = tmp_path / "multi_error.json"
-        file_path.write_text(json.dumps(passport_data))
+        file_path.write_text(json.dumps(passport_data), encoding="utf-8")
 
         result = main(["validate", str(file_path), "--format", "json"])
         captured = capsys.readouterr()

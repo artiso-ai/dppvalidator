@@ -206,32 +206,6 @@ class TestSchemaLoader:
         assert cache_file.exists()
         assert cache_file.read_bytes() == content
 
-    def test_download_schema_no_httpx(self, tmp_path, monkeypatch):
-        """Test download_schema without httpx."""
-        import dppvalidator.schemas.loader as loader_module
-
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", False)
-
-        loader = SchemaLoader(cache_dir=tmp_path)
-        with pytest.raises(RuntimeError, match="httpx required"):
-            loader.download_schema("0.6.1", tmp_path)
-
-    def test_fetch_remote_no_httpx(self, tmp_path, monkeypatch):
-        """Test _fetch_remote without httpx."""
-        import dppvalidator.schemas.loader as loader_module
-
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", False)
-
-        loader = SchemaLoader(cache_dir=tmp_path)
-        schema_def = SchemaVersion(
-            version="0.6.1",
-            url="https://example.com/schema.json",
-            sha256=None,
-            context_urls=(),
-        )
-        result = loader._fetch_remote(schema_def)
-        assert result is None
-
     def test_load_local_integrity_failure(self, tmp_path, monkeypatch):
         """Test _load_local with integrity check failure."""
         from dppvalidator.schemas import loader as loader_module
@@ -285,8 +259,23 @@ class TestSchemaLoader:
         """Test load_schema raises RuntimeError when all methods fail."""
         from dppvalidator.schemas import loader as loader_module
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", False)
+        # Mock to simulate failure: no local files, no cache, network error
         monkeypatch.setattr(loader_module, "_get_schema_data_dir", lambda: tmp_path / "nonexistent")
+
+        class MockClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                pass
+
+            def get(self, url, **kwargs):  # noqa: ARG002
+                raise ConnectionError("Network error")
+
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = SchemaLoader(cache_dir=tmp_path / "also_nonexistent")
 
@@ -297,7 +286,6 @@ class TestSchemaLoader:
         """Test load_schema tries cache when local fails."""
         from dppvalidator.schemas import loader as loader_module
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", False)
         monkeypatch.setattr(loader_module, "_get_schema_data_dir", lambda: tmp_path / "nonexistent")
 
         loader = SchemaLoader(cache_dir=tmp_path)
@@ -369,8 +357,8 @@ class TestSchemaLoader:
             def get(self, url, follow_redirects=True):  # noqa: ARG002
                 return MockResponse()
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
-        monkeypatch.setattr(loader_module, "httpx", type("httpx", (), {"Client": MockClient}))
+        # httpx is now a core dependency
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = SchemaLoader(cache_dir=tmp_path)
         schema_def = SchemaVersion(
@@ -412,8 +400,8 @@ class TestSchemaLoader:
             def get(self, url, follow_redirects=True):  # noqa: ARG002
                 return MockResponse()
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
-        monkeypatch.setattr(loader_module, "httpx", type("httpx", (), {"Client": MockClient}))
+        # httpx is now a core dependency
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = SchemaLoader(cache_dir=tmp_path)
         schema_def = SchemaVersion(
@@ -449,8 +437,8 @@ class TestSchemaLoader:
             def get(self, url, follow_redirects=True):  # noqa: ARG002
                 return MockResponse()
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
-        monkeypatch.setattr(loader_module, "httpx", type("httpx", (), {"Client": MockClient}))
+        # httpx is now a core dependency
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = SchemaLoader(cache_dir=tmp_path)
         result = loader.download_schema("0.6.1", tmp_path)
@@ -474,8 +462,8 @@ class TestSchemaLoader:
             def get(self, url, follow_redirects=True):  # noqa: ARG002
                 raise ConnectionError("Network error")
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
-        monkeypatch.setattr(loader_module, "httpx", type("httpx", (), {"Client": MockClient}))
+        # httpx is now a core dependency
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = SchemaLoader(cache_dir=tmp_path)
         with pytest.raises(RuntimeError, match="Failed to download"):

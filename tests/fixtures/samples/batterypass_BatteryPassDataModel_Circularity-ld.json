@@ -1,0 +1,714 @@
+{
+  "@graph": [
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#EndOfLifeInformation",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#EndOfLifeInformationEntity"
+      },
+      "@type": "samm-c:SingleEntity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#EndOfLifeInformationEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#wastePrevention"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#separateCollection"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#informationOnCollection"
+          }
+        ]
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SparePartSourcesList",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SparePartSupplierEntity"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SparePartSupplierEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#nameOfSupplier"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#addressOfSupplier"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#emailAddressOfSupplier"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#supplierWebAddress"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#components"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "The part numbers for components should be provided together with the postal address, e-mail address and web address of the sources for spare parts."
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ValidEmailAddress",
+      "samm:value": "^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,}$",
+      "@type": "samm-c:RegularExpressionConstraint"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PreConsumerShare",
+      "samm-c:unit": {
+        "@id": "unit:percent"
+      },
+      "samm:dataType": {
+        "@id": "xsd:float"
+      },
+      "@type": "samm-c:Measurement"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#informationOnCollection",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ResourcePath"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Prevention and management of waste batteries: Point (c) of Article 60(1): information on the separate collection, the take back, the collection points and preparing for re-use, preparing for repurposing, and recycling operations available for waste batteries"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#documentURL",
+      "samm:characteristic": {
+        "@id": "samm-c:ResourcePath"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Link to document"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#documentType",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#Documenttype"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Describes type for document e.g. Dismantling manual"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#Documenttype",
+      "samm-c:values": {
+        "@list": [
+          "BillOfMaterial",
+          "Model3D",
+          "DismantlingManual",
+          "RemovalManual",
+          "OtherManual",
+          "Drawing"
+        ]
+      },
+      "samm:dataType": {
+        "@id": "xsd:string"
+      },
+      "@type": "samm-c:Enumeration"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ConsumerShareRange",
+      "samm-c:upperBoundDefinition": {
+        "@id": "samm-c:AT_MOST"
+      },
+      "samm-c:lowerBoundDefinition": {
+        "@id": "samm-c:AT_LEAST"
+      },
+      "samm-c:maxValue": {
+        "@value": "100",
+        "@type": "xsd:float"
+      },
+      "samm-c:minValue": {
+        "@value": "0",
+        "@type": "xsd:float"
+      },
+      "@type": "samm-c:RangeConstraint"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#supplierWebAddress",
+      "samm:characteristic": {
+        "@id": "samm-c:ResourcePath"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Web address of supplier for spare parts."
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#partName",
+      "samm:exampleValue": "Cell",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "PartName"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#mimeType",
+      "samm:characteristic": {
+        "@id": "samm-c:MimeType"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Defines internet media typ to determin how to interpret the documentURL"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#safetyMeasures",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SafetyMeasures"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Safety measures and instructions should also take past negative and extreme events as well as the separate data attributes ?battery status? and ?battery composition/chemistry? into account.\n\nDIN DKE Spec 99100 chapter reference: 6.6.1.5"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "SafetyMeasures"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SafetyMeasures",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SafetyMeasuresEntity"
+      },
+      "@type": "samm-c:SingleEntity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ComponentEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#partName"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#partNumber"
+          }
+        ]
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#AddressOfSupplier",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PostalAddress"
+      },
+      "samm:see": {
+        "@id": "https://schema.org/address"
+      },
+      "@type": "samm-c:SingleEntity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PostalAddress",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#addressCountry"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#postalCode"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#streetAddress"
+          }
+        ]
+      },
+      "samm:see": {
+        "@id": "https://schema.org/PostalAddress"
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#postConsumerShare",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PostConsumerShareTrait"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Recycled material share from post-consumer waste (end-of-life scrap) of the active material."
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PostConsumerShareTrait",
+      "samm-c:constraint": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ConsumerShareRange"
+      },
+      "samm-c:baseCharacteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PostConsumerShare"
+      },
+      "@type": "samm-c:Trait"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#DismantlingandRemovalDocumentation",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#documentType"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#mimeType"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#documentURL"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Dismantling and Removal information, including at least:- Exploded diagrams of the battery system/pack showing the location of battery cells- Disassembly sequences- Type and number of fastening techniques to be unlocked- Tools required for disassembly- Warnings if risk of damaging parts exists- Amount of cells used and layoutEUBR: Annex XIII (2c)"
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#endOfLifeInformation",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#EndOfLifeInformation"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Producer or producer responsibility organisations shall make information available to distributors and end-users on: the role of end-users in contributing to waste prevention, including by information on good practices and recommendations concerning the use of batteries aiming at extending their use phase and the possibilities of re-use, preparing for re-use, preparing for repurpose, repurposing and remanufacturing.\n\nDIN DKE Spec 99100 chapter reference: 6.6.3.2 - 6.6.3.4"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "EndOfLifeInformation"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#wastePrevention",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ResourcePath"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Prevention and management of waste batteries: Point (a) of Article 60(1): Information on the role of end-users in contributing to waste prevention, including by information on good practices and recommendations concerning the use of batteries aiming at extending their use phase and the possibilities of re-use, preparing for re-use, preparing for repurpose, repurposing and remanufacturing"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#dismantlingAndRemovalInformation",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#DocumentationList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Dismantling and Removal information, including at least:- Exploded diagrams of the battery system/pack showing the location of battery cells- Disassembly sequences- Type and number of fastening techniques to be unlocked- Tools required for disassembly- Warnings if risk of damaging parts exists- Amount of cells used and layout. BR Annex XIII (2c)\n\nDIN DKE Spec 99100 chapter reference: 6.6.1.2"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#preConsumerShare",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PreConsumerShareTrait"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Recycled material share from pre-consumer waste (manufacturing waste, excluding run-around scrap) of the active material."
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ComponentList",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ComponentEntity"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "List of components available at supplier"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PreConsumerShareTrait",
+      "samm-c:constraint": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ConsumerShareRange"
+      },
+      "samm-c:baseCharacteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PreConsumerShare"
+      },
+      "@type": "samm-c:Trait"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SafetyMeasuresEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#safetyInstructions"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#extinguishingAgent"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "The safety measures should be provided via the instruction manual as URL linking to PDF."
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#extinguishingAgent",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ExtinguishingAgentsList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Usable extinguishing agents refering to classes of extinguishers (A, B, C, D, K).EUBR: Annex XIII (1a) ? Annex VI Part A (9)"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PartNumber",
+      "samm:dataType": {
+        "@id": "xsd:string"
+      },
+      "@type": "samm-c:Code"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RecycledMaterial",
+      "samm-c:values": {
+        "@list": [
+          "Cobalt",
+          "Nickel",
+          "Lithium",
+          "Lead",
+          "Cobalt",
+          "Nickel",
+          "Lithium",
+          "Lead"
+        ]
+      },
+      "samm:dataType": {
+        "@id": "xsd:string"
+      },
+      "@type": "samm-c:Enumeration"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#streetAddress",
+      "samm:exampleValue": "Street 1",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:see": {
+        "@id": "https://schema.org/streetAddress"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ResourcePath",
+      "samm:dataType": {
+        "@id": "xsd:anyURI"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "The path of a resource."
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Resource Path"
+      },
+      "@type": "samm:Characteristic"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#nameOfSupplier",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Name of Supplier"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#safetyInstructions",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ResourcePath"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "- Safety measures. - Necessary safety instructions to handle waste batteries, including in relation to the risks associated with, and the handling of, batteries containing lithium."
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#renewableContent",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RenewableContent"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Share of renewable material content. A renewable material is a material made of natural resources that can be replenished. \n\nDIN DKE Spec 99100 chapter reference: 6.6.2.11"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "RenewableContent"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#recycledContent",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RecycledContentList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Share of material recovered from waste present in active materials for each battery model per year and per manufacturing plant.\n\nDIN DKE Spec 99100 chapter reference:  6.6.2.3 - 6.6.2.10"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RecycledContentList",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RecycledContentEntity"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#addressOfSupplier",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#AddressOfSupplier"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Postal address of supplier for spare parts."
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RenewableContent",
+      "samm-c:unit": {
+        "@id": "unit:percent"
+      },
+      "samm:dataType": {
+        "@id": "xsd:float"
+      },
+      "@type": "samm-c:Measurement"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#components",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ComponentList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Components available at supplier"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#recycledMaterial",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RecycledMaterial"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Name of recycled material"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "RecycledMaterial"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#RecycledContentEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#preConsumerShare"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#recycledMaterial"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#postConsumerShare"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "A battery passport must include recycled content information.\n\nThe content information must include the percentage share of nickel that is present in active materials and that has been recovered from battery manufacturing waste, for each battery model per year and per manufacturing plant."
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PostConsumerShare",
+      "samm-c:unit": {
+        "@id": "unit:percent"
+      },
+      "samm:dataType": {
+        "@id": "xsd:float"
+      },
+      "@type": "samm-c:Measurement"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#emailAddressOfSupplier",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#EmailAddressOfSupplierTrait"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "E-mail address of supplier for spare parts."
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#EmailAddressOfSupplierTrait",
+      "samm-c:constraint": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ValidEmailAddress"
+      },
+      "samm-c:baseCharacteristic": {
+        "@id": "samm-c:Text"
+      },
+      "@type": "samm-c:Trait"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#separateCollection",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ResourcePath"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Prevention and management of waste batteries: Point (b) of Article 60(1): Information on the role of end-users in contributing to the separate collection of waste batteries in accordance with their obligations under Article 51 so as to allow their treatment"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#postalCode",
+      "samm:exampleValue": "DE-10719",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:see": {
+        "@id": "https://schema.org/postalCode"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "PostalCode"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#addressCountry",
+      "samm:exampleValue": "Germany",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:see": {
+        "@id": "https://schema.org/addressCountry"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#DocumentationList",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#DismantlingandRemovalDocumentation"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "A collection of required documentation to support EoL actions"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#ExtinguishingAgentsList",
+      "samm:dataType": {
+        "@id": "xsd:string"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#Circularity",
+      "samm:events": {
+        "@list": []
+      },
+      "samm:operations": {
+        "@list": []
+      },
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#dismantlingAndRemovalInformation"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#sparePartSources"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#recycledContent"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#safetyMeasures"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#endOfLifeInformation"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#renewableContent"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Dismantling information (including at least: exploded diagrams of the battery system/pack showing the location of battery cells; disassembly sequences; type and number of fastening techniques to be unlocked; tools required for disassembly; warnings if risk of damaging parts exists; amount of cells used and layout); part numbers for components and contact details of sources for replacement spares; safety measures (Annex XIII (2b-d)); usable extinguishing agent (Annex VI, Part A(9)). 2024 Circulor (for and on behalf of the Battery Pass Consortium). This work is licensed under a Creative Commons License Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). Readers may reproduce material for their own publications, as long as it is not sold commercially and is given appropriate attribution."
+      },
+      "@type": "samm:Aspect"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#sparePartSources",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#SparePartSourcesList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Contact details of sources for replacement spares. Postal address, including name and brand names, postal code and place, street and number, country, telephone, if any. BR Annex XIII (2b)\n\nDIN DKE Spec 99100 chapter reference: 6.6.1.3"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#partNumber",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.Circularity:1.2.0#PartNumber"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Part Number of Component"
+      },
+      "@type": "samm:Property"
+    }
+  ],
+  "@context": {
+    "samm-e": "urn:samm:org.eclipse.esmf.samm:entity:2.1.0#",
+    "unit": "urn:samm:org.eclipse.esmf.samm:unit:2.1.0#",
+    "samm-c": "urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "samm": "urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#",
+    "@vocab": "urn:samm:io.BatteryPass.Circularity:1.2.0#"
+  }
+}

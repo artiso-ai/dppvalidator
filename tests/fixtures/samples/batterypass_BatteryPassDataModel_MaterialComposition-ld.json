@@ -1,0 +1,536 @@
+{
+  "@graph": [
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#isCriticalRawMaterial",
+      "samm:exampleValue": {
+        "@value": "true",
+        "@type": "xsd:boolean"
+      },
+      "samm:characteristic": {
+        "@id": "samm-c:Boolean"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "The battery passport must contain information on the critical raw materials present in the battery.\n\nThe information on the critical raw materials must also be provided on the battery label.\nPer Annex VI, Part A(10), critical raw materials must be reported if present in the battery in a concentration of more than 0,1 % weight by weight. "
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#clearName",
+      "samm:exampleValue": "Lithium nickel manganese cobalt oxides",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceLocation",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HubstanceSubstanceLocationEntity"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Hazardous substances (No. 19-23): Location on a (sub-)component-level of all hazardous substances (as ?any substance that poses a threat to human health and the environment?). Suggested via a unique identifier or nomenclature."
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Location"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HubstanceSubstanceLocationEntity",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryLocationEntity"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "\"The impact of substances, in particular, hazardous substances, contained in batteries on the environment and on human health or safety of persons, including impact due to inappropriate discarding of waste batteries such as littering or discarding as unsorted municipal waste?."
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Location"
+      },
+      "@type": "samm-c:SingleEntity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstanceClassChrateristicEnum",
+      "samm-c:values": {
+        "@list": [
+          "AcuteToxicity",
+          "SkinCorrosionOrIrritation",
+          "EyeDamageOrIrritation"
+        ]
+      },
+      "samm:dataType": {
+        "@id": "xsd:string"
+      },
+      "@type": "samm-c:Enumeration"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#MaterialIdentifierTrait",
+      "samm-c:constraint": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#CASNumberConstraint"
+      },
+      "samm-c:baseCharacteristic": {
+        "@id": "samm-c:Text"
+      },
+      "@type": "samm-c:Trait"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#CASNumberConstraint",
+      "samm:value": "^\\d{2,7}-\\d{2}-\\d{1}$",
+      "@type": "samm-c:RegularExpressionConstraint"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterials",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryMaterialList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "\"Component materials used\" (No. 17.a-c): Naming the materials (as a composition of substances) in cathode, anode, electrolyte according to public standards, including specification of the corresponding component (i.e., cathode, anode, or electrolyte). We suggest a reporting threshold of 0.1 % weight by weight.\n\nDIN DKE Spec 99100 chapter reference: 6.5.3-6.5.4"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "BatteryMaterials"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#ImpactList",
+      "samm-c:elementCharacteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:dataType": {
+        "@id": "xsd:string"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#componentName",
+      "samm:exampleValue": "Anode",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Name"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceIdentifier",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#MaterialIdentifierTrait"
+      },
+      "samm:see": {
+        "@id": "https://www.cas.org/cas-data/cas-registry"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "CAS identifier of hazardous substance"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Identifier"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialIdentifier",
+      "samm:exampleValue": "7439-93-2 ",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#MaterialIdentifierTrait"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "CAS Number "
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Identifier"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryMaterialList",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryMaterialEntity"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Detailed composition, including materials used in the cathode, anode, and electrolyte\n\nEUBR: Annex XIII (2a)"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Battery Material List"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceConcentration",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstanceConcentrationCharacteristic"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Concentration of hazardous substance"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Concentration"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstanceConcentrationCharacteristic",
+      "samm-c:unit": {
+        "@id": "unit:percent"
+      },
+      "samm:dataType": {
+        "@id": "xsd:double"
+      },
+      "@type": "samm-c:Measurement"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceImpact",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#ImpactList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Impact statements based on, e.g., REACH or GHS for all hazard classes applicable to substances in the battery."
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Impact"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceName",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Clear name of hazardous substance"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Name"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryLocationEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#componentName"
+          },
+          {
+            "@id": "_:b11"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Battery component that includes the material"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "BatteryLocation "
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#shortName",
+      "samm:exampleValue": "NMC",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "_:b11",
+      "samm:optional": {
+        "@value": "true",
+        "@type": "xsd:boolean"
+      },
+      "samm:property": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#componentId"
+      }
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#Weight",
+      "samm-c:unit": {
+        "@id": "unit:gram"
+      },
+      "samm:dataType": {
+        "@id": "xsd:float"
+      },
+      "@type": "samm-c:Measurement"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryMaterialEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialLocation"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialIdentifier"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialName"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialMass"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#isCriticalRawMaterial"
+          }
+        ]
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Material"
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialLocation",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryMaterialLocation"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Battery component that relates to the material"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Location"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceClass",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstanceClassChrateristicEnum"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Battery Regulation narrows reporting to substances falling under defined hazard classes and categories of the CLP regulation."
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Class"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialMass",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#Weight"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Weight of component material"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Weight"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryChemistry",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryChemistryEntityList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Composition of a product in general terms by specifying the cathode and anode active material as well as electrolyte.\n\nDIN DKE Spec 99100 chapter reference: 6.5.2"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "ProductChemistry"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryChemistryEntityList",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryChemistryEntity"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Detailed composition, including materials used in the cathode, anode, and electrolyte.\nAll common cells have two electrodes and an electrolyte. The specific combination of materials used to make these components is called \"chemistry.\" A cell's chemistry largely determines its properties, while most variations within it are caused by additives, purification, and design elements.\n\nEUBR: Annex XIII (1b) ? Annex VI Part A (7)"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "BatteryChemistryEntity"
+      },
+      "@type": "samm-c:SingleEntity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryMaterialLocation",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryLocationEntity"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Location"
+      },
+      "@type": "samm-c:SingleEntity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#componentId",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "SubstanceId"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstances",
+      "samm:characteristic": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstancesList"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "\"Hazardous substances\" (No 20.a-e): Name (agreed substance nomenclature, e.g. IUPAC or chemical name) all hazardous substance (as ?any substance that poses a threat to human health and the environment?). Suggested above 0.1 % weight by weight within each (sub-)component.\n\nDIN DKE Spec 99100 chapter reference: 6.5.4 - 6.5.6"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "HazardousSubstances"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstancesList",
+      "samm:dataType": {
+        "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstanceEntity"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Hazardous substances contained in the battery other than mercury, cadmium or lead. Substance as a chemical element and its compounds in the natural state or the result of a manufacturing process (ECHA). Battery Regulation narrows reporting to substances falling under defined hazard classes and categories of the CLP regulation.\n\nEUBR: Annex XIII (1b) ? Annex VI Part A (8)"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "HazardousSubstances"
+      },
+      "@type": "samm-c:List"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#BatteryChemistryEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#shortName"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#clearName"
+          }
+        ]
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Chemistry"
+      },
+      "@type": "samm:Entity"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterialName",
+      "samm:exampleValue": "Lithium",
+      "samm:characteristic": {
+        "@id": "samm-c:Text"
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Clear name of Material"
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "Name"
+      },
+      "@type": "samm:Property"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#MaterialComposition",
+      "samm:events": {
+        "@list": []
+      },
+      "samm:operations": {
+        "@list": []
+      },
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryChemistry"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#batteryMaterials"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstances"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Mandatory data: Battery chemistry; critical raw materials; materials used in the cathode, anode, and \nelectrolyte; hazardous substances; impact of substances on the environment and on human health or \nsafety\n\nCopyright ? 2024 Circulor (for and on behalf of the Battery Pass Consortium). This work is li-censed under a Creative Commons License Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). Readers may reproduce material for their own publications, as long as it is not sold com-mercially and is given appropriate attribution."
+      },
+      "samm:preferredName": {
+        "@language": "en",
+        "@value": "MaterialComposition"
+      },
+      "@type": "samm:Aspect"
+    },
+    {
+      "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#HazardousSubstanceEntity",
+      "samm:properties": {
+        "@list": [
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceClass"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceName"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceConcentration"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceImpact"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceLocation"
+          },
+          {
+            "@id": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#hazardousSubstanceIdentifier"
+          }
+        ]
+      },
+      "samm:description": {
+        "@language": "en",
+        "@value": "Hazardous substances (No. 19-23): Name (agreed substance nomenclature, e.g. IUPAC or chemical name) all hazardous substance (as ?any substance that poses a threat to human health and the environment?). Suggested above 0.1 % weight by weight within each (sub-)component."
+      },
+      "@type": "samm:Entity"
+    }
+  ],
+  "@context": {
+    "samm-e": "urn:samm:org.eclipse.esmf.samm:entity:2.1.0#",
+    "unit": "urn:samm:org.eclipse.esmf.samm:unit:2.1.0#",
+    "samm-c": "urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "samm": "urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#",
+    "@vocab": "urn:samm:io.BatteryPass.MaterialComposition:1.2.0#"
+  }
+}

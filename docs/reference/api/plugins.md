@@ -29,13 +29,14 @@ my_exporter = "my_package:MyExporter"
 
 ```python
 from dppvalidator.plugins import PluginRegistry
+from dppvalidator.plugins.registry import get_default_registry
 
-# Auto-discover plugins
-registry = PluginRegistry()
+# Use singleton registry (recommended)
+registry = get_default_registry()
 
 # List available plugins
-print("Validators:", registry.list_validators())
-print("Exporters:", registry.list_exporters())
+print("Validators:", registry.validator_names)
+print("Exporters:", registry.exporter_names)
 
 # Get a specific plugin
 validator = registry.get_validator("my_validator")
@@ -44,6 +45,22 @@ exporter = registry.get_exporter("my_exporter")
 # Manual registration (for testing)
 registry = PluginRegistry(auto_discover=False)
 registry.register_validator("custom", MyCustomValidator)
+```
+
+## Strict Mode
+
+For CI/CD pipelines, use strict mode to raise exceptions on plugin failures:
+
+```python
+from dppvalidator.plugins.registry import get_default_registry, PluginError
+
+registry = get_default_registry()
+
+try:
+    errors = registry.run_all_validators(passport, strict=True)
+except PluginError as e:
+    print(f"Plugin failed: {e}")
+    sys.exit(1)
 ```
 
 ## Creating Plugins

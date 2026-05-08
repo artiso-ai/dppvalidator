@@ -73,7 +73,7 @@ class VocabularyCache:
             return None
 
         try:
-            cache_data = json.loads(cache_path.read_text())
+            cache_data = json.loads(cache_path.read_text(encoding="utf-8"))
             expires_at = cache_data.get("expires_at", 0)
 
             if time.time() >= expires_at:

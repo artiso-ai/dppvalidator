@@ -210,3 +210,18 @@ __marimo__/
 # Windsurf IDE
 .windsurf/
 docs/windsurf/
+
+# Claude Code
+# .claude/ itself is committed (settings.json, rules, commands, skills, hooks),
+# but personal overrides and credentials must not be.
+.claude/settings.local.json
+.claude/.credentials.json
+CLAUDE.local.md
+
+# Internal planning documents (keep locally, exclude from repo)
+docs/IMPLEMENTATION_PLAN.md
+docs/IMPROVEMENT_ROADMAP.md
+docs/REFACTORING_PLAN.md
+docs/UNTTP_PLUGIN_PLAN.md
+docs/VC_WALLET_ROADMAP.md
+docs/STRATEGIC_ROADMAP.md

@@ -232,7 +232,7 @@ class TestRunAllValidators:
         registry.register_validator("broken", BrokenRule())
         errors = registry.run_all_validators(passport)
         assert len(errors) == 1
-        assert errors[0].code == "PLG_ERROR"
+        assert errors[0].code == "PLG001"
         assert "Plugin error" in errors[0].message
 
     def test_run_all_validators_multiple_rules(self, passport):
@@ -400,3 +400,68 @@ class TestPluginDiscoveryCoverage:
         assert len(result) == 1
         assert result[0][0] == "good_plugin"
         assert result[0][1] is MockPlugin
+
+
+class TestPluginRegistryAutoDiscover:
+    """Tests for PluginRegistry auto-discovery."""
+
+    def test_registry_auto_discover_runs_discovery(self, monkeypatch):
+        """Test registry auto-discovers validators and exporters."""
+        from dppvalidator.plugins import registry as registry_module
+
+        validators_discovered = []
+        exporters_discovered = []
+
+        def mock_discover_validators():
+            validators_discovered.append(True)
+            return iter([])
+
+        def mock_discover_exporters():
+            exporters_discovered.append(True)
+            return iter([])
+
+        # Patch at the registry module level where they're imported
+        monkeypatch.setattr(registry_module, "discover_validators", mock_discover_validators)
+        monkeypatch.setattr(registry_module, "discover_exporters", mock_discover_exporters)
+
+        # Reset and create new registry with auto_discover
+        reset_default_registry()
+        _registry = PluginRegistry(auto_discover=True)
+
+        # Verify both discovery methods were called
+        assert len(validators_discovered) > 0
+        assert len(exporters_discovered) > 0
+        assert _registry is not None
+
+
+class TestPluginRegistryStrictMode:
+    """Tests for PluginRegistry strict mode error handling."""
+
+    def test_run_all_validators_strict_raises_plugin_error(self):
+        """Test strict mode raises PluginError on validator failure."""
+        from dppvalidator.plugins.registry import PluginError
+
+        registry = PluginRegistry(auto_discover=False)
+
+        class FailingValidator:
+            rule_id = "FAIL001"
+            description = "Always fails"
+            severity = "error"
+
+            def check(self, _passport):  # noqa: ARG002
+                raise RuntimeError("Intentional failure")
+
+        registry.register_validator("failing", FailingValidator())
+
+        passport = DigitalProductPassport(
+            id="https://example.com/dpp/test",
+            issuer=CredentialIssuer(
+                id="https://example.com/issuer",
+                name="Test Issuer",
+            ),
+        )
+
+        with pytest.raises(PluginError) as exc_info:
+            registry.run_all_validators(passport, strict=True)
+
+        assert "failing" in str(exc_info.value).lower() or "fail" in str(exc_info.value).lower()

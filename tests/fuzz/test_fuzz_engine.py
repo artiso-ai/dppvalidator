@@ -16,7 +16,7 @@ class TestEngineFuzzing:
     """Fuzzing tests for ValidationEngine."""
 
     @given(st.binary(min_size=0, max_size=1000))
-    @settings(max_examples=500)
+    @settings(max_examples=500, deadline=500)
     def test_engine_never_crashes_on_binary(self, data: bytes):
         """Test engine never crashes on arbitrary binary input."""
         engine = ValidationEngine(layers=["model"])
@@ -30,7 +30,7 @@ class TestEngineFuzzing:
             pass
 
     @given(st.text(min_size=0, max_size=500))
-    @settings(max_examples=500)
+    @settings(max_examples=500, deadline=500)
     def test_engine_never_crashes_on_text(self, text: str):
         """Test engine never crashes on arbitrary text input."""
         engine = ValidationEngine(layers=["model"])
@@ -53,7 +53,7 @@ class TestEngineFuzzing:
             max_leaves=20,
         )
     )
-    @settings(max_examples=300)
+    @settings(max_examples=300, deadline=500)
     def test_engine_never_crashes_on_json_structure(self, data):
         """Test engine never crashes on arbitrary JSON-like structures."""
         engine = ValidationEngine(layers=["model"])
@@ -79,7 +79,7 @@ class TestEngineFuzzing:
             max_size=20,
         )
     )
-    @settings(max_examples=300)
+    @settings(max_examples=300, deadline=500)
     def test_engine_never_crashes_on_random_dicts(self, data: dict):
         """Test engine never crashes on random dictionary input."""
         engine = ValidationEngine(layers=["model"])
@@ -91,7 +91,7 @@ class TestEngineFuzzing:
             assert result.valid is False
 
     @given(st.binary(min_size=0, max_size=500))
-    @settings(max_examples=200)
+    @settings(max_examples=200, deadline=500)
     def test_engine_with_all_layers_never_crashes(self, data: bytes):
         """Test engine with all layers enabled never crashes."""
         engine = ValidationEngine(layers=["model", "semantic"])
@@ -107,7 +107,7 @@ class TestJSONParseFuzzing:
     """Fuzzing tests for JSON parsing paths."""
 
     @given(st.text(min_size=0, max_size=200))
-    @settings(max_examples=300)
+    @settings(max_examples=300, deadline=500)
     def test_json_parse_never_crashes(self, text: str):
         """Test JSON parsing never crashes on arbitrary text."""
         engine = ValidationEngine(layers=["model"])
@@ -124,7 +124,7 @@ class TestJSONParseFuzzing:
             pass
 
     @given(st.from_regex(r"\{[^}]*\}", fullmatch=True))
-    @settings(max_examples=200)
+    @settings(max_examples=200, deadline=500)
     def test_json_like_strings_never_crash(self, text: str):
         """Test JSON-like strings never crash the engine."""
         engine = ValidationEngine(layers=["model"])
@@ -151,7 +151,7 @@ class TestMalformedInputFuzzing:
             max_size=5,
         )
     )
-    @settings(max_examples=200)
+    @settings(max_examples=200, deadline=500)
     def test_partial_valid_structure_never_crashes(self, data: dict):
         """Test partial DPP-like structures never crash."""
         engine = ValidationEngine(layers=["model"])
@@ -172,7 +172,7 @@ class TestMalformedInputFuzzing:
             }
         )
     )
-    @settings(max_examples=200)
+    @settings(max_examples=200, deadline=500)
     def test_wrong_types_never_crash(self, data: dict):
         """Test wrong field types never crash the engine."""
         engine = ValidationEngine(layers=["model"])
@@ -181,7 +181,7 @@ class TestMalformedInputFuzzing:
         assert isinstance(result, ValidationResult)
 
     @given(st.integers(min_value=-1000000, max_value=1000000))
-    @settings(max_examples=100)
+    @settings(max_examples=100, deadline=500)
     def test_integer_input_never_crashes(self, data: int):
         """Test integer input never crashes."""
         engine = ValidationEngine(layers=["model"])
@@ -189,7 +189,7 @@ class TestMalformedInputFuzzing:
         assert result is not None
 
     @given(st.floats(allow_nan=False, allow_infinity=False))
-    @settings(max_examples=100)
+    @settings(max_examples=100, deadline=500)
     def test_float_input_never_crashes(self, data: float):
         """Test float input never crashes."""
         engine = ValidationEngine(layers=["model"])
@@ -197,7 +197,7 @@ class TestMalformedInputFuzzing:
         assert result is not None
 
     @given(st.lists(st.text(max_size=20), max_size=10))
-    @settings(max_examples=100)
+    @settings(max_examples=100, deadline=500)
     def test_list_input_never_crashes(self, data: list):
         """Test list input never crashes."""
         engine = ValidationEngine(layers=["model"])

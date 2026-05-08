@@ -1,0 +1,454 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc11: <http://purl.org/dc/elements/1.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ns0: <http://dpp.cea.fr/EUDPP/LCA#> .
+@prefix ns1: <http://www.w3.org/2003/11/swrl#> .
+
+<http://dpp.cea.fr/EUDPP/LCA>
+  a owl:Ontology ;
+  dcterms:creator "Fatima Danash" ;
+  dcterms:description "This ontology is the Life Cycle Assessement (LCA) and Environmental Footprint (EF) module of the EU DPP core ontology proposal of the CIRPASS-2 project." ;
+  dcterms:issued "2025-11-01"^^xsd:date ;
+  dcterms:license "Except otherwise noted, original content on this document is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence." ;
+  dcterms:title "The LCA and EF module of the EU DPP core ontology proposed by the CIRPASS-2 project." .
+
+<http://dpp.cea.fr/EUDPP/LCA/has_unit> a owl:AnnotationProperty .
+dc11:description a owl:AnnotationProperty .
+<http://purl.org/dc/dcterms/bibliographicCitation> a owl:AnnotationProperty .
+<http://purl.org/dc/dcterms/creator> a owl:AnnotationProperty .
+<http://purl.org/dc/dcterms/description> a owl:AnnotationProperty .
+<http://purl.org/dc/dcterms/issued> a owl:AnnotationProperty .
+<http://purl.org/dc/dcterms/license> a owl:AnnotationProperty .
+<http://purl.org/dc/dcterms/title> a owl:AnnotationProperty .
+xsd:date a rdfs:Datatype .
+<http://dpp.cea.fr/EUDPP/LCA#CF_calculated_by_CM>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#CM_calculates_CF> .
+
+<http://dpp.cea.fr/EUDPP/LCA#CF_quantifies_ICI>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#ICI_quantified_by_CF> ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Characterization_Factor> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Impact_Category_Indicator> .
+
+<http://dpp.cea.fr/EUDPP/LCA#CM_calculates_CF>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Characterization_Model> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Characterization_Factor> .
+
+<http://dpp.cea.fr/EUDPP/LCA#CM_used_in_method>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#method_uses_CM> .
+
+<http://dpp.cea.fr/EUDPP/LCA#ICI_assess_IC>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#IC_is_assessed_by_ICI> ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Impact_Category_Indicator> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Impact_Category> .
+
+<http://dpp.cea.fr/EUDPP/LCA#ICI_computes_IR>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#IR_computed_by_ICI> ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Impact_Category_Indicator> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Impact_potential_result> .
+
+<http://dpp.cea.fr/EUDPP/LCA#ICI_quantified_by_CF> a owl:ObjectProperty .
+<http://dpp.cea.fr/EUDPP/LCA#IC_is_assessed_by_ICI> a owl:ObjectProperty .
+<http://dpp.cea.fr/EUDPP/LCA#IR_computed_by_ICI> a owl:ObjectProperty .
+<http://dpp.cea.fr/EUDPP/LCA#corresponds_to>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Impact_potential_result> ;
+  rdfs:range owl:Thing .
+
+<http://dpp.cea.fr/EUDPP/LCA#corresponds_to_IC>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Impact_potential_result> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Impact_Category> .
+
+<http://dpp.cea.fr/EUDPP/LCA#imposed_by>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#imposes> .
+
+<http://dpp.cea.fr/EUDPP/LCA#imposes>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Methodology> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Impact_Category> .
+
+<http://dpp.cea.fr/EUDPP/LCA#included_in>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#includes> .
+
+<http://dpp.cea.fr/EUDPP/LCA#includes>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Methodology> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Method> .
+
+<http://dpp.cea.fr/EUDPP/LCA#method_uses_CM>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Method> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Characterization_Model> .
+
+<http://dpp.cea.fr/EUDPP/LCA#quantified_by>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.cea.fr/EUDPP/LCA#quantifies> ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Environmental_Impact> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Environmental_Footprint> .
+
+<http://dpp.cea.fr/EUDPP/LCA#quantifies>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Environmental_Footprint> ;
+  rdfs:range <http://dpp.cea.fr/EUDPP/LCA#Environmental_Impact> .
+
+<http://dpp.cea.fr/EUDPP/LCA#related_to>
+  a owl:ObjectProperty, owl:SymmetricProperty ;
+  rdfs:domain [
+    a owl:Class ;
+    owl:unionOf (
+     <http://dpp.cea.fr/EUDPP/LCA#Environmental_Footprint>
+     <http://dpp.cea.fr/EUDPP/LCA#Impact_Category>
+   )
+  ] ;
+  rdfs:range [
+    a owl:Class ;
+    owl:unionOf (
+     <http://dpp.cea.fr/EUDPP/LCA#Environmental_Footprint>
+     <http://dpp.cea.fr/EUDPP/LCA#Impact_Category>
+   )
+  ] .
+
+<http://dpp.cea.fr/EUDPP/LCA#has_unit>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Impact_Category_Indicator> ;
+  rdfs:range xsd:string .
+
+<http://qudt.org/schema/qudt#numericValue>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.cea.fr/EUDPP/LCA#Impact_potential_result> ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:unionOf (
+     xsd:decimal
+     xsd:double
+     xsd:float
+     xsd:integer
+   )
+  ] ;
+  rdfs:isDefinedBy <http://qudt.org/schema/qudt> ;
+  rdfs:label "numeric value" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Carbon_Footprint>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.cea.fr/EUDPP/LCA#Environmental_Footprint> ;
+  rdfs:comment "means the sum of greenhouse gas emissions and greenhouse gas removals in a product system, expressed as CO equivalents and based on a life cycle assessment using the single impact category of climate change. (ESPR Art 2 25))" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Characterization_Factor>
+  a owl:Class ;
+  dc11:description "Also called Impact factors, are factors that quantify the relative impact of different substances within the same category. These factors are used to convert the number of emissions into impact scores for each category. (LCAnet Ontology, SmartACV Project, Version 1.0, 2025)" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Characterization_Model>
+  a owl:Class ;
+  dc11:description """A characterization model provides a mathematical framework, as a set of equations, to quantify an impact category based on the chosen method. A characterization model is used by a method. (LCAnet Ontology, SmartACV Project, Version 1.0, 2025)
+Example: IPCC (2021) AR6.""" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Environmental_Footprint> a owl:Class .
+<http://dpp.cea.fr/EUDPP/LCA#Environmental_Impact>
+  a owl:Class ;
+  rdfs:comment "means any change to the environment, whether adverse or beneficial, wholly or partially resulting from a product during its life cycle. (ESPR Art 2 (14))" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Impact_Category>
+  a owl:Class ;
+  dc11:description "An impact category represents a specific environmental issue that the LCA aims to assess, such as global warming or ozone depletion. Each category aggregates the effects of different emissions that contribute to the same environmental problem. (LCAnet Ontology, SmartACV Project, Version 1.0, 2025) An impact category is classified as whether is corresponds to environmental impact, social impact, etc." .
+
+<http://dpp.cea.fr/EUDPP/LCA#Impact_Category_Indicator>
+  a owl:Class ;
+  dc11:description """An impact category refers to a specific metric/measurable quantity that is used to quantify an impact category. (LCAnet Ontology, SmartACV Project, Version 1.0, 2025)
+Examples include: Global Warming Potential (GWP) and Ozone Depletion Potential (ODP).""" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Impact_potential_result>
+  a owl:Class ;
+  dc11:description """An impact result corresponds to the computed value of product system, represented by its reference flow or functional unit. Thus, it is an entity that links an impact category indicator to a product reference flow of a single component of a more complex product, to its exact value (Adapted from LCAnet Ontology, SmartACV Project, Version 1.0, 2025)
+Examples: An impact result which shows the GWP-100 (impact category indicator) value of product flow in the unit kg CO2-equivalents, resembles the products “Carbon Footprint”.""" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Material_Footprint>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.cea.fr/EUDPP/LCA#Environmental_Footprint> ;
+  rdfs:comment "refers to the total amount of raw materials extracted to meet final consumption demands. (ESPR Art 2 (26))." .
+
+<http://dpp.cea.fr/EUDPP/LCA#Method>
+  a owl:Class ;
+  dc11:description "LCIA methods allow to transform and aggregate emissions to the environment and resource use data into a limited set of interpretable and reportable impact potential scores. (Adapted from LCAnet Ontology, SmartACV Project, Version 1.0, 2025)" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Methodology>
+  a owl:Class ;
+  dc11:description """Related LCIA methods can be grouped under LCIA methodologies. (ILCD Handbook – General guidance).
+Examples of methodologies include EN15804+A2, EF v3.1, Impact World.""" .
+
+<http://dpp.cea.fr/EUDPP/LCA#EUTREND_model>
+  a owl:NamedIndividual, <http://dpp.cea.fr/EUDPP/LCA#Characterization_Model> ;
+  rdfs:label "EUTREND model" ;
+  dcterms:bibliographicCitation "(Struijs et al, 2009) as applied in ReCiPe 2008" .
+
+<http://dpp.cea.fr/EUDPP/LCA#Abiotic_resource_depletion_ADP_ultimate_reserves>
+  a owl:NamedIndividual, <http://dpp.cea.fr/EUDPP/LCA#Impact_Category_Indicator> ;
+  ns0:ICI_assess_IC ns0:Resource_use_minerals_and_metals ;
+  ns0:ICI_quantified_by_CF ns0:3cde2dec99d14565a0fbd440b2e9a1e5 ;
+  rdfs:label "Abiotic resource depletion (ADP ultimate reserves)" ;
+  ns0:has_unit "kg Sb -eq" .
+
+ns0:Photochemical_ozone_formation_human_health
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Photochemical ozone formation, human health" .
+
+ns0:Fraction_of_nutrients_reaching_marine_end_compartment_N
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Eutrophication_marine ;
+  ns0:ICI_quantified_by_CF ns0:51a1767a998e43ef85328b952ce81466 ;
+  rdfs:label "Fraction of nutrients reaching marine end compartment (N)" ;
+  ns0:has_unit "kg N -eq" .
+
+ns0:Land_use_occupation_and_transformation
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Land use (occupation and transformation)" .
+
+ns0:Ozone_Depletion_Potential_ODP
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Ozone_depletion ;
+  ns0:ICI_quantified_by_CF ns0:dc3acd87af0a4fe4b4686ed51b13e934 ;
+  rdfs:label "Ozone Depletion Potential (ODP)" ;
+  ns0:has_unit "kg CFC-11-eq" .
+
+ns0:Accumulated_Exceedance_AE
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Acidification, ns0:Eutrophication_terrestrial ;
+  ns0:ICI_quantified_by_CF ns0:3a6dcc343adb4a9eafe7b8216fb820ff, ns0:fcc6b6dc5ce0460b9abf365124c24b60 ;
+  rdfs:label "Accumulated Exceedance (AE)" ;
+  ns0:has_unit "mol H+ -eq", "mol N -eq" .
+
+ns0:Ecotoxicity_freshwater
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Ecotoxicity, freshwater" .
+
+ns0:Human_toxicity_non_cancer
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Human toxicity, non-cancer" .
+
+ns0:Climate_change_total
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Climate change, total" .
+
+ns0:Soil_quality_index_dimensionless
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Land_use_occupation_and_transformation ;
+  ns0:ICI_quantified_by_CF ns0:7972ac525f924b94afca491923c5489a ;
+  rdfs:label "Soil quality index (dimensionless)" .
+
+ns0:Particulate_matter
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Particulate matter" .
+
+ns0:Global_warming_potential_GWP_over_a_100_year_time_horizon
+  a owl:NamedIndividual, ns0:Characterization_Factor ;
+  rdfs:label "Global warming potential (GWP) over a 100-year time horizon" ;
+  ns0:CF_calculated_by_CM ns0:Bern_model_based_on_IPCC_2021 .
+
+ns0:PM_model
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "PM model" ;
+  dcterms:bibliographicCitation "(Fantke et al., 2016 in UNEP 2016)" .
+
+ns0:User_deprivation_potential_deprivation_weighted_consumption
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Water_use ;
+  ns0:ICI_quantified_by_CF ns0:21914d7240fd422597f68af660756198 ;
+  rdfs:label "User deprivation potential (deprivation-weighted consumption)" ;
+  ns0:has_unit "m3 world-eq" .
+
+ns0:Fraction_of_nutrients_reaching_freshwater_end_compartment_P
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Eutrophication_freshwater ;
+  ns0:ICI_quantified_by_CF ns0:ac65dd6094a14be2a259f19b78d3016f ;
+  rdfs:label "Fraction of nutrients reaching freshwater end compartment (P)" ;
+  ns0:has_unit "kg P -eq" .
+
+ns0:Human_health_effect_model
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "Human health effect model" ;
+  dcterms:bibliographicCitation "as developed by Dreicer et al., 1995)" .
+
+ns0:Bern_model_based_on_IPCC_2021
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "Bern model based on IPCC 2021" ;
+  dcterms:bibliographicCitation "(Forster et al., 2021)" .
+
+ns0:Comparative_Toxic_Unit_for_humans_CTUh
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Human_toxicity_cancer, ns0:Human_toxicity_non_cancer ;
+  ns0:ICI_quantified_by_CF ns0:43640569fe3c4b1a99c900c9e6bc6980, ns0:9e9c4443b42440c99f790a02bea4d677 ;
+  rdfs:label "Comparative Toxic Unit for humans (CTUh)" ;
+  ns0:has_unit "CTUh" .
+
+ns0:Eutrophication_terrestrial
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Eutrophication, terrestrial" .
+
+ns0:Human_exposure_efficiency_relative_to_U235
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Ionising_radiation_human_health ;
+  ns0:ICI_quantified_by_CF ns0:a5795b7bdeb34ab0bf8401320356bd9f ;
+  rdfs:label "Human exposure efficiency relative to U235" ;
+  ns0:has_unit "kBq U235 -eq" .
+
+ns0:Eutrophication_freshwater
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Eutrophication, freshwater" .
+
+ns0:Resource_use_fossils
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Resource use, fossils" .
+
+ns0:Resource_use_minerals_and_metals
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Resource use, minerals and metals" .
+
+ns0:Eutrophication_marine
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Eutrophication, marine" .
+
+ns0:Ozone_depletion
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Ozone depletion" .
+
+ns0:Accumulated_Exceedance
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "Accumulated Exceedance" ;
+  dcterms:bibliographicCitation "(Seppälä et al. 2006, Posch et al, 2008)", "(Seppälä et al., 2006, Posch et al, 2008)" .
+
+ns0:Comparative_Toxic_Unit_for_ecosystems_CTUe
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Ecotoxicity_freshwater ;
+  ns0:ICI_quantified_by_CF ns0:18a6684317da48ff8f8c8c8f36200972 ;
+  rdfs:label "Comparative Toxic Unit for ecosystems (CTUe)" ;
+  ns0:has_unit "CTUe" .
+
+ns0:EDIP_model
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "EDIP model" ;
+  dcterms:bibliographicCitation "based on the ODPs of the World Meteorological Organisation (WMO) over an infinite time horizon (WMO 2014 + integrations)" .
+
+ns0:LANCA_model
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "LANCA model" ;
+  dcterms:bibliographicCitation "Soil quality index based on LANCA model (De Laurentiis et al. 2019) and on the LANCA CF version 2.5 (Horn and Maier, 2018)" .
+
+ns0:Acidification
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Acidification" .
+
+ns0:Human_toxicity_cancer
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Human toxicity, cancer" .
+
+ns0:Impact_on_human_health
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Particulate_matter ;
+  ns0:ICI_quantified_by_CF ns0:0daac3eb16074ecb93922f7338ae93bb ;
+  rdfs:label "Impact on human health" ;
+  ns0:has_unit "disease incidence" .
+
+ns0:LOTOS_EUROS_model
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "LOTOS-EUROS model" ;
+  dcterms:bibliographicCitation "(Van Zelm et al, 2008) as applied in ReCiPe 2008" .
+
+ns0:Global_Warming_Potential_GWP100
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Climate_change_total ;
+  ns0:ICI_quantified_by_CF ns0:Global_warming_potential_GWP_over_a_100_year_time_horizon ;
+  rdfs:label "Global Warming Potential (GWP100)" ;
+  ns0:has_unit "kg CO2-eq" .
+
+ns0:Biotic_resource_depletion_-_fossil_fuels_ADP_fossil
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Resource_use_fossils ;
+  ns0:ICI_quantified_by_CF ns0:f941187970724fce99e30b2b40f1a144 ;
+  rdfs:label "Biotic resource depletion – fossil fuels (ADP-fossil)" ;
+  ns0:has_unit "MJ" .
+
+ns0:Available_WAter_REmaining_AWARE_model
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "Available WAter REmaining (AWARE) model" ;
+  dcterms:bibliographicCitation "(Boulay et al., 2018; UNEP 2016)" .
+
+ns0:Ionising_radiation_human_health
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Ionising radiation, human health" .
+
+ns0:Tropospheric_ozone_concentration_increase
+  a owl:NamedIndividual, ns0:Impact_Category_Indicator ;
+  ns0:ICI_assess_IC ns0:Photochemical_ozone_formation_human_health ;
+  ns0:ICI_quantified_by_CF ns0:71c84e64a5e5417eafb4d50cc7f26eec ;
+  rdfs:label "Tropospheric ozone concentration increase" ;
+  ns0:has_unit "kg NMVOC -eq" .
+
+ns0:Water_use
+  a owl:NamedIndividual, ns0:Impact_Category ;
+  rdfs:label "Water use" .
+
+ns0:CML_2002_method_v.4.8
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "CML 2002 method, v.4.8" ;
+  dcterms:bibliographicCitation "van Oers et al., 2002" .
+
+ns0:Based_on_USEtox2.1_model
+  a owl:NamedIndividual, ns0:Characterization_Model ;
+  rdfs:label "Based on USEtox2.1 model" ;
+  dcterms:bibliographicCitation "(Fantke et al. 2017), adapted as in Saouter et al., 2018" .
+
+<urn:swrl:var#r> a <http://www.w3.org/2003/11/swrl#Variable> .
+<urn:swrl:var#i> a <http://www.w3.org/2003/11/swrl#Variable> .
+<urn:swrl:var#c> a <http://www.w3.org/2003/11/swrl#Variable> .
+[]
+  a <http://www.w3.org/2003/11/swrl#Imp> ;
+  ns1:body (
+   _:genid14
+   _:genid16
+   _:genid18
+   _:genid20
+   _:genid22
+ ) ;
+  ns1:head ( _:genid24 ) .
+
+_:genid14
+  a ns1:ClassAtom ;
+  ns1:classPredicate ns0:Impact_potential_result ;
+  ns1:argument1 <urn:swrl:var#r> .
+
+_:genid16
+  a ns1:ClassAtom ;
+  ns1:classPredicate ns0:Impact_Category_Indicator ;
+  ns1:argument1 <urn:swrl:var#i> .
+
+_:genid18
+  a ns1:IndividualPropertyAtom ;
+  ns1:propertyPredicate ns0:IR_computed_by_ICI ;
+  ns1:argument1 <urn:swrl:var#r> ;
+  ns1:argument2 <urn:swrl:var#i> .
+
+_:genid20
+  a ns1:ClassAtom ;
+  ns1:classPredicate ns0:Impact_Category ;
+  ns1:argument1 <urn:swrl:var#c> .
+
+_:genid22
+  a ns1:IndividualPropertyAtom ;
+  ns1:propertyPredicate ns0:ICI_assess_IC ;
+  ns1:argument1 <urn:swrl:var#i> ;
+  ns1:argument2 <urn:swrl:var#c> .
+
+_:genid24
+  a ns1:IndividualPropertyAtom ;
+  ns1:propertyPredicate ns0:corresponds_to_IC ;
+  ns1:argument1 <urn:swrl:var#r> ;
+  ns1:argument2 <urn:swrl:var#c> .

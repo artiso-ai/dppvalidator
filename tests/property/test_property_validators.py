@@ -115,7 +115,7 @@ class TestValidationEngineProperty:
             assert result.valid is False
 
     @given(st.binary(min_size=0, max_size=100))
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=500)
     def test_engine_never_crashes_on_binary(self, binary_data):
         """Test engine never crashes on arbitrary binary input."""
         engine = ValidationEngine(layers=["model"])

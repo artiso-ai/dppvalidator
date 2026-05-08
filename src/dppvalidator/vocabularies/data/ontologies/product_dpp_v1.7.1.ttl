@@ -1,0 +1,704 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://dpp.taltech.ee/EUDPP>
+  a owl:Ontology ;
+  dcterms:contributor "Riina Maigre"@en, "Tarmo Robal"@en, "Theodor Chirvasuta"@en ;
+  dcterms:creator "Hele-Mai Haav"@en ;
+  dcterms:description """The EU DPP core ontology proposed in CIRPASS-2 is a shared formal specification of basic concepts and properties/relationships in the cross-sectorial DPP domain to facilitate knowledge sharing across sector-specific DPPs.
+
+The proposed  EU DPP core ontology captures several modules from which the Product and DPP module plays a central role.
+
+For more information, see
+Maigre, R., Haav, H.-M., Robal, T., Wolf, M.-A., & Danash, F. (2025). Ontology Requirements Specification for an EU DPP Core Ontology Proposal (1.1). CIRPASS-2 Consortium. https://doi.org/10.5281/zenodo.15270342"""@en ;
+  dcterms:issued "2025-02-01" ;
+  dcterms:license "Except otherwise noted, original content on this document is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence."@en ;
+  dcterms:modified "2025-10-30" ;
+  dcterms:title "The Product and DPP module of an EU DPP core ontology proposed by the CIRPASS-2 project."@en ;
+  rdfs:comment "The second iteration of the Product and DPP module of an EU DPP core ontology proposed by the CIRPASS-2 project."@en ;
+  rdfs:label "The Product and DPP module of an EU DPP core ontology proposed by the CIRPASS-2 project."@en ;
+  owl:versionInfo "1.7.1" .
+
+dcterms:contributor a owl:AnnotationProperty .
+dcterms:creator a owl:AnnotationProperty .
+dcterms:description a owl:AnnotationProperty .
+dcterms:issued a owl:AnnotationProperty .
+dcterms:license a owl:AnnotationProperty .
+dcterms:modified a owl:AnnotationProperty .
+dcterms:title a owl:AnnotationProperty .
+skos:exactMatch a owl:AnnotationProperty .
+<http://dpp.taltech.ee/EUDPP#appliesToProduct>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.taltech.ee/EUDPP#hasDPP> ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:comment "Linking DPP and the product."@en ;
+  rdfs:label "Applies to product"@en .
+
+<http://dpp.taltech.ee/EUDPP#containsSubstanceOfConcern>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:comment """Linking the product to a substance of concern the product contains.
+
+containsSubstanceOfConcern  object property range is defined in the EUDPP Core ontology.
+
+Substance of concern is modelled by the SubstanceOfConcern class in the module SoC."""@en ;
+  rdfs:label "Contains substance of concern"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasBackUpCopyHost>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:comment """The reference of the digital product passport service provider hosting the back-up copy of the digital product passport (ESPR Annex III)
+
+hasBackUpCopyHost object property range is defined in the EUDPP Core ontology  and suitable role classes are defined in the ACTOR module."""@en ;
+  rdfs:label "Has back-up-copy host"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasDPP>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:comment "A product has a DPP ."@en ;
+  rdfs:label "Has DPP"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasEconomicOperator>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:comment """Linking the product to the economic operator.
+
+hasEconomicOperator object property range is defined in the EUDPP Core ontology and suitable role classes (i.e. the Economic operator class) is defined in the ACTOR module."""@en ;
+  rdfs:label "Has economic operator"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasIssuer>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:comment """Linking DPP with its issuer.
+
+hasIssuer object property range is defined in the EUDPP Core ontology and suitable role classes are defined in the ACTOR module."""@en ;
+  rdfs:label "Has issuer"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasManufacturer>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:comment """A product has a manufacturer.
+
+hasManufacturer object property range is defined in the EUDPP Core ontology and suitable role classes are defined in the ACTOR module."""@en ;
+  rdfs:label "Has manufacturer"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasMeasurementUnit>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:range <https://si-digital-framework.org/SI#MeasurementUnit> ;
+  rdfs:comment "Linking quantitative property to the unit of measurement."@en ;
+  rdfs:label "Has measurement unit"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasProductGroup>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#ClassificationCode> ;
+  rdfs:comment """Product group
+means a set of products that serve similar purposes and are similar in terms of use, or have similar
+functional properties, and are similar in terms of consumer perception (ESPR Art 2 (4)). The product
+group or groups covered are given by delegated acts. (ESPR Art 8 (a))
+
+This will be probably a classification code from some product classification scheme ."""@en ;
+  rdfs:label "Has Product group"@en .
+
+<http://dpp.taltech.ee/EUDPP#hasProperty>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Property> ;
+  rdfs:comment """Product has a property that could be a document or some measurable properties (measurands).
+
+Linking the product to the property."""@en ;
+  rdfs:label "Has property"@en .
+
+<http://dpp.taltech.ee/EUDPP#isComponentOf>
+  a owl:ObjectProperty, owl:TransitiveProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:comment "A product is a component of another product."@en ;
+  rdfs:label "Is component of"@en .
+
+<http://dpp.taltech.ee/EUDPP#isSparePartOf>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:comment "A product is a spare part of another product."@en ;
+  rdfs:label "Is spare part of"@en .
+
+<http://dpp.taltech.ee/EUDPP#GTIN>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Global Trade Identification Number as provided for in standard ISO/IEC 15459-6 or equivalent of products or their parts."@en ;
+  rdfs:label "GTIN"@en .
+
+<http://dpp.taltech.ee/EUDPP#codeSet>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#ClassificationCode> ;
+  rdfs:range xsd:anyURI ;
+  rdfs:comment "The product classification code set."@en ;
+  rdfs:label "Classification code set"@en .
+
+<http://dpp.taltech.ee/EUDPP#codeValue>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#ClassificationCode> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Classification code value from the classification code set."@en ;
+  rdfs:label "Classification code value"@en .
+
+<http://dpp.taltech.ee/EUDPP#commodityCode>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Relevant commodity codes, such as a TARIC code as defined in Council Regulation (EEC) No 2658/87."@en ;
+  rdfs:label "Commodity code"@en .
+
+<http://dpp.taltech.ee/EUDPP#contentType>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Document> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Content type of a document. Can be only “application” or “pdf”."@en ;
+  rdfs:label "Content type"@en .
+
+<http://dpp.taltech.ee/EUDPP#description>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Product description"@en ;
+  rdfs:label "Description"@en .
+
+<http://dpp.taltech.ee/EUDPP#dictionaryReference>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Property> ;
+  rdfs:range xsd:string ;
+  rdfs:comment """The reference to the unique identifier of the data point specification defined in the repository/data dictionary.
+
+It is formatted as a URI/URL ."""@en ;
+  rdfs:label "Dictionary reference"@en .
+
+<http://dpp.taltech.ee/EUDPP#facilityID>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range xsd:string ;
+  rdfs:comment """Unique facility identifier
+means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))
+
+A unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s life cycle."""@en ;
+  rdfs:label "Unique facility identifier"@en .
+
+<http://dpp.taltech.ee/EUDPP#granularity>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf (
+     " batch"
+     "model"
+     "product"
+   )
+  ] ;
+  rdfs:comment """The product passport should be defined at the level of item, batch or product model, depending on specific needs and complexity of the value chain, the size, nature or impacts of the products considered. (Standardisation Request 5423 7)
+
+The level of granularity of the ProductID as per ESPR."""@en ;
+  rdfs:label "granularity"@en .
+
+<http://dpp.taltech.ee/EUDPP#isEnergyRelated>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment """Energy related product
+means any product that has an impact on energy consumption during use. (ESPR Art 2 (4)).
+
+The boolean data type property indicates is a product energy related or not?"""@en ;
+  rdfs:label "Energy related"@en .
+
+<http://dpp.taltech.ee/EUDPP#lastUpdate>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range xsd:dateTimeStamp ;
+  rdfs:comment "The date and time of the latest update to the DPP instance."@en ;
+  rdfs:label "Last update"@en .
+
+<http://dpp.taltech.ee/EUDPP#linkToPreviousDPP>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range xsd:anyURI ;
+  rdfs:comment """Where a new digital product passport is created for a product that already has a digital product
+passport, the new digital product passport shall be linked to the original digital product passport or
+passports. (ESPR Art 11 (d))"""@en ;
+  rdfs:label "Link to previous DPP"@en .
+
+<http://dpp.taltech.ee/EUDPP#numericalValue>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "The numerical value of the quantity i.e. quantitative property of the product."@en ;
+  rdfs:label "Numerical value"@en .
+
+<http://dpp.taltech.ee/EUDPP#productImage>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range xsd:anyURI ;
+  rdfs:comment "An image of the product."@en ;
+  rdfs:label "Product image"@en .
+
+<http://dpp.taltech.ee/EUDPP#productName>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Product name"@en ;
+  rdfs:label "Product name"@en .
+
+<http://dpp.taltech.ee/EUDPP#schemaVersion>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The reference standard the DPP instance schema refers to."@en ;
+  rdfs:label "Schema version"@en .
+
+<http://dpp.taltech.ee/EUDPP#status>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf (
+     "Active"
+     "Archived"
+   )
+  ] ;
+  rdfs:comment "The status of the DPP instance as digital resource."@en ;
+  rdfs:label "DPP status"@en .
+
+<http://dpp.taltech.ee/EUDPP#tolerance>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:range xsd:double ;
+  rdfs:comment """Engineering tolerance is the permissible variation in measurements deriving from the base measurement.
+Tolerances can apply to many different units."""@en ;
+  rdfs:label "Tolerance"@en .
+
+<http://dpp.taltech.ee/EUDPP#uniqueDPPID>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range xsd:anyURI ;
+  rdfs:comment "A unique identifier (URI) assigned to the product passport."@en ;
+  rdfs:label "Unique DPP ID"@en .
+
+<http://dpp.taltech.ee/EUDPP#uniqueProductID>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Product> ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:unionOf (
+     xsd:anyURI
+     xsd:string
+   )
+  ] ;
+  rdfs:comment """Unique product identifier
+means a unique string of characters for the identification of a product that also enables a web link to the digital product passport. (ESPR Art 2 (30))"""@en ;
+  rdfs:label "Unique product identifier"@en .
+
+<http://dpp.taltech.ee/EUDPP#validFrom>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range xsd:dateTimeStamp ;
+  rdfs:comment "The date and timestamp that the DPP is valid from."@en ;
+  rdfs:label "Valid from"@en .
+
+<http://dpp.taltech.ee/EUDPP#validUntil>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DPP> ;
+  rdfs:range xsd:dateTimeStamp ;
+  rdfs:comment "The date and timestamp that the DPP is valid until."@en ;
+  rdfs:label "Valid until"@en .
+
+<http://dpp.taltech.ee/EUDPP#value>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Document> ;
+  rdfs:range xsd:string ;
+  rdfs:comment """Contains the data of the value encapsulated in the Document.
+
+Value is xsd:string that is formatted as a URL,  where to fetch the file."""@en ;
+  rdfs:label "Value related to the document"@en .
+
+<http://dpp.taltech.ee/EUDPP#webLink>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#DigitalInstruction> ;
+  rdfs:range xsd:anyURI ;
+  rdfs:comment "Web link to an instruction document or video etc."@en ;
+  rdfs:label "weblink"@en .
+
+<http://dpp.taltech.ee/EUDPP#CarbonFootprint>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EnvironmentalFootprint> ;
+  rdfs:comment """Carbon footprint
+means the sum of greenhouse gas emissions and greenhouse gas removals in a product system, expressed as CO equivalents and based on a life cycle assessment using the single impact category
+of climate change. (ESPR Art 2 25))
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Carbon footprint"@en .
+
+<http://dpp.taltech.ee/EUDPP#CircularEconomyIndicator>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Circular Economy indicators are measures for relevant monitoring the transition to a circular economy and to measure the effects of new policy and trends.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Circular Economy Indicator"@en ;
+  rdfs:seeAlso <https://environment.ec.europa.eu/strategy/circular-economy-action-plan_en> .
+
+<http://dpp.taltech.ee/EUDPP#ClassificationCode>
+  a owl:Class ;
+  rdfs:comment "A classification code from some product classification scheme ."@en ;
+  rdfs:label "ClassificationCode"@en .
+
+<http://dpp.taltech.ee/EUDPP#ConcentrationOfSubstanceOfConcern>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment "The concentration of the substances of concern, at the level of the product, its relevant components, or spare parts ESPR Art 7(5)"@en ;
+  rdfs:label "Concentration of the substance of concern"@en .
+
+<http://dpp.taltech.ee/EUDPP#DPP>
+  a owl:Class ;
+  rdfs:comment """Digital Product Passport (DPP) means a set of data specific to a product that includes the information specified in the applicable
+delegated act adopted pursuant to Article 4 and that is accessible via electronic means through a data carrier in accordance with Chapter III. (ESPR Art 2 (28))"""@en ;
+  rdfs:label "Digital Product Passport (DPP)"@en .
+
+<http://dpp.taltech.ee/EUDPP#DigitalInstruction>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Document> ;
+  rdfs:comment """Digital instructions
+mean instructions in digital format concerning the product (‘digital instructions’) in a language that can be easily understood. ESPR Art 27(7)
+Digital instructions are ensured by manufacturers. These should also ensured by importers. (ESPR Art 29(4))
+
+This class can be extended/specialised according to delegated acts or industry standards."""@en ;
+  rdfs:label "DigitalInstruction"@en .
+
+<http://dpp.taltech.ee/EUDPP#Document>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Property> ;
+  rdfs:comment "The document class describes the semantic representation of any instance of a document that might be required to be included into a digital product passport instance."@en ;
+  rdfs:label "Document"@en .
+
+<http://dpp.taltech.ee/EUDPP#Durability>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QualityIndicator> ;
+  rdfs:comment """Durability
+means the ability of a product to maintain over time its function and performance under specified conditions of use, maintenance and repair. (ESPR Art 2 (22))
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Durability"@en .
+
+<http://dpp.taltech.ee/EUDPP#EmissionToAir>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EnvironmentalEmission> ;
+  rdfs:comment """Product parameters are listed in the ESPR Annex I :
+
+(q) emissions to air, water or soil released in one or more lifecycle stages of the product as expressed through quantities and nature of emissions, including noise.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Emission to air"@en .
+
+<http://dpp.taltech.ee/EUDPP#EmissionToSoil>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EnvironmentalEmission> ;
+  rdfs:comment """Product parameters are listed in the ESPR Annex I :
+
+(q) emissions to air, water or soil released in one or more lifecycle stages of the product as expressed through quantities and nature of emissions, including noise.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Emission to soil"@en .
+
+<http://dpp.taltech.ee/EUDPP#EmissionToWater>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EnvironmentalEmission> ;
+  rdfs:comment """Product parameters are listed in the ESPR Annex I :
+
+(q) emissions to air, water or soil released in one or more lifecycle stages of the product as expressed through quantities and nature of emissions, including noise.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Emission to water"@en .
+
+<http://dpp.taltech.ee/EUDPP#EnergyConsumption>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ResourceConsumption> ;
+  rdfs:comment """Energy consumption of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Energy consumption"@en .
+
+<http://dpp.taltech.ee/EUDPP#EnvironmentalEmission>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EnvironmentalPollution> ;
+  rdfs:comment """Emission is the act or amount of sending out gas, heat, light, etc. It can also refer to harmful substances that are released into the environment, especially carbon dioxide.
+
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Environmental emission"@en ;
+  rdfs:seeAlso <https://dictionary.cambridge.org/dictionary/english/emission> .
+
+<http://dpp.taltech.ee/EUDPP#EnvironmentalFootprint>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Environmental footprint
+means a quantification of the environmental impacts resulting from a product throughout its life
+cycle, whether in relation to a single environmental impact category or an aggregated set of impact
+categories based on the Product Environmental Footprint method established by Recommendation
+(EU) 2 021/2279 or other scientific methods developed by international organisations, widely tested
+in collaboration with different industry sectors and adopted or implemented by the Commission in
+other Union law. (ESPR Art 2 (24)).
+
+Product parameters list ESPR Annex I
+(m) The environmental footprint of the product, expressed as a quantification;
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Environmental footprint"@en .
+
+<http://dpp.taltech.ee/EUDPP#EnvironmentalPollution>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Environmental pollution is the addition of any substance or form of energy to the environment at a rate faster than it can be dispersed or safely stored.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Environmental pollution"@en ;
+  rdfs:seeAlso <https://www.britannica.com/science/pollution-environment> .
+
+<http://dpp.taltech.ee/EUDPP#HazardousWasteAmount>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#WasteGenerationAmount> ;
+  rdfs:comment """Hazardous waste amount of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Hazardous waste amount"@en .
+
+<http://dpp.taltech.ee/EUDPP#Height>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ProductDimension> ;
+  rdfs:comment "Height of the product"@en ;
+  rdfs:label "Height"@en .
+
+<http://dpp.taltech.ee/EUDPP#LandUse>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ResourceConsumption> ;
+  rdfs:comment """Land use of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Land use"@en .
+
+<http://dpp.taltech.ee/EUDPP#Length>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ProductDimension> ;
+  rdfs:comment "Length of the product"@en ;
+  rdfs:label "Length"@en .
+
+<http://dpp.taltech.ee/EUDPP#MaterialFootprint>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EnvironmentalFootprint> ;
+  rdfs:comment """Material footprint
+refers to the total amount of raw materials extracted to meet final consumption demands. (ESPR Art 2 (26))
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Material footprint"@en .
+
+<http://dpp.taltech.ee/EUDPP#MicroplasticRelease>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#PlasticsRelease> ;
+  rdfs:comment """Product parameters as listed in the ESPR Annex I :
+
+(p) microplastic and nano plastic release as expressed through the release during relevant
+product life cycle stages, including manufacturing, transport, use and end of life stages;
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Microplastic release"@en .
+
+<http://dpp.taltech.ee/EUDPP#NanoplasticRelease>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#PlasticsRelease> ;
+  rdfs:comment """Product parameters as listed in the ESPR Annex I :
+
+(p) microplastic and nano plastic release as expressed through the release during relevant
+product life cycle stages, including manufacturing, transport, use and end of life stages;
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Nanoplastic release"@en .
+
+<http://dpp.taltech.ee/EUDPP#PackagingWasteAmount>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#WasteGenerationAmount> ;
+  rdfs:comment """Packaging waste amount of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Packaging waste amount"@en .
+
+<http://dpp.taltech.ee/EUDPP#PlasticsRelease>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EnvironmentalPollution> ;
+  rdfs:comment """Product parameters as listed in the ESPR Annex I :
+
+(p) microplastic and nano plastic release as expressed through the release during relevant
+product life cycle stages, including manufacturing, transport, use and end of life stages;
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Plastic release"@en .
+
+<http://dpp.taltech.ee/EUDPP#PlasticsWasteAmount>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#WasteGenerationAmount> ;
+  rdfs:comment """Hazardous waste amount of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Plastics waste amount"@en .
+
+<http://dpp.taltech.ee/EUDPP#Product>
+  a owl:Class ;
+  rdfs:comment "Product means any physical goods that are placed on the market or put into service. ESPR Art 2 (1))"@en ;
+  rdfs:label "Product"@en ;
+  skos:exactMatch "schema:Product" .
+
+<http://dpp.taltech.ee/EUDPP#ProductDimension>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Dimension class covers measurements of length, width, height, volume, and weight of the product required by
+ESPR Annex I in its product parameters"""@en ;
+  rdfs:label "Product dimension"@en .
+
+<http://dpp.taltech.ee/EUDPP#ProductToPackagingRatio>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """ESPR Annex I, the list of product parameters includes the parameter called the  product to packaging ratio.
+
+However, it is not specified in ESPR  whether that ratio is defined on the basis of weight or on the basis of volume.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Product to packaging ratio"@en .
+
+<http://dpp.taltech.ee/EUDPP#Property>
+  a owl:Class ;
+  rdfs:comment "A property of the product."@en ;
+  rdfs:label "Property"@en .
+
+<http://dpp.taltech.ee/EUDPP#QualityIndicator>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Product characteristics like durability and reliability.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Quality indicator"@en .
+
+<http://dpp.taltech.ee/EUDPP#QuantitativeProperty>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Property> ;
+  rdfs:comment "A property (respectively measurand of a property) of the product (model) that is expressed by a quantity value. A specific quantity."@en ;
+  rdfs:label "Quantitative Property"@en .
+
+<http://dpp.taltech.ee/EUDPP#RecoverableRate>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#CircularEconomyIndicator> ;
+  rdfs:comment "This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."@en ;
+  rdfs:label "Recoverable rate"@en .
+
+<http://dpp.taltech.ee/EUDPP#RecycledMaterialsUse>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ResourceConsumption> ;
+  rdfs:comment """Recycled materials use of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Recycled materials use"@en .
+
+<http://dpp.taltech.ee/EUDPP#RecyclingCollectionRate>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#CircularEconomyIndicator> ;
+  rdfs:comment "This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."@en ;
+  rdfs:label "Recycling collection rate"@en .
+
+<http://dpp.taltech.ee/EUDPP#RecyclingRate>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#CircularEconomyIndicator> ;
+  rdfs:comment "This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."@en ;
+  rdfs:label "Recycling rate"@en .
+
+<http://dpp.taltech.ee/EUDPP#Reliability>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QualityIndicator> ;
+  rdfs:comment """Reliability
+means the probability that a product functions as required under given conditions for a given
+duration without an occurrence which results in a primary or secondary function of the product no
+longer being performed. (ESPR Art 2 (16))
+
+Reliability is usually expressed in terms of mean time between failures (MTBF), which is the average length of time that a device will operate without failure.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Reliability"@en .
+
+<http://dpp.taltech.ee/EUDPP#ResourceConsumption>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Resource consumption of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Resource consumption"@en .
+
+<http://dpp.taltech.ee/EUDPP#SustainableRenewableMaterialsUse>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ResourceConsumption> ;
+  rdfs:comment """Sustainable renewable materials use of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Sustainable renewable materials use"@en .
+
+<http://dpp.taltech.ee/EUDPP#ThresholdOfSubstanceOfConcern>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Relevant threshold of Substance of Concern.
+
+By default, information on all substances of concern present in a product, above the  relevant thresholds, should be included in the DPP [ESPR FAQ 10.115, p59]"""@en ;
+  rdfs:label "Threshold of substance of concern"@en .
+
+<http://dpp.taltech.ee/EUDPP#Volume>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ProductDimension> ;
+  rdfs:comment "Volume of the product"@en ;
+  rdfs:label "Volume"@en .
+
+<http://dpp.taltech.ee/EUDPP#WasteGenerationAmount>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#QuantitativeProperty> ;
+  rdfs:comment """Waste generation amount of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Waste generation amount"@en .
+
+<http://dpp.taltech.ee/EUDPP#WaterConsumption>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ResourceConsumption> ;
+  rdfs:comment """Water consumption of the product.
+
+This class description needs to be extended/specialised according to the corresponding delegated acts or/and industry standards."""@en ;
+  rdfs:label "Water consumption"@en .
+
+<http://dpp.taltech.ee/EUDPP#Weight>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ProductDimension> ;
+  rdfs:comment "Weight of the product"@en ;
+  rdfs:label "Weight"@en .
+
+<http://dpp.taltech.ee/EUDPP#Width>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ProductDimension> ;
+  rdfs:comment "Width of the product"@en ;
+  rdfs:label "Width"@en .
+
+<https://si-digital-framework.org/SI#MeasurementUnit>
+  a owl:Class ;
+  rdfs:comment """Measurement unit defining the magnitude of the quantity in respect to the value.
+si:MeasurementUnit class is reused"""@en ;
+  rdfs:label "Unit of measurement"@en .
+
+<http://dpp.taltech.ee/EUDPP#batch> a owl:NamedIndividual .
+<http://dpp.taltech.ee/EUDPP#item> a owl:NamedIndividual .
+<http://dpp.taltech.ee/EUDPP#model> a owl:NamedIndividual .
+[] rdfs:comment "The EU DPP core ontology" .

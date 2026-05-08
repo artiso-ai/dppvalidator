@@ -122,9 +122,9 @@ class Console:
             self._rich.print(Panel(content, title=title, border_style=style))
         else:
             if title:
-                print(f"\n{title}")
-                print("-" * 40)
-            print(content)
+                print(f"\n{title}", file=self._file)
+                print("-" * 40, file=self._file)
+            print(content, file=self._file)
 
     def create_table(self, title: str | None = None) -> Table | _FallbackTable:
         """Create a table for output.

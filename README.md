@@ -1,4 +1,5 @@
 <p align="center">
+  <img src="docs/assets/logo.png" alt="dppvalidator logo" width="120">
   <h1 align="center">dppvalidator</h1>
   <p align="center">
     <strong>The open-source compliance engine for EU Digital Product Passports</strong>
@@ -6,11 +7,16 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/pypi/v/dppvalidator.svg" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/pypi/pyversions/dppvalidator.svg" alt="Python versions"></a>
-  <a href="https://github.com/artiso-ai/dppvalidator/blob/main/LICENSE" style="text-decoration: none;"><img src="https://img.shields.io/github/license/artiso-ai/dppvalidator.svg" alt="License"></a>
-  <a href="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml" style="text-decoration: none;"><img src="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://artiso-ai.github.io/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/badge/docs-mkdocs-blue.svg" alt="Documentation"></a>
+  <a href="https://pypi.org/project/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/pypi/v/dppvalidator?style=flat&logo=pypi&logoColor=white" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/pypi/pyversions/dppvalidator?style=flat&logo=python&logoColor=white" alt="Python versions"></a>
+  <a href="https://pypi.org/project/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/pypi/dm/dppvalidator?style=flat&logo=pypi&logoColor=white" alt="Downloads"></a>
+  <a href="https://github.com/artiso-ai/dppvalidator/blob/main/LICENSE" style="text-decoration: none;"><img src="https://img.shields.io/github/license/artiso-ai/dppvalidator?style=flat" alt="License"></a>
+  <a href="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml" style="text-decoration: none;"><img src="https://github.com/artiso-ai/dppvalidator/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://artiso-ai.github.io/dppvalidator/" style="text-decoration: none;"><img src="https://img.shields.io/badge/docs-mkdocs-blue?style=flat&logo=materialformkdocs&logoColor=white" alt="Documentation"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue?style=flat" alt="Platform">
 </p>
 
 <p align="center">
@@ -29,13 +35,17 @@ ______________________________________________________________________
 
 ## Why dppvalidator?
 
-| Challenge                         | Solution                                                                        |
-| --------------------------------- | ------------------------------------------------------------------------------- |
-| Complex JSON Schema validation    | **Three-layer validation** catches errors at schema, model, and semantic levels |
-| Evolving UNTP specifications      | **Built-in schema support** for UNTP DPP 0.6.1 with easy version switching      |
-| Integration with existing systems | **CLI + Python API** for pipelines, CI/CD, and application integration          |
-| Custom business rules             | **Plugin system** for domain-specific validators and exporters                  |
-| Interoperability requirements     | **JSON-LD export** for W3C Verifiable Credentials compliance                    |
+<!-- markdownlint-disable MD013 MD060 -->
+
+| Challenge                         | Solution                                                                                                                |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Complex JSON Schema validation    | **Seven-layer validation** catches errors at schema, model, semantic, JSON-LD, vocabulary, plugin, and signature levels |
+| Evolving UNTP specifications      | **Both UNTP DPP 0.6.x and 0.7.0** — auto-detected; `dppvalidator migrate` upgrades 0.6 → 0.7                            |
+| Integration with existing systems | **CLI + Python API** for pipelines, CI/CD, and application integration                                                  |
+| Custom business rules             | **Plugin system** for domain-specific validators and exporters                                                          |
+| Interoperability requirements     | **JSON-LD export** for W3C Verifiable Credentials compliance                                                            |
+
+<!-- markdownlint-enable MD013 MD060 -->
 
 ## Installation
 
@@ -43,12 +53,57 @@ ______________________________________________________________________
 # Using uv (recommended)
 uv add dppvalidator
 
-# Using pip
-pip install dppvalidator
+# With CLI extras (rich formatting)
+uv add "dppvalidator[cli]"
 
-# With optional dependencies
-pip install dppvalidator[all]  # Includes jsonschema + httpx
+# Or using pip
+pip install dppvalidator
+pip install "dppvalidator[cli]"  # with CLI extras
 ```
+
+### Optional Features
+
+#### RDF/SHACL Validation
+
+For SHACL validation against official CIRPASS-2 shapes:
+
+```bash
+# Using uv (recommended)
+uv add "dppvalidator[rdf]"
+
+# Or using pip
+pip install "dppvalidator[rdf]"
+```
+
+```python
+from dppvalidator.validators import ValidationEngine
+
+# Enable SHACL validation (requires [rdf] extra)
+engine = ValidationEngine(enable_shacl=True)
+result = engine.validate(dpp_data)
+```
+
+#### JSON-LD Semantic Validation
+
+JSON-LD validation is included by default (via `pyld`):
+
+```python
+engine = ValidationEngine(validate_jsonld=True)
+result = engine.validate(dpp_data)
+```
+
+#### Signature Verification
+
+Signature verification is included by default (via `cryptography`):
+
+```python
+engine = ValidationEngine(verify_signatures=True)
+result = engine.validate(dpp_data)
+```
+
+> **Note:** `pyld` and `cryptography` are core dependencies installed automatically.
+> Only `[rdf]` (for SHACL via rdflib/pyshacl) and `[cli]` (for rich formatting)
+> are true optional extras.
 
 **Requirements:** Python 3.10+
 
@@ -120,31 +175,80 @@ jsonld_output = exporter.export(passport)
 # Ready for W3C Verifiable Credentials ecosystem
 ```
 
+## Supported versions
+
+dppvalidator supports both UNTP DPP wire formats in the same release.
+The version is auto-detected from the payload's `@context` /
+`$schema` URLs; pin explicitly with `--schema-version` (CLI) or
+`schema_version=` (Python).
+
+<!-- markdownlint-disable MD013 MD060 -->
+
+| UNTP DPP  | Status             | Default? | Wire shape                                                                                                                                                                          |
+| --------- | ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.6.0** | Supported (legacy) | no       | `credentialSubject` is `ProductPassport` wrapping `Product`.                                                                                                                        |
+| **0.6.1** | Default            | **yes**  | Same shape as 0.6.0; current `DEFAULT_SCHEMA_VERSION`.                                                                                                                              |
+| **0.7.0** | Fully supported    | no       | `credentialSubject` IS the `Product` directly. New required fields: `name` (envelope), `idScheme`, `idGranularity`, `productCategory`, `producedAtFacility`, `countryOfProduction`. |
+
+<!-- markdownlint-enable MD013 MD060 -->
+
+A compat shim upgrades v0.6.x payloads to v0.7.0 shape:
+
+```bash
+dppvalidator migrate passport-v06.json -o passport-v07.json
+dppvalidator validate passport-v06.json --upgrade-from 0.6.1 --schema-version 0.7.0
+```
+
+The full version-handling story is documented in
+[`docs/concepts/untp-versions.md`](docs/concepts/untp-versions.md);
+the field rename table and warning codes are in
+[`docs/guides/migration-0-6-to-0-7.md`](docs/guides/migration-0-6-to-0-7.md).
+
 ## Features
 
-### Three-Layer Validation Architecture
+### Seven-Layer Validation Architecture
 
 ```mermaid
 flowchart TD
-    A[/"📄 Input Data (JSON)"/] --> B
+    subgraph Input
+        A[/"📄 Input Data (JSON)"/]
+    end
 
-    subgraph Layer1["🔷 Layer 1: Schema Validation"]
+    subgraph Layer0["Layer 0: Schema Detection"]
+        A0["Auto-detect schema version<br/>from $schema, @context, type"]
+    end
+
+    subgraph Layer1["Layer 1: Schema Validation"]
         B["JSON Schema Draft 2020-12<br/>Required fields, types, formats"]
     end
 
-    B -->|"SCH001-SCH099"| C
-
-    subgraph Layer2["🔶 Layer 2: Model Validation"]
+    subgraph Layer2["Layer 2: Model Validation"]
         C["Pydantic v2 Models<br/>Type coercion, URL validation"]
     end
 
-    C -->|"MOD001-MOD099"| D
-
-    subgraph Layer3["🟢 Layer 3: Semantic Validation"]
-        D["Business Rules & Vocabularies<br/>ISO codes, date logic, references"]
+    subgraph Layer3["Layer 3: JSON-LD Semantic"]
+        C2["PyLD Expansion<br/>Context resolution, term validation"]
     end
 
-    D -->|"SEM001-SEM099"| E[/"✅ ValidationResult<br/>.valid | .errors | .warnings"/]
+    subgraph Layer4["Layer 4: Business Logic"]
+        D["Business Rules & Vocabularies<br/>ISO codes, date logic, GTIN checksums"]
+    end
+
+    subgraph Layer5["Layer 5: Cryptographic"]
+        E["VC Signature Verification<br/>DID resolution, Ed25519/ECDSA"]
+    end
+
+    subgraph Output
+        F[/"✅ ValidationResult<br/>.valid | .errors | .signature_valid"/]
+    end
+
+    A --> A0
+    A0 --> B
+    B -->|"SCH001-SCH099"| C
+    C -->|"MOD001-MOD099"| C2
+    C2 -->|"JLD001-JLD099"| D
+    D -->|"SEM001-SEM099"| E
+    E -->|"SIG001-SIG099"| F
 ```
 
 ### Selective Layer Validation
@@ -160,18 +264,28 @@ engine = ValidationEngine(layers=["schema"])
 
 # Skip schema, run model + semantic
 engine = ValidationEngine(layers=["model", "semantic"])
+
+# Enable JSON-LD validation
+engine = ValidationEngine(validate_jsonld=True)
+
+# Enable signature verification
+engine = ValidationEngine(verify_signatures=True)
+result = engine.validate(dpp_data)
+if result.signature_valid:
+    print(f"Signed by: {result.issuer_did}")
 ```
 
 ### Performance
 
-| Layer    | Time      | Throughput         |
-| -------- | --------- | ------------------ |
-| Schema   | ~5μs      | 200,000 ops/sec    |
-| Model    | ~8μs      | 125,000 ops/sec    |
-| Semantic | ~3μs      | 333,000 ops/sec    |
-| **All**  | **~13μs** | **80,000 ops/sec** |
+| Layer            | Mean Time | Throughput        |
+| ---------------- | --------- | ----------------- |
+| Model (minimal)  | 0.012ms   | 84,387 ops/sec    |
+| Model (full)     | 0.016ms   | 63,945 ops/sec    |
+| Semantic         | 0.005ms   | 200,889 ops/sec   |
+| Full (Model+Sem) | 0.022ms   | 45,735 ops/sec    |
+| Engine Creation  | 0.001ms   | 1,524,868 ops/sec |
 
-*Benchmarked on Apple M2, Python 3.12*
+*Benchmarked on Apple Silicon (M-series). JSON-LD and signature verification depend on network latency (cached after first request).*
 
 ### Plugin System
 
@@ -206,21 +320,48 @@ registry.register_validator("textile", TextileFiberRule)
 engine = ValidationEngine(load_plugins=True)
 ```
 
+## EU DPP & CIRPASS-2 Support
+
+dppvalidator includes full support for the **EU DPP Core Ontology** from CIRPASS-2:
+
+```python
+from dppvalidator.validators import SchemaValidator
+from dppvalidator.exporters import EUDPPJsonLDExporter
+
+# Dual-mode validation: UNTP (default) or EU DPP
+validator = SchemaValidator(schema_type="cirpass")
+result = validator.validate(dpp_data)
+
+# Export to EU DPP-aligned JSON-LD
+exporter = EUDPPJsonLDExporter(map_terms=True)
+jsonld = exporter.export(passport)
+```
+
+| Feature                  | Description                                                              |
+| ------------------------ | ------------------------------------------------------------------------ |
+| **Dual-mode validation** | Switch between UNTP and CIRPASS schemas                                  |
+| **EU DPP vocabulary**    | 24 actor/role classes, 16 PEF categories                                 |
+| **JSON-LD export**       | EU DPP-aligned output with term mapping                                  |
+| **SHACL validation**     | Optional RDF-based validation (requires `pip install dppvalidator[rdf]`) |
+
+> 🏆 **Aligned with [dpp.vocabulary-hub.eu/specifications](https://dpp.vocabulary-hub.eu/specifications)** as of 2025-02-01. To our knowledge, dppvalidator is the most comprehensive open-source Python package for EU DPP vocabulary compliance.
+
 ## Documentation
 
 📚 **Full documentation:** [artiso-ai.github.io/dppvalidator](https://artiso-ai.github.io/dppvalidator/)
 
-| Guide                                                                                     | Description                                |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------ |
-| [Installation](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)    | Setup and optional dependencies            |
-| [Quick Start](https://artiso-ai.github.io/dppvalidator/getting-started/quickstart/)       | Get started in 5 minutes                   |
-| [CLI Reference](https://artiso-ai.github.io/dppvalidator/guides/cli-usage/)               | Command-line interface                     |
-| [Validation Layers](https://artiso-ai.github.io/dppvalidator/concepts/validation-layers/) | Understanding the three-layer architecture |
-| [API Reference](https://artiso-ai.github.io/dppvalidator/reference/api/validators/)       | Complete Python API                        |
+| Guide                                                                                              | Description                               |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| [Installation](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)             | Setup and CLI extras                      |
+| [Quick Start](https://artiso-ai.github.io/dppvalidator/getting-started/quickstart/)                | Get started in 5 minutes                  |
+| [CLI Reference](https://artiso-ai.github.io/dppvalidator/guides/cli-usage/)                        | Command-line interface                    |
+| [Validation Layers](https://artiso-ai.github.io/dppvalidator/concepts/validation-layers/)          | Understanding the five-layer architecture |
+| [CIRPASS-2 Integration](https://artiso-ai.github.io/dppvalidator/concepts/cirpass-implementation/) | EU DPP ontology alignment                 |
+| [API Reference](https://artiso-ai.github.io/dppvalidator/reference/api/validators/)                | Complete Python API                       |
 
 ## Built for Fashion & Textiles
 
-The EU's [Ecodesign for Sustainable Products Regulation (ESPR)](https://environment.ec.europa.eu/topics/circular-economy/ecodesign-sustainable-products-regulation_en) mandates Digital Product Passports for textiles starting 2027. dppvalidator helps fashion brands prepare now:
+The EU's [Ecodesign for Sustainable Products Regulation (ESPR)](https://commission.europa.eu/energy-climate-change-environment/standards-tools-and-labels/products-labelling-rules-and-requirements/ecodesign-sustainable-products-regulation_en) mandates Digital Product Passports for textiles starting 2027. dppvalidator helps fashion brands prepare now:
 
 | DPP Requirement                | How dppvalidator Helps                       |
 | ------------------------------ | -------------------------------------------- |
@@ -272,10 +413,35 @@ def validate_supplier_submission(dpp_json: dict) -> bool:
 ## Related Standards
 
 - [UNTP Digital Product Passport](https://untp.unece.org/docs/specification/DigitalProductPassport/) — UN/CEFACT specification
-- [EU ESPR Regulation](https://environment.ec.europa.eu/topics/circular-economy/ecodesign-sustainable-products-regulation_en) — Ecodesign for Sustainable Products
+- [EU ESPR Regulation](https://commission.europa.eu/energy-climate-change-environment/standards-tools-and-labels/products-labelling-rules-and-requirements/ecodesign-sustainable-products-regulation_en) — Ecodesign for Sustainable Products
 - [W3C Verifiable Credentials](https://www.w3.org/TR/vc-data-model/) — Credential format standard
 
 > ⚠️ **Note on UNTP Specification:** The UNTP Digital Product Passport specification is under active development and not yet ready for production implementation. We track the latest maintained releases and will update dppvalidator as the specification stabilizes. See the [UNTP releases page](https://untp.unece.org/docs/specification/DigitalProductPassport/) for current status.
+
+## Known Limitations
+
+### Signature Verification
+
+| Feature               | Status       | Recommendation                          |
+| --------------------- | ------------ | --------------------------------------- |
+| Data Integrity Proofs | ✅ Supported | Use for production                      |
+| JWS Proofs            | ✅ Supported | Use for production                      |
+| JWT Credentials       | ✅ Supported | Full verification (ES256, ES384, EdDSA) |
+
+**JWT Credentials:** JWT-encoded Verifiable Credentials are fully verified via DID resolution and cryptographic signature verification. Supported algorithms include ES256, ES384, and EdDSA (Ed25519). For maximum interoperability, Data Integrity Proofs are recommended.
+
+### Canonicalization
+
+The signature verification uses **simplified JSON canonicalization** (sorted keys) rather than full [URDNA2015](https://www.w3.org/TR/rdf-canon/) RDF canonicalization. This may cause verification failures for credentials signed with strict W3C Data Integrity canonicalization.
+
+For production deployments requiring full W3C VC compliance:
+
+```python
+# Future: Use pyld for URDNA2015 canonicalization
+from pyld import jsonld
+
+normalized = jsonld.normalize(credential, {"algorithm": "URDNA2015"})
+```
 
 ## Contributing
 
@@ -300,12 +466,12 @@ See our [Contributing Guide](https://artiso-ai.github.io/dppvalidator/contributi
 
 ## About ARTISO
 
-<table><tr><td>
+<table border="0" cellspacing="0" cellpadding="0" style="border: none;"><tr><td style="border: none;">
 
 **dppvalidator** is developed and maintained by [ARTISO](https://www.artiso.ai), a Barcelona-based fashion technology company.
 
 </td><td align="right" valign="top">
-<a href="https://www.artiso.ai" style="text-decoration: none;"><img src="https://www.artiso.ai/ARTISO.svg" alt="ARTISO" height="40"></a>
+<a href="https://www.artiso.ai"><img src="https://www.artiso.ai/ARTISO.svg" alt="ARTISO" height="40"></a>
 </td></tr></table>
 
 We believe the fashion industry's transition to sustainability requires **open, accessible tools**. By open-sourcing dppvalidator, we're enabling brands of all sizes - from emerging designers to global retailers - to meet EU compliance requirements without proprietary solutions.

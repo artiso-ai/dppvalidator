@@ -9,15 +9,10 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any, ClassVar
 
+import httpx
+
 from dppvalidator.logging import get_logger
 from dppvalidator.vocabularies.cache import VocabularyCache
-
-try:
-    import httpx
-
-    HAS_HTTPX = True
-except ImportError:
-    HAS_HTTPX = False
 
 logger = get_logger(__name__)
 
@@ -56,7 +51,7 @@ def _load_bundled_vocabulary(name: str) -> frozenset[str]:
     try:
         data_files = _get_data_files()
         data_file = data_files.joinpath(f"{name}.json")
-        content = data_file.read_text()
+        content = data_file.read_text(encoding="utf-8")
         data = json.loads(content)
         return frozenset(data.get("codes", []))
     except (FileNotFoundError, json.JSONDecodeError, OSError) as e:
@@ -124,7 +119,7 @@ class VocabularyLoader:
         if cached is not None:
             return cached
 
-        if not self.offline_mode and HAS_HTTPX:
+        if not self.offline_mode:
             fetched = self._fetch_vocabulary(vocab_def)
             if fetched is not None:
                 self._cache.set(vocab_def.url, fetched)
@@ -178,10 +173,8 @@ class VocabularyLoader:
 
         Returns:
             Set of values or None on failure
-        """
-        if not HAS_HTTPX:
-            return None
 
+        """
         try:
             with httpx.Client(timeout=self.timeout_seconds) as client:
                 response = client.get(
@@ -214,25 +207,37 @@ class VocabularyLoader:
         Returns:
             Set of extracted values
         """
+        if not isinstance(data, dict):
+            return None
+
+        values = self._extract_from_graph(data) or self._extract_from_members(data)
+        return frozenset(values) if values else None
+
+    def _extract_from_graph(self, data: dict) -> set[str] | None:
+        """Extract values from JSON-LD @graph format."""
+        if "@graph" not in data:
+            return None
+
         values: set[str] = set()
+        for item in data["@graph"]:
+            if isinstance(item, dict):
+                code = item.get("@id", "").split("#")[-1]
+                if code:
+                    values.add(code)
+        return values or None
 
-        if isinstance(data, dict):
-            if "@graph" in data:
-                for item in data["@graph"]:
-                    if isinstance(item, dict):
-                        code = item.get("@id", "").split("#")[-1]
-                        if code:
-                            values.add(code)
-            elif "member" in data:
-                for member in data.get("member", []):
-                    if isinstance(member, dict):
-                        code = member.get("notation") or member.get("@id", "").split("#")[-1]
-                        if code:
-                            values.add(code)
+    def _extract_from_members(self, data: dict) -> set[str] | None:
+        """Extract values from SKOS member format."""
+        if "member" not in data:
+            return None
 
-        if values:
-            return frozenset(values)
-        return None
+        values: set[str] = set()
+        for member in data.get("member", []):
+            if isinstance(member, dict):
+                code = member.get("notation") or member.get("@id", "").split("#")[-1]
+                if code:
+                    values.add(code)
+        return values or None
 
     def _get_fallback(self, name: str) -> frozenset[str]:
         """Get fallback vocabulary values.

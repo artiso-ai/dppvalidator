@@ -131,7 +131,7 @@ class TestInitRun:
         run(args, console)
 
         dpp_file = tmp_path / "data" / "sample_passport.json"
-        content = json.loads(dpp_file.read_text())
+        content = json.loads(dpp_file.read_text(encoding="utf-8"))
 
         assert content["type"] == MINIMAL_DPP_TEMPLATE["type"]
         assert "credentialSubject" in content
@@ -144,7 +144,7 @@ class TestInitRun:
         run(args, console)
 
         dpp_file = tmp_path / "data" / "sample_passport.json"
-        content = json.loads(dpp_file.read_text())
+        content = json.loads(dpp_file.read_text(encoding="utf-8"))
 
         assert "materialsProvenance" in content["credentialSubject"]
         assert "circularityScorecard" in content["credentialSubject"]
@@ -157,7 +157,7 @@ class TestInitRun:
         run(args, console)
 
         gitignore = tmp_path / ".gitignore"
-        content = gitignore.read_text()
+        content = gitignore.read_text(encoding="utf-8")
 
         assert ".dppvalidator/" in content
         assert "__pycache__/" in content
@@ -171,7 +171,7 @@ class TestInitRun:
 
         precommit = tmp_path / ".pre-commit-config.yaml"
         assert precommit.exists()
-        content = precommit.read_text()
+        content = precommit.read_text(encoding="utf-8")
         assert "dppvalidator" in content
 
     def test_does_not_create_pre_commit_by_default(self, tmp_path):
@@ -199,7 +199,7 @@ class TestInitRun:
         run(args, console)
 
         # Original content preserved
-        content = json.loads(existing_file.read_text())
+        content = json.loads(existing_file.read_text(encoding="utf-8"))
         assert content == {"existing": "data"}
 
     def test_overwrites_files_with_force_flag(self, tmp_path):
@@ -217,7 +217,7 @@ class TestInitRun:
         run(args, console)
 
         # Content replaced
-        content = json.loads(existing_file.read_text())
+        content = json.loads(existing_file.read_text(encoding="utf-8"))
         assert "type" in content
         assert "existing" not in content
 

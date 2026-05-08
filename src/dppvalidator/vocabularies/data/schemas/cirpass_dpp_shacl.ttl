@@ -1,0 +1,614 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+rdf:nil a rdf:List .
+[]
+  a sh:NodeShape ;
+  sh:targetClass <http://dpp.taltech.ee/EUDPP#DPP> ;
+  sh:property [
+    a sh:PropertyShape ;
+    sh:name "status" ;
+    sh:order 0 ;
+    rdfs:comment "The status of the DPP instance as digital resource." ;
+    sh:path <http://dpp.taltech.ee/EUDPP#status> ;
+    sh:class _:genid58
+  ], [
+    a sh:PropertyShape ;
+    sh:name "uniqueDPPID" ;
+    sh:order 0 ;
+    rdfs:comment "A unique identifier (URI) assigned to the product passport." ;
+    sh:path <http://dpp.taltech.ee/EUDPP#uniqueDPPID> ;
+    sh:datatype xsd:anyURI
+  ], [
+    a sh:PropertyShape ;
+    sh:name "validFrom" ;
+    sh:order 0 ;
+    rdfs:comment "The date and timestamp that the DPP is valid from." ;
+    sh:path <http://dpp.taltech.ee/EUDPP#validFrom> ;
+    sh:datatype xsd:dateTimeStamp
+  ], [
+    a sh:PropertyShape ;
+    sh:name "validUntil" ;
+    sh:order 0 ;
+    rdfs:comment "The date and timestamp that the DPP is valid until." ;
+    sh:path <http://dpp.taltech.ee/EUDPP#validUntil> ;
+    sh:datatype xsd:dateTimeStamp
+  ], [
+    a sh:PropertyShape ;
+    sh:name "facilityID" ;
+    sh:order 0 ;
+    rdfs:comment """Unique facility identifier
+means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))
+
+A unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s life cycle.""" ;
+    sh:path <http://dpp.taltech.ee/EUDPP#facilityID> ;
+    sh:datatype xsd:string
+  ], _:genid7, [
+    a sh:PropertyShape ;
+    sh:name "appliesToProduct" ;
+    sh:order 0 ;
+    rdfs:comment "Linking DPP and the product." ;
+    sh:path <http://dpp.taltech.ee/EUDPP#appliesToProduct> ;
+    sh:class <http://dpp.taltech.ee/EUDPP#Product> ;
+    sh:node [
+      a sh:NodeShape ;
+      sh:property [
+        a sh:PropertyShape ;
+        sh:name "Has_compliance_information" ;
+        sh:path [ a sh:PredicatePath ] ;
+        sh:class [ ] ;
+        sh:maxCount 1
+      ], [
+        a sh:PropertyShape ;
+        sh:name "hasEconomicOperator" ;
+        sh:order 0 ;
+        rdfs:comment """Linking the product to the economic operator.
+
+hasEconomicOperator object property range is defined in the EUDPP Core ontology and suitable role classes (i.e. the Economic operator class) is defined in the ACTOR module.""" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#hasEconomicOperator> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#Actor> ;
+        sh:node [
+          a sh:NodeShape ;
+          sh:property [
+            a sh:PropertyShape ;
+            sh:name "UniqueoperatorID" ;
+            sh:description "Unique operator identifier means a unique string of characters for the identification of an actor involved in a product’s value chain.  (ESPR Art. 2 (31))" ;
+            sh:path [ a sh:PredicatePath ] ;
+            sh:class <http://dpp.taltech.ee/EUDPP#uniqueOperatorID> ;
+            sh:maxCount 1
+          ], [
+            a sh:PropertyShape ;
+            sh:name "registeredTradeName" ;
+            sh:order 0 ;
+            rdfs:comment "Trade name under which a legal person or business operates and is registered." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#registeredTradeName> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "postalAddress" ;
+            sh:order 0 ;
+            rdfs:comment "Postal address associated with an actor." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#postalAddress> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "registeredTrademark" ;
+            sh:order 0 ;
+            rdfs:comment "A trademark officially registered and owned by an actor." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#registeredTrademark> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "hasRole" ;
+            sh:order 0 ;
+            rdfs:comment "Relates an actor to a role." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#hasRole> ;
+            sh:class <http://dpp.taltech.ee/EUDPP#Role> ;
+            sh:node [
+              a sh:NodeShape ;
+              sh:property [
+                a sh:PropertyShape ;
+                sh:name "isRoleOf" ;
+                sh:order 0 ;
+                rdfs:comment "Relates role to an actor." ;
+                sh:path <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+                sh:class <http://dpp.taltech.ee/EUDPP#Actor>
+              ] ;
+              sh:closed true
+            ]
+          ], [
+            a sh:PropertyShape ;
+            sh:name "usesFacility" ;
+            sh:order 0 ;
+            rdfs:comment "Relates an actor to facility." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#usesFacility> ;
+            sh:class <http://dpp.taltech.ee/EUDPP#Facility> ;
+            sh:node [
+              a sh:NodeShape ;
+              sh:property [
+                a sh:PropertyShape ;
+                sh:name "isUsedByActor" ;
+                sh:order 0 ;
+                rdfs:comment "Relates a facility to an actor." ;
+                sh:path <http://dpp.taltech.ee/EUDPP#isUsedByActor> ;
+                sh:class <http://dpp.taltech.ee/EUDPP#Actor>
+              ], [
+                a sh:PropertyShape ;
+                sh:name "uniqueFacilityID" ;
+                sh:order 0 ;
+                rdfs:comment "Unique facility identifier means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))" ;
+                sh:path <http://dpp.taltech.ee/EUDPP#uniqueFacilityID> ;
+                sh:datatype xsd:string
+              ] ;
+              sh:closed true
+            ]
+          ], [
+            a sh:PropertyShape ;
+            sh:name "electronicContact" ;
+            sh:order 0 ;
+            rdfs:comment "Electronic contact detail for an actor, such as an email address, website, or other digital communication channel." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#electronicContact> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "actorName" ;
+            sh:order 0 ;
+            rdfs:comment "Name of an actor." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#actorName> ;
+            sh:datatype xsd:string
+          ] ;
+          sh:closed true
+        ]
+      ], [
+        a sh:PropertyShape ;
+        sh:name "hasDPP" ;
+        sh:order 0 ;
+        rdfs:comment "A product has a DPP ." ;
+        sh:path <http://dpp.taltech.ee/EUDPP#hasDPP> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#DPP>
+      ], [
+        a sh:PropertyShape ;
+        sh:name "hasProductGroup" ;
+        sh:order 0 ;
+        rdfs:comment """Product group
+means a set of products that serve similar purposes and are similar in terms of use, or have similar
+functional properties, and are similar in terms of consumer perception (ESPR Art 2 (4)). The product
+group or groups covered are given by delegated acts. (ESPR Art 8 (a))
+
+This will be probably a classification code from some product classification scheme .""" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#hasProductGroup> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#ClassificationCode> ;
+        sh:node [
+          a sh:NodeShape ;
+          sh:property [
+            a sh:PropertyShape ;
+            sh:name "codeValue" ;
+            sh:order 0 ;
+            rdfs:comment "Classification code value from the classification code set." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#codeValue> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "codeSet" ;
+            sh:order 0 ;
+            rdfs:comment "The product classification code set." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#codeSet> ;
+            sh:datatype xsd:anyURI
+          ] ;
+          sh:closed true
+        ]
+      ], [
+        a sh:PropertyShape ;
+        sh:name "uniqueProductID" ;
+        sh:order 0 ;
+        rdfs:comment """Unique product identifier
+means a unique string of characters for the identification of a product that also enables a web link to the digital product passport. (ESPR Art 2 (30))""" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#uniqueProductID> ;
+        sh:class _:genid61
+      ], [
+        a sh:PropertyShape ;
+        sh:name "hasManufacturer" ;
+        sh:order 0 ;
+        rdfs:comment """A product has a manufacturer.
+
+hasManufacturer object property range is defined in the EUDPP Core ontology and suitable role classes are defined in the ACTOR module.""" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#hasManufacturer> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#Actor> ;
+        sh:node [
+          a sh:NodeShape ;
+          sh:property [
+            a sh:PropertyShape ;
+            sh:name "uniqueOperatorID" ;
+            sh:description "Unique operator identifier means a unique string of characters for the identification of an actor involved in a product’s value chain.  (ESPR Art. 2 (31))" ;
+            sh:path [ a sh:PredicatePath ] ;
+            sh:class <http://dpp.taltech.ee/EUDPP#uniqueOperatorID> ;
+            sh:maxCount 1
+          ], [
+            a sh:PropertyShape ;
+            sh:name "registeredTradeName" ;
+            sh:order 0 ;
+            rdfs:comment "Trade name under which a legal person or business operates and is registered." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#registeredTradeName> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "registeredTrademark" ;
+            sh:order 0 ;
+            rdfs:comment "A trademark officially registered and owned by an actor." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#registeredTrademark> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "postalAddress" ;
+            sh:order 0 ;
+            rdfs:comment "Postal address associated with an actor." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#postalAddress> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "hasRole" ;
+            sh:order 0 ;
+            rdfs:comment "Relates an actor to a role." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#hasRole> ;
+            sh:class <http://dpp.taltech.ee/EUDPP#Role> ;
+            sh:node [
+              a sh:NodeShape ;
+              sh:property [
+                a sh:PropertyShape ;
+                sh:name "isRoleOf" ;
+                sh:order 0 ;
+                rdfs:comment "Relates role to an actor." ;
+                sh:path <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+                sh:class <http://dpp.taltech.ee/EUDPP#Actor>
+              ] ;
+              sh:closed true
+            ]
+          ], [
+            a sh:PropertyShape ;
+            sh:name "actorName" ;
+            sh:order 0 ;
+            rdfs:comment "Name of an actor." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#actorName> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "usesFacility" ;
+            sh:order 0 ;
+            rdfs:comment "Relates an actor to facility." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#usesFacility> ;
+            sh:class <http://dpp.taltech.ee/EUDPP#Facility> ;
+            sh:node [
+              a sh:NodeShape ;
+              sh:property [
+                a sh:PropertyShape ;
+                sh:name "uniqueFacilityID" ;
+                sh:order 0 ;
+                rdfs:comment "Unique facility identifier means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))" ;
+                sh:path <http://dpp.taltech.ee/EUDPP#uniqueFacilityID> ;
+                sh:datatype xsd:string
+              ], [
+                a sh:PropertyShape ;
+                sh:name "isUsedByActor" ;
+                sh:order 0 ;
+                rdfs:comment "Relates a facility to an actor." ;
+                sh:path <http://dpp.taltech.ee/EUDPP#isUsedByActor> ;
+                sh:class <http://dpp.taltech.ee/EUDPP#Actor>
+              ] ;
+              sh:closed true
+            ]
+          ], [
+            a sh:PropertyShape ;
+            sh:name "electronicContact" ;
+            sh:order 0 ;
+            rdfs:comment "Electronic contact detail for an actor, such as an email address, website, or other digital communication channel." ;
+            sh:path <http://dpp.taltech.ee/EUDPP#electronicContact> ;
+            sh:datatype xsd:string
+          ] ;
+          sh:closed true
+        ]
+      ], [
+        a sh:PropertyShape ;
+        sh:name "description" ;
+        sh:order 0 ;
+        rdfs:comment "Product description" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#description> ;
+        sh:datatype xsd:string
+      ], [
+        a sh:PropertyShape ;
+        sh:name "GTIN" ;
+        sh:order 0 ;
+        rdfs:comment "Global Trade Identification Number as provided for in standard ISO/IEC 15459-6 or equivalent of products or their parts." ;
+        sh:path <http://dpp.taltech.ee/EUDPP#GTIN> ;
+        sh:datatype xsd:string
+      ], [
+        a sh:PropertyShape ;
+        sh:name "containsSubstanceOfConcern" ;
+        sh:order 0 ;
+        rdfs:comment """Linking the product to a substance of concern the product contains.
+
+containsSubstanceOfConcern  object property range is defined in the EUDPP Core ontology.
+
+Substance of concern is modelled by the SubstanceOfConcern class in the module SoC.""" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#containsSubstanceOfConcern> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#SubstanceOfConcern> ;
+        sh:node [
+          a sh:NodeShape ;
+          sh:property [
+            a sh:PropertyShape ;
+            sh:name "numberEC" ;
+            sh:order 0 ;
+            rdfs:comment """EXAMPLES:
+
+Mercurous Oxide
+EC Number: 239-934-0
+CAS Number: 15829-53-5""", "European Community (EC) number, as indicated in the European Inventory of Existing Commercial Chemical Substances (EINECS), the European List of Notified Chemical Substances (ELINCS) or the No Longer Polymer (NLP) list or the number assigned by the European Chemicals Agency (ECHA), if available and appropriate [ESPR Article 7(5)]" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#numberEC> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "abbreviation" ;
+            sh:order 0 ;
+            rdfs:comment "The abbreviation used for the Substance of Concern; [ESPR Article 7(5)]" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#abbreviation> ;
+            sh:datatype xsd:string
+          ], _:genid54, [
+            a sh:PropertyShape ;
+            sh:name "usualName" ;
+            sh:order 0 ;
+            rdfs:comment "The usual name under which the Substance of Concern is known; [ESPR Article 7(5)]" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#usualName> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "numberCAS" ;
+            sh:order 0 ;
+            rdfs:comment "The Chemical Abstract Service (CAS) number, if available; [ESPR Article 7(5)]" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#numberCAS> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "nameCAS" ;
+            sh:order 0 ;
+            rdfs:comment "The Chemical Abstract Service (CAS) name, if available; [ESPR Article 7(5)]" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#nameCAS> ;
+            sh:datatype xsd:string
+          ], _:genid58, [
+            a sh:PropertyShape ;
+            sh:name "hasConcentration" ;
+            sh:order 0 ;
+            rdfs:comment "Defines the the concentration, maximum concentration or concentration range of the substances of concern, at the level of the product, its relevant components, or spare parts; ESPR Art 7(5)" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#hasConcentration> ;
+            sh:class <http://dpp.taltech.ee/EUDPP#Concentration>
+          ], _:genid61, [
+            a sh:PropertyShape ;
+            sh:name "nameIUPAC" ;
+            sh:order 0 ;
+            rdfs:comment "Name in the International Union of Pure and Applied Chemistry (IUPAC) nomenclature, or another international name when IUPAC name is not available [ESPR Article 7(5)]" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#nameIUPAC> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "otherName" ;
+            sh:order 0 ;
+            rdfs:comment "Other names, including usual name, trade name, abbreviation; [ESPR Article 7(5)]" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#otherName> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "substanceLocation" ;
+            sh:order 0 ;
+            rdfs:comment "Location of the substance in the product; ESPR Art 7(5)" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#substanceLocation> ;
+            sh:datatype xsd:string
+          ], [
+            a sh:PropertyShape ;
+            sh:name "hasThreshold" ;
+            sh:order 0 ;
+            rdfs:comment """Describes relevant threshold of Substance of Concern.
+
+By default, information on all substances of concern present in a product, above the  relevant thresholds, should be included in the DPP [ESPR FAQ 10.115, p59]""" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#hasThreshold> ;
+            sh:class <http://dpp.taltech.ee/EUDPP#Threshold>
+          ], [
+            a sh:PropertyShape ;
+            sh:name "hasImpactOnEnvironment" ;
+            sh:order 0 ;
+            rdfs:comment "Describes the impacts of Substance of Concern on environment; ESPR Annex I (f)" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#hasImpactOnEnvironment> ;
+            sh:class <http://dpp.cea.fr/EUDPP/LCA#Impact_potential_result> ;
+            sh:node [
+              a sh:NodeShape ;
+              sh:property [
+                a sh:PropertyShape ;
+                sh:name "corresponds_to_IC" ;
+                sh:description "An impact category represents a specific environmental issue that the LCA aims to assess, such as global warming or ozone depletion. Each category aggregates the effects of different emissions that contribute to the same environmental problem. (LCAnet Ontology, SmartACV Project, Version 1.0, 2025) An impact category is classified as whether is corresponds to environmental impact, social impact, etc." ;
+                sh:order 0 ;
+                sh:path <http://dpp.cea.fr/EUDPP/LCA#corresponds_to_IC> ;
+                sh:class <http://dpp.cea.fr/EUDPP/LCA#Impact_Category> ;
+                sh:in (
+                 <http://dpp.cea.fr/EUDPP/LCA#Acidification>
+                 <http://dpp.cea.fr/EUDPP/LCA#Climate_change_total>
+                 <http://dpp.cea.fr/EUDPP/LCA#Ecotoxicity_freshwater>
+                 <http://dpp.cea.fr/EUDPP/LCA#Eutrophication_freshwater>
+                 <http://dpp.cea.fr/EUDPP/LCA#Eutrophication_marine>
+                 <http://dpp.cea.fr/EUDPP/LCA#Eutrophication_terrestrial>
+                 <http://dpp.cea.fr/EUDPP/LCA#Human_toxicity_cancer>
+                 <http://dpp.cea.fr/EUDPP/LCA#Human_toxicity_non_cancer>
+                 <http://dpp.cea.fr/EUDPP/LCA#Ionising_radiation_human_health>
+                 <http://dpp.cea.fr/EUDPP/LCA#Land_use_occupation_and_transformation>
+                 <http://dpp.cea.fr/EUDPP/LCA#Ozone_depletion>
+                 <http://dpp.cea.fr/EUDPP/LCA#Particulate_matter>
+                 <http://dpp.cea.fr/EUDPP/LCA#Photochemical_ozone_formation_human_health>
+                 <http://dpp.cea.fr/EUDPP/LCA#Resource_use_fossils>
+                 <http://dpp.cea.fr/EUDPP/LCA#Resource_use_minerals_and_metals>
+                 <http://dpp.cea.fr/EUDPP/LCA#Water_use>
+               )
+              ], [
+                a sh:PropertyShape ;
+                sh:name "corresponds_to" ;
+                sh:order 0 ;
+                sh:path <http://dpp.cea.fr/EUDPP/LCA#corresponds_to> ;
+                sh:class owl:Thing
+              ], [
+                a sh:PropertyShape ;
+                sh:name "numericValue" ;
+                sh:order 0 ;
+                sh:path <http://qudt.org/schema/qudt#numericValue> ;
+                sh:class _:genid7
+              ] ;
+              sh:closed true
+            ]
+          ] ;
+          sh:closed true
+        ]
+      ], [
+        a sh:PropertyShape ;
+        sh:name "commodityCode" ;
+        sh:order 0 ;
+        rdfs:comment "Relevant commodity codes, such as a TARIC code as defined in Council Regulation (EEC) No 2658/87." ;
+        sh:path <http://dpp.taltech.ee/EUDPP#commodityCode> ;
+        sh:datatype xsd:string
+      ], [
+        a sh:PropertyShape ;
+        sh:name "productName" ;
+        sh:order 0 ;
+        rdfs:comment "Product name" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#productName> ;
+        sh:datatype xsd:string
+      ], [
+        a sh:PropertyShape ;
+        sh:name "productImage" ;
+        sh:order 0 ;
+        rdfs:comment "An image of the product." ;
+        sh:path <http://dpp.taltech.ee/EUDPP#productImage> ;
+        sh:datatype xsd:anyURI
+      ], [
+        a sh:PropertyShape ;
+        sh:name "isSparePartOf" ;
+        sh:order 0 ;
+        rdfs:comment "A product is a spare part of another product." ;
+        sh:path <http://dpp.taltech.ee/EUDPP#isSparePartOf> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#Product>
+      ], [
+        a sh:PropertyShape ;
+        sh:name "isEnergyRelated" ;
+        sh:order 0 ;
+        rdfs:comment """Energy related product
+means any product that has an impact on energy consumption during use. (ESPR Art 2 (4)).
+
+The boolean data type property indicates is a product energy related or not?""" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#isEnergyRelated> ;
+        sh:datatype xsd:boolean
+      ], [
+        a sh:PropertyShape ;
+        sh:name "hasProperty" ;
+        sh:order 0 ;
+        rdfs:comment """Product has a property that could be a document or some measurable properties (measurands).
+
+Linking the product to the property.""" ;
+        sh:path <http://dpp.taltech.ee/EUDPP#hasProperty> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#Property> ;
+        sh:node [
+          a sh:NodeShape ;
+          sh:property [
+            a sh:PropertyShape ;
+            sh:name "dictionaryReference" ;
+            sh:order 0 ;
+            rdfs:comment """The reference to the unique identifier of the data point specification defined in the repository/data dictionary.
+
+It is formatted as a URI/URL .""" ;
+            sh:path <http://dpp.taltech.ee/EUDPP#dictionaryReference> ;
+            sh:datatype xsd:string
+          ] ;
+          sh:closed true
+        ]
+      ], [
+        a sh:PropertyShape ;
+        sh:name "isComponentOf" ;
+        sh:order 0 ;
+        rdfs:comment "A product is a component of another product." ;
+        sh:path <http://dpp.taltech.ee/EUDPP#isComponentOf> ;
+        sh:class <http://dpp.taltech.ee/EUDPP#Product>
+      ] ;
+      sh:closed true
+    ]
+  ], [
+    a sh:PropertyShape ;
+    sh:name "linkToPreviousDPP" ;
+    sh:order 0 ;
+    rdfs:comment """Where a new digital product passport is created for a product that already has a digital product
+passport, the new digital product passport shall be linked to the original digital product passport or
+passports. (ESPR Art 11 (d))""" ;
+    sh:path <http://dpp.taltech.ee/EUDPP#linkToPreviousDPP> ;
+    sh:datatype xsd:anyURI
+  ], [
+    a sh:PropertyShape ;
+    sh:name "schemaVersion" ;
+    sh:order 0 ;
+    rdfs:comment "The reference standard the DPP instance schema refers to." ;
+    sh:path <http://dpp.taltech.ee/EUDPP#schemaVersion> ;
+    sh:datatype xsd:string
+  ], [
+    a sh:PropertyShape ;
+    sh:name "hasIssuer" ;
+    sh:order 0 ;
+    rdfs:comment """Linking DPP with its issuer.
+
+hasIssuer object property range is defined in the EUDPP Core ontology and suitable role classes are defined in the ACTOR module.""" ;
+    sh:path <http://dpp.taltech.ee/EUDPP#hasIssuer> ;
+    sh:class <http://dpp.taltech.ee/EUDPP#Actor>
+  ], [
+    a sh:PropertyShape ;
+    sh:name "hasBackUpCopyHost" ;
+    sh:order 0 ;
+    rdfs:comment """The reference of the digital product passport service provider hosting the back-up copy of the digital product passport (ESPR Annex III)
+
+hasBackUpCopyHost object property range is defined in the EUDPP Core ontology  and suitable role classes are defined in the ACTOR module.""" ;
+    sh:path <http://dpp.taltech.ee/EUDPP#hasBackUpCopyHost> ;
+    sh:class <http://dpp.taltech.ee/EUDPP#Actor>
+  ], [
+    a sh:PropertyShape ;
+    sh:name "granularity" ;
+    sh:order 0 ;
+    rdfs:comment """The product passport should be defined at the level of item, batch or product model, depending on specific needs and complexity of the value chain, the size, nature or impacts of the products considered. (Standardisation Request 5423 7)
+
+The level of granularity of the ProductID as per ESPR.""" ;
+    sh:path <http://dpp.taltech.ee/EUDPP#granularity> ;
+    sh:class _:genid54
+  ] ;
+  sh:closed true .
+
+_:genid58
+  a sh:PropertyShape ;
+  sh:name "hasLifeCycleStage" ;
+  sh:order 0 ;
+  rdfs:comment "Describes the life cycle stage during which the Substance of Concern occurs for product (used during production, resulting being in product, in waste); ESPR Annex I (f)" ;
+  sh:path <http://dpp.taltech.ee/EUDPP#hasLifeCycleStage> ;
+  sh:class [ ] .
+
+_:genid7
+  a sh:PropertyShape ;
+  sh:name "lastUpdate" ;
+  sh:order 0 ;
+  rdfs:comment "The date and time of the latest update to the DPP instance." ;
+  sh:path <http://dpp.taltech.ee/EUDPP#lastUpdate> ;
+  sh:datatype xsd:dateTimeStamp .
+
+_:genid61
+  a sh:PropertyShape ;
+  sh:name "hasImpactOnHumanHealth" ;
+  sh:order 0 ;
+  rdfs:comment "Describes the impacts of Substance of Concern on human health; ESPR Annex I (f)" ;
+  sh:path <http://dpp.taltech.ee/EUDPP#hasImpactOnHumanHealth> ;
+  sh:datatype xsd:string .
+
+_:genid54
+  a sh:PropertyShape ;
+  sh:name "tradeName" ;
+  sh:order 0 ;
+  rdfs:comment "The trade name under which the Substance of Concern is known; [ESPR Article 7(5)]" ;
+  sh:path <http://dpp.taltech.ee/EUDPP#tradeName> ;
+  sh:datatype xsd:string .

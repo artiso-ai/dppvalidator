@@ -1,6 +1,7 @@
 """Tests for exporters."""
 
 import json
+from datetime import datetime, timezone
 
 import pytest
 
@@ -11,7 +12,28 @@ from dppvalidator.exporters import (
     export_json,
     export_jsonld,
 )
-from dppvalidator.models import CredentialIssuer, DigitalProductPassport
+from dppvalidator.models import CredentialIssuer, DigitalProductPassport, Product, ProductPassport
+
+
+def _make_valid_passport(
+    id_suffix: str = "001", name: str = "Test Company"
+) -> DigitalProductPassport:
+    """Create a CIRPASS-compliant passport for testing."""
+    return DigitalProductPassport(
+        id=f"https://example.com/credentials/dpp-{id_suffix}",
+        issuer=CredentialIssuer(
+            id=f"https://example.com/issuers/{id_suffix}",
+            name=name,
+        ),
+        validFrom=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        validUntil=datetime(2034, 1, 1, tzinfo=timezone.utc),
+        credentialSubject=ProductPassport(
+            product=Product(
+                id=f"https://example.com/products/{id_suffix}",
+                name="Test Product",
+            ),
+        ),
+    )
 
 
 class TestContextManager:
@@ -151,14 +173,7 @@ class TestRoundTrip:
         """Test round-trip with minimal passport via JSON-LD."""
         from dppvalidator.validators import ValidationEngine
 
-        # Create original passport
-        original = DigitalProductPassport(
-            id="https://example.com/credentials/dpp-001",
-            issuer=CredentialIssuer(
-                id="https://example.com/issuers/001",
-                name="Round Trip Test Company",
-            ),
-        )
+        original = _make_valid_passport("001", "Round Trip Test Company")
 
         # Export to JSON-LD
         exporter = JSONLDExporter()
@@ -181,13 +196,7 @@ class TestRoundTrip:
         """Test round-trip with minimal passport via plain JSON."""
         from dppvalidator.validators import ValidationEngine
 
-        original = DigitalProductPassport(
-            id="https://example.com/credentials/dpp-002",
-            issuer=CredentialIssuer(
-                id="https://example.com/issuers/002",
-                name="JSON Round Trip Co",
-            ),
-        )
+        original = _make_valid_passport("002", "JSON Round Trip Co")
 
         # Export to JSON
         exporter = JSONExporter()
@@ -204,23 +213,12 @@ class TestRoundTrip:
 
     def test_roundtrip_with_product(self):
         """Test round-trip with product data."""
-        from dppvalidator.models import Product, ProductPassport
         from dppvalidator.validators import ValidationEngine
 
-        original = DigitalProductPassport(
-            id="https://example.com/credentials/dpp-003",
-            issuer=CredentialIssuer(
-                id="https://example.com/issuers/003",
-                name="Product Test Inc",
-            ),
-            credentialSubject=ProductPassport(
-                product=Product(
-                    id="https://example.com/products/widget-001",
-                    name="Premium Widget",
-                    serialNumber="SN-12345",
-                ),
-            ),
-        )
+        original = _make_valid_passport("003", "Product Test Inc")
+        # Override the product with custom data
+        original.credential_subject.product.name = "Premium Widget"
+        original.credential_subject.product.serial_number = "SN-12345"
 
         # Export and re-parse
         exporter = JSONLDExporter()
@@ -239,22 +237,15 @@ class TestRoundTrip:
 
     def test_roundtrip_with_materials(self):
         """Test round-trip with materials data."""
-        from dppvalidator.models import Material, ProductPassport
+        from dppvalidator.models import Material
         from dppvalidator.validators import ValidationEngine
 
-        original = DigitalProductPassport(
-            id="https://example.com/credentials/dpp-004",
-            issuer=CredentialIssuer(
-                id="https://example.com/issuers/004",
-                name="Materials Test Ltd",
-            ),
-            credentialSubject=ProductPassport(
-                materialsProvenance=[
-                    Material(name="Steel", massFraction=0.6),
-                    Material(name="Plastic", massFraction=0.4),
-                ],
-            ),
-        )
+        original = _make_valid_passport("004", "Materials Test Ltd")
+        # Add materials to the credential subject
+        original.credential_subject.materials_provenance = [
+            Material(name="Steel", mass_fraction=0.6),
+            Material(name="Plastic", mass_fraction=0.4),
+        ]
 
         # Export and re-parse
         exporter = JSONLDExporter()
@@ -275,22 +266,12 @@ class TestRoundTrip:
 
     def test_roundtrip_with_dates(self):
         """Test round-trip preserves dates."""
-        from datetime import datetime, timezone
-
         from dppvalidator.validators import ValidationEngine
 
-        valid_from = datetime(2024, 1, 1, tzinfo=timezone.utc)
-        valid_until = datetime(2034, 12, 31, tzinfo=timezone.utc)
-
-        original = DigitalProductPassport(
-            id="https://example.com/credentials/dpp-005",
-            issuer=CredentialIssuer(
-                id="https://example.com/issuers/005",
-                name="Dates Test Corp",
-            ),
-            validFrom=valid_from,
-            validUntil=valid_until,
-        )
+        original = _make_valid_passport("005", "Dates Test Corp")
+        # Update dates
+        original.valid_from = datetime(2024, 1, 1, tzinfo=timezone.utc)
+        original.valid_until = datetime(2034, 12, 31, tzinfo=timezone.utc)
 
         exporter = JSONLDExporter()
         exported = exporter.export(original)
@@ -311,13 +292,7 @@ class TestRoundTrip:
         """Test round-trip using export_dict."""
         from dppvalidator.validators import ValidationEngine
 
-        original = DigitalProductPassport(
-            id="https://example.com/credentials/dpp-006",
-            issuer=CredentialIssuer(
-                id="https://example.com/issuers/006",
-                name="Dict Export Test",
-            ),
-        )
+        original = _make_valid_passport("006", "Dict Export Test")
 
         exporter = JSONLDExporter()
         data = exporter.export_dict(original)
@@ -330,13 +305,7 @@ class TestRoundTrip:
 
     def test_roundtrip_preserves_context(self):
         """Test round-trip preserves @context."""
-        original = DigitalProductPassport(
-            id="https://example.com/credentials/dpp-007",
-            issuer=CredentialIssuer(
-                id="https://example.com/issuers/007",
-                name="Context Test",
-            ),
-        )
+        original = _make_valid_passport("007", "Context Test")
 
         exporter = JSONLDExporter()
         data = exporter.export_dict(original)
@@ -411,7 +380,7 @@ class TestExportToFile:
         exporter.export_to_file(passport, output_path)
 
         assert output_path.exists()
-        content = output_path.read_text()
+        content = output_path.read_text(encoding="utf-8")
         data = json.loads(content)
         assert "@context" in data
 
@@ -427,6 +396,6 @@ class TestExportToFile:
         exporter.export_to_file(passport, output_path)
 
         assert output_path.exists()
-        content = output_path.read_text()
+        content = output_path.read_text(encoding="utf-8")
         data = json.loads(content)
         assert "issuer" in data

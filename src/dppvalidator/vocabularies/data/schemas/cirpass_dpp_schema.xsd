@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:sth="https://ns.semantic-treehouse.nl/message" elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="urn:cirpass2:eudpp" xmlns:ns0="urn:cirpass2:eudpp" xmlns:ns1="" xmlns:ns2="http://dpp.taltech.ee/EUDPP" xmlns:ns3="http://www.w3.org/2002/07/owl">
+  <!--===== Root element definition =====-->
+  <xs:element name="DigitalProductPassport">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="status" minOccurs="0" maxOccurs="unbounded" type="ns1:_:genid58">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>The status of the DPP instance as digital resource.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="uniqueDPPID" minOccurs="0" maxOccurs="unbounded" type="xs:anyURI">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>A unique identifier (URI) assigned to the product passport.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="validFrom" minOccurs="0" maxOccurs="unbounded" type="xs:dateTimeStamp">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>The date and timestamp that the DPP is valid from.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="validUntil" minOccurs="0" maxOccurs="unbounded" type="xs:dateTimeStamp">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>The date and timestamp that the DPP is valid until.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="facilityID" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>Unique facility identifier
+means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))
+
+A unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s life cycle.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="lastUpdate" minOccurs="0" maxOccurs="unbounded" type="xs:dateTimeStamp">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>The date and time of the latest update to the DPP instance.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="appliesToProduct" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>Linking DPP and the product.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Has_compliance_information" minOccurs="0" type="xs:anySimpleType">
+                <!--WARNING! Adding type attribute for element without type specified, defaulting to xs:anySimpleType-->
+              </xs:element>
+              <xs:element name="hasEconomicOperator" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Linking the product to the economic operator.
+
+hasEconomicOperator object property range is defined in the EUDPP Core ontology and suitable role classes (i.e. the Economic operator class) is defined in the ACTOR module.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="UniqueoperatorID" minOccurs="0" type="ns2:uniqueOperatorID">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:definition>Unique operator identifier means a unique string of characters for the identification of an actor involved in a product’s value chain.  (ESPR Art. 2 (31))</sth:definition>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="registeredTradeName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Trade name under which a legal person or business operates and is registered.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="postalAddress" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Postal address associated with an actor.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="registeredTrademark" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>A trademark officially registered and owned by an actor.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="hasRole" minOccurs="0" maxOccurs="unbounded">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Relates an actor to a role.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="isRoleOf" minOccurs="0" maxOccurs="unbounded" type="ns2:Actor">
+                            <xs:annotation>
+                              <xs:documentation>
+                                <sth:note>Relates role to an actor.</sth:note>
+                              </xs:documentation>
+                            </xs:annotation>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="usesFacility" minOccurs="0" maxOccurs="unbounded">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Relates an actor to facility.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="isUsedByActor" minOccurs="0" maxOccurs="unbounded" type="ns2:Actor">
+                            <xs:annotation>
+                              <xs:documentation>
+                                <sth:note>Relates a facility to an actor.</sth:note>
+                              </xs:documentation>
+                            </xs:annotation>
+                          </xs:element>
+                          <xs:element name="uniqueFacilityID" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                            <xs:annotation>
+                              <xs:documentation>
+                                <sth:note>Unique facility identifier means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))</sth:note>
+                              </xs:documentation>
+                            </xs:annotation>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="electronicContact" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Electronic contact detail for an actor, such as an email address, website, or other digital communication channel.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="actorName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Name of an actor.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="hasDPP" minOccurs="0" maxOccurs="unbounded" type="ns2:DPP">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>A product has a DPP .</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="hasProductGroup" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Product group
+means a set of products that serve similar purposes and are similar in terms of use, or have similar
+functional properties, and are similar in terms of consumer perception (ESPR Art 2 (4)). The product
+group or groups covered are given by delegated acts. (ESPR Art 8 (a))
+
+This will be probably a classification code from some product classification scheme .</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="codeValue" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Classification code value from the classification code set.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="codeSet" minOccurs="0" maxOccurs="unbounded" type="xs:anyURI">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>The product classification code set.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="uniqueProductID" minOccurs="0" maxOccurs="unbounded" type="ns1:_:genid61">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Unique product identifier
+means a unique string of characters for the identification of a product that also enables a web link to the digital product passport. (ESPR Art 2 (30))</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="hasManufacturer" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>A product has a manufacturer.
+
+hasManufacturer object property range is defined in the EUDPP Core ontology and suitable role classes are defined in the ACTOR module.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="uniqueOperatorID" minOccurs="0" type="ns2:uniqueOperatorID">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:definition>Unique operator identifier means a unique string of characters for the identification of an actor involved in a product’s value chain.  (ESPR Art. 2 (31))</sth:definition>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="registeredTradeName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Trade name under which a legal person or business operates and is registered.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="registeredTrademark" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>A trademark officially registered and owned by an actor.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="postalAddress" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Postal address associated with an actor.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="hasRole" minOccurs="0" maxOccurs="unbounded">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Relates an actor to a role.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="isRoleOf" minOccurs="0" maxOccurs="unbounded" type="ns2:Actor">
+                            <xs:annotation>
+                              <xs:documentation>
+                                <sth:note>Relates role to an actor.</sth:note>
+                              </xs:documentation>
+                            </xs:annotation>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="actorName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Name of an actor.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="usesFacility" minOccurs="0" maxOccurs="unbounded">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Relates an actor to facility.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="uniqueFacilityID" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                            <xs:annotation>
+                              <xs:documentation>
+                                <sth:note>Unique facility identifier means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))</sth:note>
+                              </xs:documentation>
+                            </xs:annotation>
+                          </xs:element>
+                          <xs:element name="isUsedByActor" minOccurs="0" maxOccurs="unbounded" type="ns2:Actor">
+                            <xs:annotation>
+                              <xs:documentation>
+                                <sth:note>Relates a facility to an actor.</sth:note>
+                              </xs:documentation>
+                            </xs:annotation>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="electronicContact" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Electronic contact detail for an actor, such as an email address, website, or other digital communication channel.</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="description" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Product description</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="GTIN" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Global Trade Identification Number as provided for in standard ISO/IEC 15459-6 or equivalent of products or their parts.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="containsSubstanceOfConcern" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Linking the product to a substance of concern the product contains.
+
+containsSubstanceOfConcern  object property range is defined in the EUDPP Core ontology.
+
+Substance of concern is modelled by the SubstanceOfConcern class in the module SoC.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="numberEC" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>EXAMPLES:
+
+Mercurous Oxide
+EC Number: 239-934-0
+CAS Number: 15829-53-5</sth:note>
+                          <sth:note>European Community (EC) number, as indicated in the European Inventory of Existing Commercial Chemical Substances (EINECS), the European List of Notified Chemical Substances (ELINCS) or the No Longer Polymer (NLP) list or the number assigned by the European Chemicals Agency (ECHA), if available and appropriate [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="abbreviation" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>The abbreviation used for the Substance of Concern; [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="tradeName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>The trade name under which the Substance of Concern is known; [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="usualName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>The usual name under which the Substance of Concern is known; [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="numberCAS" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>The Chemical Abstract Service (CAS) number, if available; [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="nameCAS" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>The Chemical Abstract Service (CAS) name, if available; [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="hasLifeCycleStage" minOccurs="0" maxOccurs="unbounded" type="xs:anySimpleType">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Describes the life cycle stage during which the Substance of Concern occurs for product (used during production, resulting being in product, in waste); ESPR Annex I (f)</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                      <!--WARNING! Adding type attribute for element without type specified, defaulting to xs:anySimpleType-->
+                    </xs:element>
+                    <xs:element name="hasConcentration" minOccurs="0" maxOccurs="unbounded" type="ns2:Concentration">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Defines the the concentration, maximum concentration or concentration range of the substances of concern, at the level of the product, its relevant components, or spare parts; ESPR Art 7(5)</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="hasImpactOnHumanHealth" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Describes the impacts of Substance of Concern on human health; ESPR Annex I (f)</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="nameIUPAC" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Name in the International Union of Pure and Applied Chemistry (IUPAC) nomenclature, or another international name when IUPAC name is not available [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="otherName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Other names, including usual name, trade name, abbreviation; [ESPR Article 7(5)]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="substanceLocation" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Location of the substance in the product; ESPR Art 7(5)</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="hasThreshold" minOccurs="0" maxOccurs="unbounded" type="ns2:Threshold">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Describes relevant threshold of Substance of Concern.
+
+By default, information on all substances of concern present in a product, above the  relevant thresholds, should be included in the DPP [ESPR FAQ 10.115, p59]</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="hasImpactOnEnvironment" minOccurs="0" maxOccurs="unbounded">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>Describes the impacts of Substance of Concern on environment; ESPR Annex I (f)</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="corresponds_to_IC" minOccurs="0" maxOccurs="unbounded">
+                            <xs:annotation>
+                              <xs:documentation>
+                                <sth:definition>An impact category represents a specific environmental issue that the LCA aims to assess, such as global warming or ozone depletion. Each category aggregates the effects of different emissions that contribute to the same environmental problem. (LCAnet Ontology, SmartACV Project, Version 1.0, 2025) An impact category is classified as whether is corresponds to environmental impact, social impact, etc.</sth:definition>
+                              </xs:documentation>
+                            </xs:annotation>
+                            <xs:simpleType>
+                              <xs:restriction base="xs:anyURI">
+                                <!--WARNING! Adding base attribute for restriction without type specified, defaulting to xs:anyURI-->
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Acidification"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Climate_change_total"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Ecotoxicity_freshwater"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Eutrophication_freshwater"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Eutrophication_marine"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Eutrophication_terrestrial"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Human_toxicity_cancer"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Human_toxicity_non_cancer"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Ionising_radiation_human_health"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Land_use_occupation_and_transformation"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Ozone_depletion"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Particulate_matter"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Photochemical_ozone_formation_human_health"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Resource_use_fossils"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Resource_use_minerals_and_metals"/>
+                                <xs:enumeration value="http://dpp.cea.fr/EUDPP/LCA#Water_use"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element name="corresponds_to" minOccurs="0" maxOccurs="unbounded" type="ns3:Thing"/>
+                          <xs:element name="numericValue" minOccurs="0" maxOccurs="unbounded" type="ns1:_:genid7"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="commodityCode" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Relevant commodity codes, such as a TARIC code as defined in Council Regulation (EEC) No 2658/87.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="productName" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Product name</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="productImage" minOccurs="0" maxOccurs="unbounded" type="xs:anyURI">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>An image of the product.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="isSparePartOf" minOccurs="0" maxOccurs="unbounded" type="ns2:Product">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>A product is a spare part of another product.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="isEnergyRelated" minOccurs="0" maxOccurs="unbounded" type="xs:boolean">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Energy related product
+means any product that has an impact on energy consumption during use. (ESPR Art 2 (4)).
+
+The boolean data type property indicates is a product energy related or not?</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="hasProperty" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>Product has a property that could be a document or some measurable properties (measurands).
+
+Linking the product to the property.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="dictionaryReference" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>
+                          <sth:note>The reference to the unique identifier of the data point specification defined in the repository/data dictionary.
+
+It is formatted as a URI/URL .</sth:note>
+                        </xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="isComponentOf" minOccurs="0" maxOccurs="unbounded" type="ns2:Product">
+                <xs:annotation>
+                  <xs:documentation>
+                    <sth:note>A product is a component of another product.</sth:note>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="linkToPreviousDPP" minOccurs="0" maxOccurs="unbounded" type="xs:anyURI">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>Where a new digital product passport is created for a product that already has a digital product
+passport, the new digital product passport shall be linked to the original digital product passport or
+passports. (ESPR Art 11 (d))</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="schemaVersion" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>The reference standard the DPP instance schema refers to.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="hasIssuer" minOccurs="0" maxOccurs="unbounded" type="ns2:Actor">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>Linking DPP with its issuer.
+
+hasIssuer object property range is defined in the EUDPP Core ontology and suitable role classes are defined in the ACTOR module.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="hasBackUpCopyHost" minOccurs="0" maxOccurs="unbounded" type="ns2:Actor">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>The reference of the digital product passport service provider hosting the back-up copy of the digital product passport (ESPR Annex III)
+
+hasBackUpCopyHost object property range is defined in the EUDPP Core ontology  and suitable role classes are defined in the ACTOR module.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="granularity" minOccurs="0" maxOccurs="unbounded" type="ns1:_:genid54">
+          <xs:annotation>
+            <xs:documentation>
+              <sth:note>The product passport should be defined at the level of item, batch or product model, depending on specific needs and complexity of the value chain, the size, nature or impacts of the products considered. (Standardisation Request 5423 7)
+
+The level of granularity of the ProductID as per ESPR.</sth:note>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

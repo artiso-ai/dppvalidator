@@ -211,7 +211,7 @@ def save_vocabulary(name: str, codes: set[str], description: str) -> None:
     }
 
     output_path = DATA_DIR / f"{name}.json"
-    output_path.write_text(json.dumps(output, indent=2) + "\n")
+    output_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print(f"Saved {len(codes)} {name} codes to {output_path}")
 
 

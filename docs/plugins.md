@@ -261,7 +261,7 @@ See the complete example in `examples/dppvalidator_example_plugin/` for:
 
 ### Plugin Not Discovered
 
-1. Ensure the package is installed (`uv pip install -e .` or `pip install -e .`)
+1. Ensure the package is installed (using `uv pip install -e .` or `pip install -e .`)
 1. Check entry point syntax in `pyproject.toml`
 1. Verify the module path is correct
 1. Check for import errors in your plugin code

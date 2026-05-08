@@ -52,15 +52,23 @@ class TestValidateWorkflow:
     def test_validate_single_file_workflow(self, tmp_path):
         """Validating a single file through the CLI."""
         data = {
+            "type": ["DigitalProductPassport", "VerifiableCredential"],
             "@context": [
                 "https://www.w3.org/ns/credentials/v2",
                 "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
             ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+            "validFrom": "2024-01-01T00:00:00Z",
+            "validUntil": "2034-01-01T00:00:00Z",
+            "credentialSubject": {
+                "id": "https://example.com/subject/001",
+                "type": ["ProductPassport"],
+                "product": {"id": "https://example.com/products/001", "name": "Test Product"},
+            },
         }
         file_path = tmp_path / "dpp.json"
-        file_path.write_text(json.dumps(data))
+        file_path.write_text(json.dumps(data), encoding="utf-8")
 
         exit_code = main(["validate", str(file_path)])
 
@@ -79,7 +87,7 @@ class TestExportWorkflow:
 
         assert exit_code == EXIT_VALID
         assert output.exists()
-        content = json.loads(output.read_text())
+        content = json.loads(output.read_text(encoding="utf-8"))
         assert "@context" in content
 
     def test_export_to_json(self, tmp_path):
@@ -124,7 +132,7 @@ class TestInitWorkflow:
 
         assert exit_code == EXIT_VALID
         dpp_file = project_dir / "data" / "sample_passport.json"
-        content = json.loads(dpp_file.read_text())
+        content = json.loads(dpp_file.read_text(encoding="utf-8"))
         assert "materialsProvenance" in content.get("credentialSubject", {})
 
     def test_init_then_validate_workflow(self, tmp_path):
@@ -175,15 +183,23 @@ class TestQuietAndVerboseFlags:
     def test_quiet_mode_minimal_output(self, tmp_path, capsys):
         """Quiet mode produces minimal output."""
         data = {
+            "type": ["DigitalProductPassport", "VerifiableCredential"],
             "@context": [
                 "https://www.w3.org/ns/credentials/v2",
                 "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
             ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+            "validFrom": "2024-01-01T00:00:00Z",
+            "validUntil": "2034-01-01T00:00:00Z",
+            "credentialSubject": {
+                "id": "https://example.com/subject/001",
+                "type": ["ProductPassport"],
+                "product": {"id": "https://example.com/products/001", "name": "Test Product"},
+            },
         }
         file_path = tmp_path / "dpp.json"
-        file_path.write_text(json.dumps(data))
+        file_path.write_text(json.dumps(data), encoding="utf-8")
 
         main(["--quiet", "validate", str(file_path)])
         captured = capsys.readouterr()
@@ -194,15 +210,23 @@ class TestQuietAndVerboseFlags:
     def test_verbose_mode_detailed_output(self, tmp_path, capsys):
         """Verbose mode produces detailed output."""
         data = {
+            "type": ["DigitalProductPassport", "VerifiableCredential"],
             "@context": [
                 "https://www.w3.org/ns/credentials/v2",
                 "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
             ],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+            "validFrom": "2024-01-01T00:00:00Z",
+            "validUntil": "2034-01-01T00:00:00Z",
+            "credentialSubject": {
+                "id": "https://example.com/subject/001",
+                "type": ["ProductPassport"],
+                "product": {"id": "https://example.com/products/001", "name": "Test Product"},
+            },
         }
         file_path = tmp_path / "dpp.json"
-        file_path.write_text(json.dumps(data))
+        file_path.write_text(json.dumps(data), encoding="utf-8")
 
         main(["--verbose", "validate", str(file_path)])
         captured = capsys.readouterr()
@@ -217,7 +241,7 @@ class TestErrorHandling:
     def test_malformed_json_graceful_error(self, tmp_path, capsys):
         """Malformed JSON produces helpful error message."""
         file_path = tmp_path / "bad.json"
-        file_path.write_text("{not valid json")
+        file_path.write_text("{not valid json", encoding="utf-8")
 
         exit_code = main(["validate", str(file_path)])
 
@@ -270,13 +294,172 @@ class TestEndToEndWorkflows:
         # Create multiple DPP files and validate each
         for i in range(3):
             data = {
+                "type": ["DigitalProductPassport", "VerifiableCredential"],
                 "@context": ctx,
                 "id": f"https://example.com/dpp-{i}",
                 "issuer": {"id": "https://example.com/issuer", "name": f"Issuer {i}"},
+                "validFrom": "2024-01-01T00:00:00Z",
+                "validUntil": "2034-01-01T00:00:00Z",
+                "credentialSubject": {
+                    "id": f"https://example.com/subject/{i}",
+                    "type": ["ProductPassport"],
+                    "product": {
+                        "id": f"https://example.com/products/{i}",
+                        "name": f"Product {i}",
+                    },
+                },
             }
             file_path = tmp_path / f"dpp-{i}.json"
-            file_path.write_text(json.dumps(data))
+            file_path.write_text(json.dumps(data), encoding="utf-8")
 
             # Validate each file individually
             exit_code = main(["validate", str(file_path)])
             assert exit_code == EXIT_VALID
+
+
+class TestBatchValidationWorkflows:
+    """Integration tests for batch validation with multiple files and glob patterns."""
+
+    def test_batch_validate_multiple_files(self, tmp_path):
+        """Validate multiple files passed as arguments."""
+        ctx = [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+        ]
+        files = []
+        for i in range(3):
+            data = {
+                "type": ["DigitalProductPassport", "VerifiableCredential"],
+                "@context": ctx,
+                "id": f"https://example.com/batch-{i}",
+                "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+                "validFrom": "2024-01-01T00:00:00Z",
+                "credentialSubject": {
+                    "id": f"https://example.com/subject/{i}",
+                    "type": ["ProductPassport"],
+                    "product": {"id": f"https://example.com/p/{i}", "name": f"P{i}"},
+                },
+            }
+            file_path = tmp_path / f"batch_{i}.json"
+            file_path.write_text(json.dumps(data), encoding="utf-8")
+            files.append(str(file_path))
+
+        exit_code = main(["validate", *files])
+        assert exit_code == EXIT_VALID
+
+    def test_batch_validate_glob_pattern(self, tmp_path):
+        """Validate files matching a glob pattern."""
+        ctx = [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+        ]
+        for i in range(4):
+            data = {
+                "type": ["DigitalProductPassport", "VerifiableCredential"],
+                "@context": ctx,
+                "id": f"https://example.com/glob-{i}",
+                "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+                "validFrom": "2024-01-01T00:00:00Z",
+                "credentialSubject": {
+                    "id": f"https://example.com/subject/{i}",
+                    "type": ["ProductPassport"],
+                    "product": {"id": f"https://example.com/p/{i}", "name": f"P{i}"},
+                },
+            }
+            file_path = tmp_path / f"glob_test_{i}.json"
+            file_path.write_text(json.dumps(data), encoding="utf-8")
+
+        exit_code = main(["validate", str(tmp_path / "glob_test_*.json")])
+        assert exit_code == EXIT_VALID
+
+    def test_batch_validate_json_output_format(self, tmp_path, capsys):
+        """Batch validation with JSON output includes summary."""
+        ctx = [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+        ]
+        for i in range(2):
+            data = {
+                "type": ["DigitalProductPassport", "VerifiableCredential"],
+                "@context": ctx,
+                "id": f"https://example.com/json-{i}",
+                "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+                "validFrom": "2024-01-01T00:00:00Z",
+                "credentialSubject": {
+                    "id": f"https://example.com/subject/{i}",
+                    "type": ["ProductPassport"],
+                    "product": {"id": f"https://example.com/p/{i}", "name": f"P{i}"},
+                },
+            }
+            file_path = tmp_path / f"json_out_{i}.json"
+            file_path.write_text(json.dumps(data), encoding="utf-8")
+
+        exit_code = main(["validate", str(tmp_path / "json_out_*.json"), "-f", "json"])
+        captured = capsys.readouterr()
+
+        assert exit_code == EXIT_VALID
+        output = json.loads(captured.out)
+        assert "files" in output
+        assert "summary" in output
+        assert output["summary"]["total"] == 2
+        assert output["summary"]["valid"] == 2
+        assert output["summary"]["invalid"] == 0
+
+    def test_batch_validate_mixed_results(self, tmp_path):
+        """Batch validation with mix of valid and invalid files."""
+        ctx = [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+        ]
+        # Valid file
+        valid_data = {
+            "type": ["DigitalProductPassport", "VerifiableCredential"],
+            "@context": ctx,
+            "id": "https://example.com/valid",
+            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+            "validFrom": "2024-01-01T00:00:00Z",
+            "credentialSubject": {
+                "id": "https://example.com/subject/1",
+                "type": ["ProductPassport"],
+                "product": {"id": "https://example.com/p/1", "name": "P1"},
+            },
+        }
+        (tmp_path / "mix_valid.json").write_text(json.dumps(valid_data), encoding="utf-8")
+
+        # Invalid file (missing required fields)
+        invalid_data = {
+            "id": "https://example.com/invalid",
+            "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+        }
+        (tmp_path / "mix_invalid.json").write_text(json.dumps(invalid_data), encoding="utf-8")
+
+        exit_code = main(["validate", str(tmp_path / "mix_*.json")])
+        assert exit_code == EXIT_INVALID
+
+    def test_batch_validate_table_output(self, tmp_path, capsys):
+        """Batch validation with table output shows summary."""
+        ctx = [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+        ]
+        for i in range(2):
+            data = {
+                "type": ["DigitalProductPassport", "VerifiableCredential"],
+                "@context": ctx,
+                "id": f"https://example.com/table-{i}",
+                "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+                "validFrom": "2024-01-01T00:00:00Z",
+                "credentialSubject": {
+                    "id": f"https://example.com/subject/{i}",
+                    "type": ["ProductPassport"],
+                    "product": {"id": f"https://example.com/p/{i}", "name": f"P{i}"},
+                },
+            }
+            (tmp_path / f"table_{i}.json").write_text(json.dumps(data), encoding="utf-8")
+
+        exit_code = main(["validate", str(tmp_path / "table_*.json"), "-f", "table"])
+        captured = capsys.readouterr()
+
+        assert exit_code == EXIT_VALID
+        assert "Batch Validation Results" in captured.out
+        assert "Total:" in captured.out

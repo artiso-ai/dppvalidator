@@ -64,8 +64,8 @@ class TestMaterial:
         """Test material with mass fraction."""
         material = Material(
             name="Steel",
-            massFraction=0.6,
-            originCountry="DE",
+            mass_fraction=0.6,
+            origin_country="DE",
         )
         assert material.mass_fraction == 0.6
         assert material.origin_country == "DE"
@@ -80,7 +80,7 @@ class TestMaterial:
         material = Material(
             name="Hazardous Chemical",
             hazardous=True,
-            materialSafetyInformation={"linkURL": "https://example.com/msds"},
+            material_safety_information={"link_url": "https://example.com/msds"},
         )
         assert material.hazardous is True
 
@@ -122,8 +122,8 @@ class TestProduct:
         product = Product(
             id="https://example.com/products/002",
             name="Battery Pack",
-            serialNumber="SN-2024-001",
-            batchNumber="BATCH-Q1",
+            serial_number="SN-2024-001",
+            batch_number="BATCH-Q1",
         )
         assert product.serial_number == "SN-2024-001"
 
@@ -211,17 +211,17 @@ class TestLink:
 
     def test_link_with_url(self):
         """Test creating a link with URL."""
-        link = Link(linkURL="https://example.com/doc")
+        link = Link(link_url="https://example.com/doc")
         assert str(link.link_url) == "https://example.com/doc"
 
     def test_link_with_name(self):
         """Test link with display name."""
-        link = Link(linkURL="https://example.com/doc", linkName="Documentation")
+        link = Link(link_url="https://example.com/doc", link_name="Documentation")
         assert link.link_name == "Documentation"
 
     def test_link_to_jsonld(self):
         """Test JSON-LD serialization."""
-        link = Link(linkURL="https://example.com/doc")
+        link = Link(link_url="https://example.com/doc")
         jsonld = link.to_jsonld()
         assert jsonld["type"] == ["Link"]
 
@@ -232,16 +232,16 @@ class TestSecureLink:
     def test_secure_link_with_hash(self):
         """Test secure link with hash."""
         link = SecureLink(
-            linkURL="https://example.com/file.pdf",
-            hashDigest="abc123",
-            hashMethod=HashMethod.SHA_256,
+            link_url="https://example.com/file.pdf",
+            hash_digest="abc123",
+            hash_method=HashMethod.SHA_256,
         )
         assert link.hash_digest == "abc123"
         assert link.hash_method == HashMethod.SHA_256
 
     def test_secure_link_to_jsonld(self):
         """Test JSON-LD serialization."""
-        link = SecureLink(linkURL="https://example.com/file.pdf")
+        link = SecureLink(link_url="https://example.com/file.pdf")
         jsonld = link.to_jsonld()
         assert "SecureLink" in jsonld["type"]
         assert "Link" in jsonld["type"]
@@ -304,7 +304,7 @@ class TestParty:
         party = Party(
             id="https://example.com/parties/001",
             name="Example Corp",
-            registeredId="REG-12345",
+            registered_id="REG-12345",
         )
         assert party.registered_id == "REG-12345"
 
@@ -339,8 +339,8 @@ class TestMetric:
     def test_valid_metric(self):
         """Test creating a valid metric."""
         metric = Metric(
-            metricName="Carbon Footprint",
-            metricValue={"value": 25.5, "unit": "KGM"},
+            metric_name="Carbon Footprint",
+            metric_value={"value": 25.5, "unit": "KGM"},
         )
         assert metric.metric_name == "Carbon Footprint"
         assert metric.metric_value.value == 25.5
@@ -348,8 +348,8 @@ class TestMetric:
     def test_metric_with_accuracy(self):
         """Test metric with accuracy."""
         metric = Metric(
-            metricName="Energy Usage",
-            metricValue={"value": 100, "unit": "KWH"},
+            metric_name="Energy Usage",
+            metric_value={"value": 100, "unit": "KWH"},
             accuracy=0.95,
         )
         assert metric.accuracy == 0.95
@@ -358,8 +358,8 @@ class TestMetric:
         """Test metric accuracy must be 0-1."""
         with pytest.raises(ValidationError):
             Metric(
-                metricName="Test",
-                metricValue={"value": 1, "unit": "EA"},
+                metric_name="Test",
+                metric_value={"value": 1, "unit": "EA"},
                 accuracy=1.5,
             )
 
@@ -370,10 +370,10 @@ class TestEmissionsPerformance:
     def test_valid_emissions(self):
         """Test creating valid emissions performance."""
         emissions = EmissionsPerformance(
-            carbonFootprint=25.5,
-            declaredUnit="KGM",
-            operationalScope=OperationalScope.CRADLE_TO_GATE,
-            primarySourcedRatio=0.8,
+            carbon_footprint=25.5,
+            declared_unit="KGM",
+            operational_scope=OperationalScope.CRADLE_TO_GATE,
+            primary_sourced_ratio=0.8,
         )
         assert emissions.carbon_footprint == 25.5
         assert emissions.operational_scope == OperationalScope.CRADLE_TO_GATE
@@ -382,19 +382,19 @@ class TestEmissionsPerformance:
         """Test primary sourced ratio must be 0-1."""
         with pytest.raises(ValidationError):
             EmissionsPerformance(
-                carbonFootprint=25.5,
-                declaredUnit="KGM",
-                operationalScope=OperationalScope.CRADLE_TO_GATE,
-                primarySourcedRatio=1.5,
+                carbon_footprint=25.5,
+                declared_unit="KGM",
+                operational_scope=OperationalScope.CRADLE_TO_GATE,
+                primary_sourced_ratio=1.5,
             )
 
     def test_emissions_to_jsonld(self):
         """Test JSON-LD serialization."""
         emissions = EmissionsPerformance(
-            carbonFootprint=25.5,
-            declaredUnit="KGM",
-            operationalScope=OperationalScope.CRADLE_TO_GATE,
-            primarySourcedRatio=0.8,
+            carbon_footprint=25.5,
+            declared_unit="KGM",
+            operational_scope=OperationalScope.CRADLE_TO_GATE,
+            primary_sourced_ratio=0.8,
         )
         jsonld = emissions.to_jsonld()
         assert jsonld["type"] == ["EmissionsPerformance"]
@@ -406,9 +406,9 @@ class TestCircularityPerformance:
     def test_valid_circularity(self):
         """Test creating valid circularity performance."""
         circularity = CircularityPerformance(
-            recyclableContent=0.85,
-            recycledContent=0.3,
-            utilityFactor=1.2,
+            recyclable_content=0.85,
+            recycled_content=0.3,
+            utility_factor=1.2,
         )
         assert circularity.recyclable_content == 0.85
         assert circularity.recycled_content == 0.3
@@ -416,11 +416,11 @@ class TestCircularityPerformance:
     def test_circularity_content_bounds(self):
         """Test recyclable content must be 0-1."""
         with pytest.raises(ValidationError):
-            CircularityPerformance(recyclableContent=1.5)
+            CircularityPerformance(recyclable_content=1.5)
 
     def test_circularity_to_jsonld(self):
         """Test JSON-LD serialization."""
-        circularity = CircularityPerformance(recycledContent=0.3)
+        circularity = CircularityPerformance(recycled_content=0.3)
         jsonld = circularity.to_jsonld()
         assert jsonld["type"] == ["CircularityPerformance"]
 
@@ -431,15 +431,15 @@ class TestTraceabilityPerformance:
     def test_valid_traceability(self):
         """Test creating valid traceability performance."""
         traceability = TraceabilityPerformance(
-            valueChainProcess="Manufacturing",
-            verifiedRatio=0.9,
+            value_chain_process="Manufacturing",
+            verified_ratio=0.9,
         )
         assert traceability.value_chain_process == "Manufacturing"
         assert traceability.verified_ratio == 0.9
 
     def test_traceability_to_jsonld(self):
         """Test JSON-LD serialization."""
-        traceability = TraceabilityPerformance(verifiedRatio=0.8)
+        traceability = TraceabilityPerformance(verified_ratio=0.8)
         jsonld = traceability.to_jsonld()
         assert jsonld["type"] == ["TraceabilityPerformance"]
 
@@ -453,7 +453,7 @@ class TestCriterion:
             id="https://example.com/criteria/001",
             name="Energy Efficiency",
             description="Minimum energy efficiency requirements",
-            conformityTopic=ConformityTopic.ENVIRONMENT_ENERGY,
+            conformity_topic=ConformityTopic.ENVIRONMENT_ENERGY,
             status=CriterionStatus.ACTIVE,
         )
         assert criterion.name == "Energy Efficiency"
@@ -465,7 +465,7 @@ class TestCriterion:
             id="https://example.com/criteria/001",
             name="Test",
             description="Test criterion",
-            conformityTopic=ConformityTopic.ENVIRONMENT_ENERGY,
+            conformity_topic=ConformityTopic.ENVIRONMENT_ENERGY,
             status=CriterionStatus.ACTIVE,
         )
         jsonld = criterion.to_jsonld()
@@ -480,7 +480,7 @@ class TestStandard:
         standard = Standard(
             id="https://iso.org/14001",
             name="ISO 14001",
-            issuingParty={
+            issuing_party={
                 "id": "https://iso.org",
                 "name": "ISO",
             },
@@ -491,7 +491,7 @@ class TestStandard:
         """Test JSON-LD serialization."""
         standard = Standard(
             name="ISO 14001",
-            issuingParty={"id": "https://iso.org", "name": "ISO"},
+            issuing_party={"id": "https://iso.org", "name": "ISO"},
         )
         jsonld = standard.to_jsonld()
         assert jsonld["type"] == ["Standard"]
@@ -505,11 +505,11 @@ class TestRegulation:
         regulation = Regulation(
             id="https://ec.europa.eu/espr",
             name="EU ESPR",
-            administeredBy={
+            administered_by={
                 "id": "https://ec.europa.eu",
                 "name": "European Commission",
             },
-            jurisdictionCountry="EU",
+            jurisdiction_country="EU",
         )
         assert regulation.name == "EU ESPR"
         assert regulation.jurisdiction_country == "EU"
@@ -518,7 +518,7 @@ class TestRegulation:
         """Test JSON-LD serialization."""
         regulation = Regulation(
             name="ESPR",
-            administeredBy={"id": "https://ec.europa.eu", "name": "EC"},
+            administered_by={"id": "https://ec.europa.eu", "name": "EC"},
         )
         jsonld = regulation.to_jsonld()
         assert jsonld["type"] == ["Regulation"]
@@ -532,7 +532,7 @@ class TestClaim:
         claim = Claim(
             id="https://example.com/claims/001",
             conformance=True,
-            conformityTopic=ConformityTopic.ENVIRONMENT_EMISSIONS,
+            conformity_topic=ConformityTopic.ENVIRONMENT_EMISSIONS,
         )
         assert claim.conformance is True
         assert claim.conformity_topic == ConformityTopic.ENVIRONMENT_EMISSIONS
@@ -542,7 +542,7 @@ class TestClaim:
         claim = Claim(
             id="https://example.com/claims/001",
             conformance=True,
-            conformityTopic=ConformityTopic.ENVIRONMENT_EMISSIONS,
+            conformity_topic=ConformityTopic.ENVIRONMENT_EMISSIONS,
         )
         jsonld = claim.to_jsonld()
         assert "Claim" in jsonld["type"]
@@ -556,7 +556,7 @@ class TestProductPassport:
         """Test creating a valid product passport."""
         passport = ProductPassport(
             id="https://example.com/passports/001",
-            granularityLevel=GranularityLevel.ITEM,
+            granularity_level=GranularityLevel.ITEM,
         )
         assert passport.granularity_level == GranularityLevel.ITEM
 
@@ -594,9 +594,9 @@ class TestCredentialStatus:
         status = CredentialStatus(
             id="https://example.com/status/1#42",
             type="BitstringStatusListEntry",
-            statusPurpose="revocation",
-            statusListIndex="42",
-            statusListCredential="https://example.com/status/1",
+            status_purpose="revocation",
+            status_list_index="42",
+            status_list_credential="https://example.com/status/1",
         )
         assert status.id == "https://example.com/status/1#42"
         assert status.type == "BitstringStatusListEntry"
@@ -620,7 +620,7 @@ class TestCredentialStatus:
         status = CredentialStatus(
             id="https://example.com/status/1#42",
             type="BitstringStatusListEntry",
-            statusPurpose="revocation",
+            status_purpose="revocation",
         )
         jsonld = status.to_jsonld()
         assert jsonld["type"] == ["CredentialStatus"]

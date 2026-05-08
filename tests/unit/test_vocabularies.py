@@ -4,12 +4,11 @@ import time
 
 import pytest
 
-from dppvalidator.vocabularies import (
+from dppvalidator.vocabularies import VocabularyCache, VocabularyLoader
+from dppvalidator.vocabularies.cache import CacheEntry
+from dppvalidator.vocabularies.loader import (
     VOCABULARIES,
-    CacheEntry,
-    VocabularyCache,
     VocabularyDefinition,
-    VocabularyLoader,
     get_bundled_country_codes,
     get_bundled_unit_codes,
 )
@@ -425,8 +424,7 @@ class TestVocabularyLoaderOnlinePaths:
             def get(self, url, **kwargs):  # noqa: ARG002
                 return MockResponse()
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
-        monkeypatch.setattr(loader_module, "httpx", type("httpx", (), {"Client": MockClient}))
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = VocabularyLoader(cache_dir=tmp_path, offline_mode=False)
         vocab_def = VocabularyDefinition(
@@ -456,23 +454,7 @@ class TestVocabularyLoaderOnlinePaths:
             def get(self, url, **kwargs):  # noqa: ARG002
                 raise ConnectionError("Network error")
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
-        monkeypatch.setattr(loader_module, "httpx", type("httpx", (), {"Client": MockClient}))
-
-        loader = VocabularyLoader(cache_dir=tmp_path, offline_mode=False)
-        vocab_def = VocabularyDefinition(
-            name="TestVocab",
-            url="https://test.example.com/vocab",
-            description="Test vocabulary",
-        )
-        result = loader._fetch_vocabulary(vocab_def)
-        assert result is None
-
-    def test_fetch_vocabulary_no_httpx(self, tmp_path, monkeypatch):
-        """Test _fetch_vocabulary returns None when httpx not available."""
-        from dppvalidator.vocabularies import loader as loader_module
-
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", False)
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = VocabularyLoader(cache_dir=tmp_path, offline_mode=False)
         vocab_def = VocabularyDefinition(
@@ -510,8 +492,7 @@ class TestVocabularyLoaderOnlinePaths:
                 fetch_called[0] = True
                 return MockResponse()
 
-        monkeypatch.setattr(loader_module, "HAS_HTTPX", True)
-        monkeypatch.setattr(loader_module, "httpx", type("httpx", (), {"Client": MockClient}))
+        monkeypatch.setattr(loader_module.httpx, "Client", MockClient)
 
         loader = VocabularyLoader(cache_dir=tmp_path, offline_mode=False)
         # First call should fetch and cache

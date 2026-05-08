@@ -1,6 +1,6 @@
 [project]
 name = "dppvalidator"
-version = "0.1.0"
+version = "0.3.2"
 description = "Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and CIRPASS/UNECE ontologies"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,9 +13,21 @@ keywords = [
     "cirpass",
     "validation",
     "pydantic",
+    "eu-regulation",
+    "sustainability",
+    "circular-economy",
+    "textile",
+    "battery-passport",
+    "untp",
+    "verifiable-credentials",
+    "json-ld",
+    "w3c",
+    "supply-chain",
+    "traceability",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
+    "Environment :: Console",
     "Framework :: Pydantic :: 2",
     "Intended Audience :: Developers",
     "Intended Audience :: Manufacturing",
@@ -27,22 +39,30 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
     "Typing :: Typed",
 ]
-dependencies = ["pydantic>=2.12.5"]
+dependencies = [
+    "pydantic>=2.12.5",
+    "httpx>=0.28.0",
+    "jsonschema>=4.23.0",
+    "pyld>=2.0.4",
+    "cryptography>=43.0.0",
+    "PyJWT>=2.9.0",
+    "base58>=2.1.0",
+]
 
 [project.scripts]
 dppvalidator = "dppvalidator.cli:cli"
 dppvalidator-precommit = "dppvalidator.cli.commands.precommit:main"
 
 [project.optional-dependencies]
-http = ["httpx>=0.28.0"]
-jsonschema = ["jsonschema>=4.23.0"]
 cli = ["rich>=13.0.0"]
-all = ["httpx>=0.28.0", "jsonschema>=4.23.0", "rich>=13.0.0"]
+rdf = ["rdflib>=7.0.0", "pyshacl>=0.25.0"]
+all = ["dppvalidator[cli,rdf]"]
 
 [project.urls]
 Homepage = "https://github.com/artiso-ai/dppvalidator"
@@ -58,24 +78,43 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/dppvalidator"]
 
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
+[tool.hatch.build]
+include = [
+    "src/dppvalidator/**/*.py",
+    "src/dppvalidator/**/*.json",
+    "src/dppvalidator/**/*.ttl",
+    "src/dppvalidator/**/*.xsd",
+    "src/dppvalidator/**/*.yaml",
+]
+
 [dependency-groups]
 dev = [
+    # Testing
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
     "pytest-asyncio>=0.24.0",
     "hypothesis>=6.100.0",
     "mutmut>=3.0.0",
+    # Linting & Type Checking
     "ruff>=0.8.0",
     "ty>=0.0.1a0",
     "pre-commit>=3.6.0",
+    # Security & License Scanning
     "pip-audit>=2.7.0",
-    "httpx>=0.28.0",
-    "jsonschema>=4.23.0",
+    "pip-licenses>=5.0.0",
+    # SBOM Generation
+    "cyclonedx-bom>=7.0.0",
+    # Optional extras (include all for dev)
     "rich>=13.0.0",
+    "rdflib>=7.0.0",
+    "pyshacl>=0.25.0",
 ]
 docs = [
     "mkdocs>=1.6.0",
-    "mkdocs-material>=9.5.0",
+    "mkdocs-material[imaging]>=9.5.0",
     "mkdocstrings[python]>=0.27.0",
 ]
 
@@ -112,6 +151,12 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    # rdflib internal deprecations (waiting for upstream fixes)
+    "ignore:ConjunctiveGraph is deprecated:DeprecationWarning:rdflib.plugins.parsers.jsonld",
+    "ignore::DeprecationWarning:rdflib.*",
+    "ignore::DeprecationWarning:pyparsing.*",
+]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
@@ -130,3 +175,8 @@ exclude_lines = [
 omit = [
     "*/protocols.py", # Protocol definitions are abstract stubs
 ]
+
+[tool.mutmut]
+paths_to_mutate = ["src/dppvalidator/validators/"]
+tests_dir = "tests/unit/"
+runner = "uv run pytest tests/unit/ -x --tb=no -q"

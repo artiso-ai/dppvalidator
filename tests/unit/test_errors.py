@@ -75,9 +75,24 @@ class TestFindSimilarValues:
         assert "DigitalProductPassport" in matches
 
     def test_finds_similar_granularity_values(self):
-        """Finds similar granularity level values."""
+        """Finds similar granularity level values (v0.6 spelling)."""
         matches = find_similar_values("itme", "granularityLevel")
         assert "item" in matches
+
+    def test_finds_similar_id_granularity_values(self):
+        """Finds similar id granularity values (v0.7 spelling).
+
+        ``idGranularity`` is the v0.7 rename of ``granularityLevel``;
+        it shares the same enum values, so typo suggestions must work
+        for users on either UNTP version.
+        """
+        matches = find_similar_values("itme", "idGranularity")
+        assert "item" in matches
+
+    def test_finds_similar_party_role_values(self):
+        """Finds similar PartyRole.role values (v0.7 only)."""
+        matches = find_similar_values("manufactrer", "role")
+        assert "manufacturer" in matches
 
     def test_finds_similar_scope_values(self):
         """Finds similar operational scope values."""
@@ -145,10 +160,47 @@ class TestKnownValues:
         assert "VerifiableCredential" in KNOWN_VALUES["type"]
 
     def test_granularity_levels_defined(self):
-        """Granularity levels are defined."""
-        assert "item" in KNOWN_VALUES["granularityLevel"]
-        assert "batch" in KNOWN_VALUES["granularityLevel"]
-        assert "model" in KNOWN_VALUES["granularityLevel"]
+        """Granularity levels are defined under both v0.6 and v0.7 spellings."""
+        for spelling in ("granularityLevel", "idGranularity"):
+            assert "item" in KNOWN_VALUES[spelling]
+            assert "batch" in KNOWN_VALUES[spelling]
+            assert "model" in KNOWN_VALUES[spelling]
+        # Both spellings share the same value list — drift would mean
+        # one version's users get worse typo suggestions than the other.
+        assert KNOWN_VALUES["granularityLevel"] == KNOWN_VALUES["idGranularity"]
+
+    def test_party_role_values_defined(self):
+        """v0.7 PartyRole.role enum is exposed for typo suggestions."""
+        assert "manufacturer" in KNOWN_VALUES["role"]
+        assert "recycler" in KNOWN_VALUES["role"]
+        assert "brandOwner" in KNOWN_VALUES["role"]
+
+    def test_party_role_values_match_v07_enum(self):
+        """``KNOWN_VALUES['role']`` mirrors ``PartyRoleEnum`` exactly.
+
+        Drift catch: adding a new role to the enum without updating
+        the suggestion list silently degrades typo support for that
+        role. Pinning equality here forces both surfaces to evolve
+        together.
+        """
+        from dppvalidator.models.v0_7.identifiers import PartyRoleEnum
+
+        enum_values = {member.value for member in PartyRoleEnum}
+        known_values = set(KNOWN_VALUES["role"])
+        assert enum_values == known_values, (
+            "PartyRoleEnum and KNOWN_VALUES['role'] disagree: "
+            f"in enum but not known: {enum_values - known_values}; "
+            f"known but not in enum: {known_values - enum_values}"
+        )
+
+    def test_id_granularity_values_match_v07_enum(self):
+        """``KNOWN_VALUES['idGranularity']`` mirrors ``IdGranularity`` exactly."""
+        from dppvalidator.models.v0_7.product import IdGranularity
+
+        enum_values = {member.value for member in IdGranularity}
+        assert enum_values == set(KNOWN_VALUES["idGranularity"]), (
+            "IdGranularity enum and KNOWN_VALUES['idGranularity'] are out of sync."
+        )
 
     def test_operational_scopes_defined(self):
         """Operational scopes are defined."""

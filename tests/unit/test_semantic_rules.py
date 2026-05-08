@@ -150,10 +150,10 @@ class TestSemanticRulesWithViolations:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                circularityScorecard=CircularityPerformance(
-                    recycledContent=0.8,
-                    recyclableContent=0.5,
+            credential_subject=ProductPassport(
+                circularity_scorecard=CircularityPerformance(
+                    recycled_content=0.8,
+                    recyclable_content=0.5,
                 )
             ),
         )
@@ -169,7 +169,7 @@ class TestSemanticRulesWithViolations:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(),
+            credential_subject=ProductPassport(),
         )
         rule = ConformityClaimRule()
         violations = rule.check(passport)
@@ -183,8 +183,8 @@ class TestSemanticRulesWithViolations:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                granularityLevel=GranularityLevel.ITEM,
+            credential_subject=ProductPassport(
+                granularity_level=GranularityLevel.ITEM,
                 product=Product(id="https://example.com/product", name="Test Product"),
             ),
         )
@@ -200,12 +200,12 @@ class TestSemanticRulesWithViolations:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                emissionsScorecard=EmissionsPerformance(
-                    carbonFootprint=25.5,
-                    declaredUnit="KGM",
-                    operationalScope=OperationalScope.NONE,
-                    primarySourcedRatio=0.8,
+            credential_subject=ProductPassport(
+                emissions_scorecard=EmissionsPerformance(
+                    carbon_footprint=25.5,
+                    declared_unit="KGM",
+                    operational_scope=OperationalScope.NONE,
+                    primary_sourced_ratio=0.8,
                 )
             ),
         )
@@ -224,10 +224,10 @@ class TestRulesFullCoverage:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                materialsProvenance=[
-                    Material(name="A", massFraction=0.5),
-                    Material(name="B", massFraction=0.5),
+            credential_subject=ProductPassport(
+                materials_provenance=[
+                    Material(name="A", mass_fraction=0.5),
+                    Material(name="B", mass_fraction=0.5),
                 ]
             ),
         )
@@ -242,8 +242,8 @@ class TestRulesFullCoverage:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                materialsProvenance=[
+            credential_subject=ProductPassport(
+                materials_provenance=[
                     Material(name="A"),
                     Material(name="B"),
                 ]
@@ -260,12 +260,12 @@ class TestRulesFullCoverage:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                materialsProvenance=[
+            credential_subject=ProductPassport(
+                materials_provenance=[
                     Material(
                         name="Safe Chemical",
                         hazardous=True,
-                        materialSafetyInformation=Link(linkURL="https://example.com/msds"),
+                        material_safety_information=Link(link_url="https://example.com/msds"),
                     ),
                 ]
             ),
@@ -303,13 +303,19 @@ class TestSemanticRulesViolationPaths:
                 "https://www.w3.org/ns/credentials/v2",
                 "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
             ],
+            "type": ["DigitalProductPassport", "VerifiableCredential"],
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
+            "validFrom": "2024-01-01T00:00:00Z",
+            "validUntil": "2034-01-01T00:00:00Z",
             "credentialSubject": {
+                "id": "https://example.com/subject/001",
+                "type": ["ProductPassport"],
+                "product": {"id": "https://example.com/products/001", "name": "Test"},
                 "materialsProvenance": [
                     {"name": "Steel", "massFraction": 0.3},
                     {"name": "Plastic", "massFraction": 0.2},
-                ]
+                ],
             },
         }
         result = engine.validate(data)
@@ -354,10 +360,10 @@ class TestSemanticRulesViolationPaths:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                circularityScorecard=CircularityPerformance(
-                    recycledContent=0.9,
-                    recyclableContent=0.5,
+            credential_subject=ProductPassport(
+                circularity_scorecard=CircularityPerformance(
+                    recycled_content=0.9,
+                    recyclable_content=0.5,
                 )
             ),
         )
@@ -375,7 +381,7 @@ class TestSemanticRulesViolationPaths:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(),
+            credential_subject=ProductPassport(),
         )
         rule = ConformityClaimRule()
         violations = rule.check(passport)
@@ -389,8 +395,8 @@ class TestSemanticRulesViolationPaths:
         passport = DigitalProductPassport(
             id="https://example.com/dpp",
             issuer=CredentialIssuer(id="https://example.com/issuer", name="Test"),
-            credentialSubject=ProductPassport(
-                granularityLevel=GranularityLevel.ITEM,
+            credential_subject=ProductPassport(
+                granularity_level=GranularityLevel.ITEM,
                 product=Product(
                     id="https://example.com/product",
                     name="Test Product",

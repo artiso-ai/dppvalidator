@@ -1,0 +1,506 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ns0: <http://dpp.taltech.ee/EUDPP#> .
+
+<http://dpp.taltech.ee/EUDPP/ACTOR>
+  a owl:Ontology ;
+  dcterms:contributor "Hele-Mai Haav"@en, "Tarmo Robal"@en ;
+  dcterms:creator "Riina Maigre"@en ;
+  dcterms:description """Actor module of an EU DPP core ontology proposal of the CIRPASS-2 project.
+
+For more information, see
+Maigre, R., Haav, H.-M., Robal, T., Wolf, M.-A., &amp; Danash, F. (2025). Ontology Requirements Specification for an EU DPP Core Ontology Proposal (1.1). CIRPASS-2 Consortium. https://doi.org/10.5281/zenodo.15270342"""@en ;
+  dcterms:issued "2025-03-14" ;
+  dcterms:license "Except otherwise noted, original content on this document is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence."@en ;
+  dcterms:modified "2025-10-29" ;
+  dcterms:title "An Actor module for an EU DPP core ontology proposed by CIRPASS-2 project."@en ;
+  rdfs:comment "The second iteration of the Actor module of an EU DPP core ontology proposal of the CIRPASS-2 project."@en, "This document is ongoing work and provided as-is with no warranties whatsoever."@en ;
+  rdfs:label "Actor module of an EU DPP core ontology proposed by the CIRPASS-2 project."@en ;
+  owl:versionInfo "1.5.1" .
+
+dcterms:contributor a owl:AnnotationProperty .
+dcterms:creator a owl:AnnotationProperty .
+dcterms:description a owl:AnnotationProperty .
+dcterms:issued a owl:AnnotationProperty .
+dcterms:license a owl:AnnotationProperty .
+dcterms:modified a owl:AnnotationProperty .
+dcterms:title a owl:AnnotationProperty .
+<http://dpp.taltech.ee/EUDPP#hasRole>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Relates an actor to a role."@en ;
+  rdfs:label "Has role"@en .
+
+<http://dpp.taltech.ee/EUDPP#isEstablishedIn>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#LegalPerson> ;
+  rdfs:range <http://purl.org/dc/terms#Location> ;
+  rdfs:comment "Relates a legal person to the location where it is established."@en ;
+  rdfs:label "Is established in"@en .
+
+<http://dpp.taltech.ee/EUDPP#isRepresentedBy>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.taltech.ee/EUDPP#representsManufacturer> ;
+  rdfs:domain [
+    a owl:Class ;
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid3
+   )
+  ] ;
+  rdfs:range [
+    a owl:Class ;
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid7
+   )
+  ] ;
+  rdfs:comment "Relates a manufacturer to an actor who has received a written mandate from manufacturer to act on the manufacturer's behalf."@en ;
+  rdfs:label "Is represented by"@en .
+
+<http://dpp.taltech.ee/EUDPP#isResidingIn>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#NaturalPerson> ;
+  rdfs:range <http://purl.org/dc/terms#Location> ;
+  rdfs:comment "Relates a natural person to the location where they reside."@en ;
+  rdfs:label "Is residing in"@en .
+
+<http://dpp.taltech.ee/EUDPP#isResponsibleForProduct>
+  a owl:ObjectProperty ;
+  rdfs:domain [
+    a owl:Class ;
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid11
+   )
+  ] ;
+  rdfs:comment """Relates an economic operator to the product for which it holds DPP responsibility.
+
+Product is defined in the Product and DPP module."""@en ;
+  rdfs:label "Is responsible for product"@en .
+
+<http://dpp.taltech.ee/EUDPP#isRoleOf>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:comment "Relates role to an actor."@en ;
+  rdfs:label "Is role of"@en .
+
+<http://dpp.taltech.ee/EUDPP#isUsedByActor>
+  a owl:ObjectProperty ;
+  owl:inverseOf <http://dpp.taltech.ee/EUDPP#usesFacility> ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Facility> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:comment "Relates a facility to an actor."@en ;
+  rdfs:label "Is used by actor"@en .
+
+<http://dpp.taltech.ee/EUDPP#representsManufacturer>
+  a owl:ObjectProperty ;
+  rdfs:domain [
+    a owl:Class ;
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid15
+   )
+  ] ;
+  rdfs:range [
+    a owl:Class ;
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid19
+   )
+  ] ;
+  rdfs:comment "Relates an authorised representative to the manufacturer it is authorised to represent."@en ;
+  rdfs:label "Represents manufacturer"@en .
+
+<http://dpp.taltech.ee/EUDPP#usesFacility>
+  a owl:ObjectProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:range <http://dpp.taltech.ee/EUDPP#Facility> ;
+  rdfs:comment "Relates an actor to facility."@en ;
+  rdfs:label "Uses facility"@en .
+
+<http://dpp.taltech.ee/EUDPP#actorName>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Name of an actor."@en ;
+  rdfs:label "Actor name"@en .
+
+<http://dpp.taltech.ee/EUDPP#electronicContact>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Electronic contact detail for an actor, such as an email address, website, or other digital communication channel."@en ;
+  rdfs:label "Electronic contact"@en .
+
+<http://dpp.taltech.ee/EUDPP#postalAddress>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Postal address associated with an actor."@en ;
+  rdfs:label "Postal address"@en .
+
+<http://dpp.taltech.ee/EUDPP#registeredTradeName>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Trade name under which a legal person or business operates and is registered."@en ;
+  rdfs:label "Registered trade name"@en .
+
+<http://dpp.taltech.ee/EUDPP#registeredTrademark>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "A trademark officially registered and owned by an actor."@en ;
+  rdfs:label "Registered trademark"@en .
+
+<http://dpp.taltech.ee/EUDPP#uniqueFacilityID>
+  a owl:DatatypeProperty ;
+  rdfs:domain <http://dpp.taltech.ee/EUDPP#Facility> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unique facility identifier means a unique string of characters for the identification of locations or buildings involved in a product’s value chain or used by actors involved in a product’s value chain. (ESPR Art 2 (33))"@en ;
+  rdfs:label "Unique facility ID"@en .
+
+<http://dpp.taltech.ee/EUDPP#uniqueOperatorID>
+  a owl:DatatypeProperty ;
+  rdfs:domain [
+    a owl:Class ;
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid23
+   )
+  ] ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unique operator identifier means a unique string of characters for the identification of an actor involved in a product’s value chain.  (ESPR Art. 2 (31))"@en ;
+  rdfs:label "Unique operator ID"@en .
+
+<http://dpp.taltech.ee/EUDPP#Actor>
+  a owl:Class ;
+  rdfs:comment "Actor means a legal or natural person. One actor can take on multiple roles. CIRPASS-2 User Stories 3.0, Glossary, p 80)"@en ;
+  rdfs:label "Actor"@en .
+
+<http://dpp.taltech.ee/EUDPP#AuthorisedRepresentativeRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole>, [
+    a owl:Restriction ;
+    owl:onProperty <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+    owl:someValuesFrom [
+      a owl:Class ;
+      owl:intersectionOf (
+       <http://dpp.taltech.ee/EUDPP#Actor>
+       _:genid28
+     )
+    ]
+  ] ;
+  owl:disjointWith <http://dpp.taltech.ee/EUDPP#ManufacturerRole> ;
+  rdfs:comment "Authorised representative means any natural or legal person established in the Union that has received a written mandate from the manufacturer to act on the manufacturer’s behalf in relation to specified tasks with regard to the manufacturer’s obligations under this Regulation. (ESPR Art 2 (43))"@en ;
+  rdfs:label "Authorised Representative Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#AuthorityRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "A role of an actor who exercises authority."@en ;
+  rdfs:label "Authority Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#ConformityAssessmentBodyRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role>, [
+    a owl:Restriction ;
+    owl:onProperty <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+    owl:allValuesFrom <http://dpp.taltech.ee/EUDPP#LegalPerson>
+  ] ;
+  rdfs:comment "A conformity assessment body shall be established under national law and have legal personality (DECISION No 768/2008/EC Art R17 (2))"@en, "Conformity assessment body means a body that performs conformity assessment activities including calibration, testing, certification and inspection (ESPR Art 2 (52))"@en ;
+  rdfs:label "Conformity Assessment Body Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#ConsumerRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#CustomerRole>, [
+    a owl:Restriction ;
+    owl:onProperty <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+    owl:allValuesFrom <http://dpp.taltech.ee/EUDPP#NaturalPerson>
+  ] ;
+  rdfs:comment "Consumer means any natural person who, in relation to contracts covered by Directive (EU) 2019/771, is acting for purposes which are outside that person's trade, business, craft or profession. (Directive (EU) 2019/771, Art 2 (2))"@en ;
+  rdfs:label "Consumer Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#CredentialAgencyRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Credential agency means a legal person that provides (professional) credentials to parties, which may be used to make and verify a variety of claims in the DPP. Definition is derived from ESPR Art 11 last paragraph “The Commission may adopt implementing acts setting out procedures to issue and verify the digital credentials of economic operators and other relevant actors that have access rights to data included in the digital product passport”. The credentials agency can provide all credentials except for the unique identifiers and data carriers, which are provided by an issuing agency. (CIRPASS-2 User Stories 3.0)"@en ;
+  rdfs:label "Credential Agency Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#CustomerRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Customer means a natural or legal person that purchases, hires or receives a product for their own use whether or not acting for purposes which are outside their trade, business, craft or profession. (ESPR Art 2 (35))"@en ;
+  rdfs:label "Customer Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#CustomsAuthorityRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#AuthorityRole> ;
+  rdfs:comment "Customs authorities means  customs authorities as defined in point 1 of Article 5 of Regulation (EU) No 952/2013 (Regulation (EU) 2019/1020, Art 3 (24))"@en, "Customs authorities means the customs administrations of the Member States responsible for applying the customs legislation and any other authorities empowered under national law to apply certain customs legislation (Regulation (EU) No 952/2013 Art 5 (1);"@en ;
+  rdfs:label "Customs Authority Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#DPPServiceProviderRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  owl:disjointWith <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole> ;
+  rdfs:comment "Digital product passport service provider means a natural or legal person that is an independent third-party authorised by the economic operator which places the product on the market or puts it into service and that processes the digital product passport data for that product for the purpose of making such data available to economic operators and other relevant actors with a right to access those data under this Regulation or other Union law. (ESPR Art 2 (32))"@en ;
+  rdfs:label "DPP Service Provider Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#DealerRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole> ;
+  rdfs:comment "Dealer means a distributor or any other natural or legal person that offers products for sale, hire or hire purchase, or that displays products, to end users in the course of a commercial activity, including through distance selling; and includes any natural or legal person that puts a product into service in the course of a commercial activity. (ESPR Art 2 (55))"@en ;
+  rdfs:label "Dealer Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#DistributorRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole> ;
+  rdfs:comment "Distributor means any natural or legal person in the supply chain, other than the manufacturer or the importer, that makes a product available on the market. ESPR Art 2 (45))"@en ;
+  rdfs:label "Distributor Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#EconomicOperatorRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Economic operator means the manufacturer, the authorised representative, the importer, the distributor, the dealer and the fulfilment service provider. (ESPR Art 2 (46))"@en ;
+  rdfs:label "Economic Operator Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#EndUserRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role>, [
+    a owl:Restriction ;
+    owl:onProperty <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+    owl:someValuesFrom [
+      a owl:Class ;
+      owl:intersectionOf (
+       <http://dpp.taltech.ee/EUDPP#Actor>
+       _:genid39
+     )
+    ]
+  ] ;
+  rdfs:comment "End user means any natural or legal person residing or established in the Union, to whom a product has been made available either as a consumer outside of any trade, business, craft or profession or as a professional end user in the course of its industrial or professional activities (Regulation (EU) 2019/1020  Art 3 (21));"@en ;
+  rdfs:label "End User Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#Facility>
+  a owl:Class ;
+  rdfs:comment "A Facility may be a place where specific activities occur. A production/manufacturing facility means a factory. The term may refer to any place that makes things, or plants that generate electricity."@en, "Business facilities are structures that provide services to a business. This can include space for employees, technology, equipment and inventory. Facilities can be used for business administration, operations or to provide services to customers."@en ;
+  rdfs:label "Facility"@en ;
+  rdfs:seeAlso <https://marketbusinessnews.com/financial-glossary/facility/> .
+
+<http://dpp.taltech.ee/EUDPP#FulfilmentServiceProviderRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole> ;
+  rdfs:comment "Fulfilment service provider means any natural or legal person offering, in the course of commercial activity, at least two of the following services: warehousing, packaging, addressing and dispatching, without having ownership of the products involved, excluding postal services as defined in point 1 of Article 2 of Directive 97/67/EC of the European Parliament and of the Council (31), parcel delivery services as defined in point 2 of Article 2 of Regulation (EU) 2018/644 of the European Parliament and of the Council (32), and any other postal services or freight transport services. (Regulation (EU) 2019/1020 Art 3 (11))."@en ;
+  rdfs:label "Fulfilment Service Provider Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#ImporterRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole>, [
+    a owl:Restriction ;
+    owl:onProperty <http://dpp.taltech.ee/EUDPP#isRoleOf> ;
+    owl:someValuesFrom [
+      a owl:Class ;
+      owl:intersectionOf (
+       <http://dpp.taltech.ee/EUDPP#Actor>
+       _:genid48
+     )
+    ]
+  ] ;
+  rdfs:comment "Importer means any natural or legal person established in the Union that places a product from a third country on the Union market. (ESPR Art 2 (44))"@en ;
+  rdfs:label "Importer Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#IndependentOperatorRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  owl:disjointWith <http://dpp.taltech.ee/EUDPP#ManufacturerRole> ;
+  rdfs:comment "Independent operator means natural or legal person that is independent of the manufacturer and is directly or indirectly involved in the refurbishment, repair, maintenance or repurposing of a product, and includes waste management operators, refurbishers, repairers, manufacturers or distributors of repair equipment, tools or spare parts, as well as publishers of technical information, operators offering inspection and testing services and operators offering training for installers, manufacturers and repairers of equipment. (ESPR Art 2 (47))"@en ;
+  rdfs:label "Independent Operator Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#IssuingAgencyRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Issuing agency is a legal persons that provide unique identifiers and data carriers Art 12 (4a). Under specific conditions, economic operators may perform the functions associated with an Issuing Agency. (ESPR Art 12 (4b))"@en ;
+  rdfs:label "Issuing Agency Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#LegalPerson>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Actor> ;
+  owl:disjointWith <http://dpp.taltech.ee/EUDPP#NaturalPerson> ;
+  rdfs:comment "A body of persons or an entity (as a corporation) considered as having many of the rights and responsibilities of a natural person and especially the capacity to sue and be sued."@en ;
+  rdfs:label "Legal Person"@en ;
+  rdfs:seeAlso <https://www.merriam-webster.com/legal/legal%20person> .
+
+<http://dpp.taltech.ee/EUDPP#ManufacturerRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole> ;
+  rdfs:comment "Manufacturer means any natural or legal person that manufactures a product or that has a product designed or manufactured and markets that product under their name or trademark. (ESPR Art 2 (42))"@en ;
+  rdfs:label "Manufacturer Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#MarketSurveillanceAuthorityRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#AuthorityRole> ;
+  rdfs:comment "Market surveillance authority means an authority designated by a Member State under Article 10 as responsible for carrying out market surveillance in the territory of that Member State (Regulation (EU) 2019/1020  Art 3 (4));"@en ;
+  rdfs:label "Market Surveillance Authority Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#NaturalPerson>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Actor> ;
+  rdfs:comment "A human being as distinguished from a person (as a corporation) created by operation of law"@en ;
+  rdfs:label "Natural Person"@en ;
+  rdfs:seeAlso <https://www.merriam-webster.com/legal/natural%20person> .
+
+<http://dpp.taltech.ee/EUDPP#NotifiedBodyRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#ConformityAssessmentBodyRole> ;
+  rdfs:comment "Notified body means a conformity assessment body notified in accordance with Chapter IX"@en ;
+  rdfs:label "Notified Body Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#ProfessionalRepairerRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Professional repairer means a natural or legal person that provides professional repair or maintenance services for a product, irrespective of whether that person acts within the manufacturer’s distribution system or independently. (ESPR Art 2 (48))"@en ;
+  rdfs:label "Professional Repairer Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#RecyclerRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Role that can be held by actor performing \"recycling\""@en ;
+  rdfs:label "Recycler Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#RefurbisherRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Role that can be held by actor performing \"refurbishment\""@en ;
+  rdfs:label "Refurbisher Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#RemanufacturerRole>
+  a owl:Class ;
+  rdfs:subClassOf <http://dpp.taltech.ee/EUDPP#Role> ;
+  rdfs:comment "Role that can be held by actor performing \"remanufacturing\"."@en ;
+  rdfs:label "Remanufacturer Role"@en .
+
+<http://dpp.taltech.ee/EUDPP#Role>
+  a owl:Class ;
+  rdfs:comment "Role means a set of tasks typically performed by one actor. (e.g. Responsible Economic Operator, Independent operator). (CIRPASS-2 User Stories 3.0)"@en ;
+  rdfs:label "Role"@en .
+
+<http://purl.org/dc/terms#Location> a owl:Class .
+<http://dpp.taltech.ee/EUDPP#EuropeanCommission>
+  a owl:NamedIndividual, <http://dpp.taltech.ee/EUDPP#LegalPerson> ;
+  owl:sameAs <http://publications.europa.eu/resource/authority/corporate-body/COM> ;
+  ns0:hasRole ns0:authority ;
+  rdfs:comment "The European Commission, abbreviated as EC, is the executive branch of the European Union."@en ;
+  rdfs:label "European Commission"@en .
+
+ns0:EuropeanUnion
+  a owl:NamedIndividual, <http://purl.org/dc/terms#Location> ;
+  owl:sameAs <http://publications.europa.eu/resource/authority/country/EUR> ;
+  rdfs:comment "European Union is used here as a jurisdictional or geographic entity for legal and regulatory contexts."@en ;
+  rdfs:label "European Union"@en .
+
+ns0:authorisedRepresentative a owl:NamedIndividual, ns0:AuthorisedRepresentativeRole .
+ns0:authority a owl:NamedIndividual, ns0:AuthorityRole .
+ns0:consumer a owl:NamedIndividual, ns0:ConsumerRole .
+ns0:credentialAgency a owl:NamedIndividual, ns0:CredentialAgencyRole .
+ns0:customer a owl:NamedIndividual, ns0:CustomerRole .
+ns0:customsAuthority a owl:NamedIndividual, ns0:CustomsAuthorityRole .
+ns0:dealer a owl:NamedIndividual, ns0:DealerRole .
+ns0:distributor a owl:NamedIndividual, ns0:DistributorRole .
+ns0:dppServiceProvider a owl:NamedIndividual, ns0:DPPServiceProviderRole .
+ns0:endUser a owl:NamedIndividual, ns0:EndUserRole .
+ns0:fulfilmentServiceProvider a owl:NamedIndividual, ns0:FulfilmentServiceProviderRole .
+ns0:importer a owl:NamedIndividual, ns0:ImporterRole .
+ns0:independentOperator a owl:NamedIndividual, ns0:IndependentOperatorRole .
+ns0:issuingAgency a owl:NamedIndividual, ns0:IssuingAgencyRole .
+ns0:manufacturer a owl:NamedIndividual, ns0:ManufacturerRole .
+ns0:marketSurveillanceAuthority a owl:NamedIndividual, ns0:MarketSurveillanceAuthorityRole .
+ns0:notifiedBody a owl:NamedIndividual, ns0:NotifiedBodyRole .
+ns0:professionalRepairer a owl:NamedIndividual, ns0:ProfessionalRepairerRole .
+ns0:recycler a owl:NamedIndividual, ns0:RecyclerRole .
+ns0:refurbisher a owl:NamedIndividual, ns0:RefurbisherRole .
+ns0:remanufacturer a owl:NamedIndividual, ns0:RemanufacturerRole .
+_:genid3
+  a owl:Restriction ;
+  owl:onProperty ns0:hasRole ;
+  owl:someValuesFrom ns0:ManufacturerRole .
+
+_:genid7
+  a owl:Restriction ;
+  owl:onProperty ns0:hasRole ;
+  owl:someValuesFrom ns0:AuthorisedRepresentativeRole .
+
+_:genid11
+  a owl:Restriction ;
+  owl:onProperty ns0:hasRole ;
+  owl:someValuesFrom ns0:EconomicOperatorRole .
+
+_:genid15
+  a owl:Restriction ;
+  owl:onProperty ns0:hasRole ;
+  owl:someValuesFrom ns0:AuthorisedRepresentativeRole .
+
+_:genid19
+  a owl:Restriction ;
+  owl:onProperty ns0:hasRole ;
+  owl:someValuesFrom ns0:ManufacturerRole .
+
+_:genid23
+  a owl:Restriction ;
+  owl:onProperty ns0:hasRole ;
+  owl:someValuesFrom ns0:EconomicOperatorRole .
+
+_:genid28
+  a owl:Class ;
+  owl:unionOf (
+   _:genid30
+   _:genid32
+ ) .
+
+_:genid30
+  a owl:Restriction ;
+  owl:onProperty ns0:isEstablishedIn ;
+  owl:hasValue ns0:EuropeanUnion .
+
+_:genid32
+  a owl:Restriction ;
+  owl:onProperty ns0:isResidingIn ;
+  owl:hasValue ns0:EuropeanUnion .
+
+_:genid39
+  a owl:Class ;
+  owl:unionOf (
+   _:genid41
+   _:genid43
+ ) .
+
+_:genid41
+  a owl:Restriction ;
+  owl:onProperty ns0:isEstablishedIn ;
+  owl:hasValue ns0:EuropeanUnion .
+
+_:genid43
+  a owl:Restriction ;
+  owl:onProperty ns0:isResidingIn ;
+  owl:hasValue ns0:EuropeanUnion .
+
+_:genid48
+  a owl:Class ;
+  owl:unionOf (
+   _:genid50
+   _:genid52
+ ) .
+
+_:genid50
+  a owl:Restriction ;
+  owl:onProperty ns0:isEstablishedIn ;
+  owl:hasValue ns0:EuropeanUnion .
+
+_:genid52
+  a owl:Restriction ;
+  owl:onProperty ns0:isResidingIn ;
+  owl:hasValue ns0:EuropeanUnion .

@@ -6,7 +6,7 @@ dppvalidator is the open-source compliance engine for EU Digital Product Passpor
 
 ## Core Features
 
-- Three-layer validation: schema, model, and semantic
+- Five-layer validation: schema, model, JSON-LD, semantic, and cryptographic
 - Built-in UNTP DPP 0.6.1 schema support
 - JSON-LD export for W3C Verifiable Credentials
 - Plugin system for custom validators

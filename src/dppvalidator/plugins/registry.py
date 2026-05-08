@@ -17,6 +17,10 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
+class PluginError(Exception):
+    """Raised when a plugin fails in strict mode."""
+
+
 class PluginRegistry:
     """Registry for validator and exporter plugins.
 
@@ -113,14 +117,21 @@ class PluginRegistry:
     def run_all_validators(
         self,
         passport: DigitalProductPassport,
+        *,
+        strict: bool = False,
     ) -> list[ValidationError]:
         """Run all registered validator plugins.
 
         Args:
             passport: Parsed passport to validate
+            strict: If True, raise PluginError on plugin failures instead of
+                returning a warning. Useful for CI/CD pipelines.
 
         Returns:
             List of validation errors from all plugins
+
+        Raises:
+            PluginError: If strict=True and a plugin fails to execute
         """
         errors: list[ValidationError] = []
 
@@ -145,12 +156,14 @@ class PluginRegistry:
                         )
 
             except (AttributeError, TypeError, ValueError, RuntimeError) as e:
+                if strict:
+                    raise PluginError(f"Plugin '{name}' failed: {e}") from e
                 logger.warning("Plugin %s failed: %s", name, e)
                 errors.append(
                     ValidationError(
                         path="$",
                         message=f"Plugin '{name}' failed: {e}",
-                        code="PLG_ERROR",
+                        code="PLG001",
                         layer="plugin",
                         severity="warning",
                     )

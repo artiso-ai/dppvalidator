@@ -33,59 +33,26 @@ poetry add dppvalidator
 
 ## Optional Dependencies
 
-### HTTP Support
+### CLI Extras
 
-For fetching remote schemas and vocabularies:
+For enhanced CLI output with rich formatting:
 
 === "uv"
 
 ```
-
-uv add "dppvalidator[http]"
-
+uv add "dppvalidator[cli]"
 ```
 
 === "pip"
 
 ```
-pip install "dppvalidator[http]"
+pip install "dppvalidator[cli]"
 ```
 
-This installs `httpx` for async HTTP requests.
+This installs `rich` for colored terminal output.
 
-### JSON Schema Validation
-
-For strict JSON Schema validation:
-
-=== "uv"
-
-```
-uv add "dppvalidator[jsonschema]"
-```
-
-=== "pip"
-
-```
-pip install "dppvalidator[jsonschema]"
-```
-
-### All Optional Dependencies
-
-=== "uv"
-
-```
-
-uv add "dppvalidator[all]"
-
-```
-
-=== "pip"
-
-```
-
-pip install "dppvalidator[all]"
-
-```
+!!! note "Core dependencies included by default"
+    The core package already includes `httpx`, `jsonschema`, `pyld`, and `cryptography` — no extras needed for full validation functionality.
 
 ## Verify Installation
 

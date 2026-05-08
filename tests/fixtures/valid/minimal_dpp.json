@@ -11,5 +11,17 @@
   "issuer": {
     "id": "https://example.com/issuers/001",
     "name": "Example Company Ltd"
+  },
+  "validFrom": "2024-01-01T00:00:00Z",
+  "validUntil": "2034-01-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "https://example.com/subject/001",
+    "type": [
+      "ProductPassport"
+    ],
+    "product": {
+      "id": "https://example.com/products/001",
+      "name": "Example Product"
+    }
   }
 }

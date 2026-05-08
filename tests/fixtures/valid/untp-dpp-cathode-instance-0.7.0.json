@@ -1,0 +1,284 @@
+{
+  "type": [
+    "DigitalProductPassport",
+    "VerifiableCredential"
+  ],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://vocabulary.uncefact.org/untp/0.7.0/context/"
+  ],
+  "id": "https://credentials.sample-refinery.example.com/dpp/cu-cathode-2025",
+  "issuer": {
+    "type": [
+      "CredentialIssuer"
+    ],
+    "id": "did:web:sample-refinery.example.com",
+    "name": "Sample Copper Refinery Co. Ltd",
+    "issuerAlsoKnownAs": [
+      {
+        "type": [
+          "Party"
+        ],
+        "id": "https://www.sample-register.example.com/henkorireki-johoto.html?selHouzinNo=REF-001",
+        "name": "Sample Copper Refinery Co. Ltd",
+        "registeredId": "REF-001",
+        "idScheme": {
+          "type": [
+            "IdentifierScheme"
+          ],
+          "id": "https://www.sample-register.example.com",
+          "name": "Japan Corporate Number (Houjin Bangou)"
+        }
+      }
+    ]
+  },
+  "validFrom": "2025-03-01T00:00:00Z",
+  "validUntil": "2026-03-01T00:00:00Z",
+  "name": "Digital Product Passport — LME Grade A Copper Cathode",
+  "issuingSoftware": {
+    "id": "https://sample-software-vendor.example.com/.well-known/untp/software/passport-builder/2026.04.1",
+    "name": "Sample Passport Builder",
+    "version": "2026.04.1",
+    "vendor": {
+      "id": "did:web:sample-software-vendor.example.com",
+      "name": "Sample Software Vendor Inc"
+    }
+  },
+  "credentialSubject": {
+    "type": [
+      "Product"
+    ],
+    "id": "https://id.sample-refinery.example.com/product/cu-cathode-2025",
+    "name": "LME Grade A Copper Cathode",
+    "description": "LME Grade A copper cathode (Cu 99.99%) produced by electrolytic refining at Sample Copper Refinery. Each cathode weighs approximately 125 kg and meets London Metal Exchange delivery specifications.",
+    "idScheme": {
+      "type": [
+        "IdentifierScheme"
+      ],
+      "id": "https://id.sample-refinery.example.com",
+      "name": "Sample Product Identifier Scheme"
+    },
+    "modelNumber": "SR-CU-CATH-9999",
+    "batchNumber": "2025-Q1-0812",
+    "idGranularity": "model",
+    "productCategory": [
+      {
+        "code": "41521",
+        "name": "Unwrought copper",
+        "definition": "Copper, unrefined; copper anodes for electrolytic refining; refined copper and copper alloys, unwrought.",
+        "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+        "schemeName": "UN Central Product Classification (CPC)"
+      }
+    ],
+    "relatedDocument": [
+      {
+        "linkURL": "https://credentials.sample-cab.example.com/dcc/smelter-002",
+        "linkName": "Coppermark Certification — Sample Copper Refinery",
+        "mediaType": "application/ld+json",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/dcc"
+      }
+    ],
+    "relatedParty": [
+      {
+        "role": "manufacturer",
+        "party": {
+          "type": [
+            "Party"
+          ],
+          "id": "did:web:sample-refinery.example.com",
+          "name": "Sample Copper Refinery Co. Ltd",
+          "registeredId": "REF-001",
+          "idScheme": {
+            "type": [
+              "IdentifierScheme"
+            ],
+            "id": "https://www.sample-register.example.com",
+            "name": "Japan Corporate Number (Houjin Bangou)"
+          },
+          "registrationCountry": {
+            "countryCode": "JP",
+            "countryName": "Japan"
+          }
+        }
+      }
+    ],
+    "producedAtFacility": {
+      "type": [
+        "Facility"
+      ],
+      "id": "https://facility-register.example.com/fac-002",
+      "name": "Sample Copper Refinery",
+      "registeredId": "fac-002",
+      "idScheme": {
+        "type": [
+          "IdentifierScheme"
+        ],
+        "id": "https://facility-register.example.com",
+        "name": "UNTP Sample Facility Register"
+      }
+    },
+    "productionDate": "2025-03-01",
+    "countryOfProduction": {
+      "countryCode": "JP",
+      "countryName": "Japan"
+    },
+    "dimensions": {
+      "weight": {
+        "value": 125,
+        "unit": "KGM"
+      }
+    },
+    "materialProvenance": [
+      {
+        "name": "Copper concentrate",
+        "originCountry": {
+          "countryCode": "ZM",
+          "countryName": "Zambia"
+        },
+        "materialType": {
+          "code": "14110",
+          "name": "Copper ores and concentrates",
+          "definition": "Copper ores and concentrates obtained from mining operations.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.88,
+        "mass": {
+          "value": 110,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 0,
+        "hazardous": false
+      },
+      {
+        "name": "Recycled copper scrap",
+        "originCountry": {
+          "countryCode": "JP",
+          "countryName": "Japan"
+        },
+        "materialType": {
+          "code": "41521",
+          "name": "Unwrought copper",
+          "definition": "Copper, unrefined; copper anodes for electrolytic refining; refined copper and copper alloys, unwrought.",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "massFraction": 0.12,
+        "mass": {
+          "value": 15,
+          "unit": "KGM"
+        },
+        "recycledMassFraction": 1,
+        "hazardous": false
+      }
+    ],
+    "performanceClaim": [
+      {
+        "type": [
+          "Claim"
+        ],
+        "id": "https://sample-refinery.example.com/claims/product-carbon-2025",
+        "name": "Product Carbon Footprint — Copper Cathode",
+        "description": "Cradle-to-gate carbon footprint of copper cathode per tonne produced at Sample smelter.",
+        "referenceCriteria": [
+          {
+            "type": [
+              "Criterion"
+            ],
+            "id": "https://sample-scheme.coppermark.org/criteria/ghg-management/v3",
+            "name": "GHG Emissions Management (Coppermark RRA Criterion 26)",
+            "conformityTopic": [
+              {
+                "type": [
+                  "ConformityTopic"
+                ],
+                "id": "https://vocabulary.uncefact.org/conformity-topic/greenhouse-gas-emissions",
+                "name": "Greenhouse Gas Emissions",
+                "definition": "Assessment of direct and indirect greenhouse gas emissions across scopes 1, 2, and 3, including measurement, reporting, and reduction targets aligned with climate science."
+              }
+            ]
+          }
+        ],
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/product-carbon-footprint",
+              "name": "Product Carbon Footprint"
+            },
+            "measure": {
+              "value": 3.8,
+              "unit": "KGM"
+            }
+          }
+        ],
+        "conformityTopic": [
+          {
+            "type": [
+              "ConformityTopic"
+            ],
+            "id": "https://vocabulary.uncefact.org/conformity-topic/greenhouse-gas-emissions",
+            "name": "Greenhouse Gas Emissions",
+            "definition": "Assessment of direct and indirect greenhouse gas emissions across scopes 1, 2, and 3, including measurement, reporting, and reduction targets aligned with climate science."
+          }
+        ]
+      },
+      {
+        "type": [
+          "Claim"
+        ],
+        "id": "https://sample-refinery.example.com/claims/product-recycled-2025",
+        "name": "Recycled Content — Copper Cathode",
+        "description": "Percentage of recycled copper content in cathode output at Sample smelter.",
+        "referenceCriteria": [
+          {
+            "type": [
+              "Criterion"
+            ],
+            "id": "https://sample-scheme.coppermark.org/criteria/recycled-feedstock/v3",
+            "name": "Recycled Feedstock Management (Coppermark RRA Criterion 31)",
+            "conformityTopic": [
+              {
+                "type": [
+                  "ConformityTopic"
+                ],
+                "id": "https://vocabulary.uncefact.org/conformity-topic/recycled-material-integration",
+                "name": "Recycled Material Integration",
+                "definition": "Incorporation of recycled and reclaimed materials into products and processes, promoting circular material flows and reducing demand for virgin resources."
+              }
+            ]
+          }
+        ],
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "metric": {
+              "type": [
+                "PerformanceMetric"
+              ],
+              "id": "https://vocabulary.uncefact.org/performance-metric/recycled-content-percentage",
+              "name": "Recycled Content Percentage"
+            },
+            "measure": {
+              "value": 12,
+              "unit": "P1"
+            }
+          }
+        ],
+        "conformityTopic": [
+          {
+            "type": [
+              "ConformityTopic"
+            ],
+            "id": "https://vocabulary.uncefact.org/conformity-topic/recycled-material-integration",
+            "name": "Recycled Material Integration",
+            "definition": "Incorporation of recycled and reclaimed materials into products and processes, promoting circular material flows and reducing demand for virgin resources."
+          }
+        ]
+      }
+    ]
+  }
+}

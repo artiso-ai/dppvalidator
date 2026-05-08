@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from dppvalidator.logging import get_logger
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 
 if TYPE_CHECKING:
     from dppvalidator.cli.console import Console
@@ -43,8 +44,8 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--schema-version",
-        default="0.6.1",
-        help="Schema version (default: 0.6.1)",
+        default=DEFAULT_SCHEMA_VERSION,
+        help=f"Schema version (default: {DEFAULT_SCHEMA_VERSION})",
     )
     parser.add_argument(
         "--compact",
@@ -102,7 +103,7 @@ def _load_input(input_path: str, console: Console) -> dict[str, Any] | None:
             logger.error("File not found: %s", input_path)
             console.print_error(f"File not found: {input_path}")
             return None
-        content = path.read_text()
+        content = path.read_text(encoding="utf-8")
         return json.loads(content)
 
     except json.JSONDecodeError as e:

@@ -1,0 +1,77 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://dpp.taltech.ee/EUDPP/CORE>
+  a owl:Ontology ;
+  owl:imports <https://dpp.vocabulary-hub.eu/api/ontology-version/OntologyVersion_d8046709-cc88-453f-a374-8e964101a3db/export?format=ttl>, <https://dpp.vocabulary-hub.eu/api/ontology-version/OntologyVersion_40443b4b-c2eb-4a14-a0f8-5b653d441a5e/export?format=ttl>, <https://dpp.vocabulary-hub.eu/api/ontology-version/OntologyVersion_0ed82e77-a4ac-4baa-908f-ae36ce0692c0/export?format=ttl> ;
+  dcterms:contributor "Riina Maigre"@en, "Tarmo Robal"@en ;
+  dcterms:creator "Hele-Mai Haav"@en ;
+  dcterms:licence "Except otherwise noted, original content on this document is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence."@en ;
+  dcterms:modified "2025-10-31" ;
+  rdfs:comment """This ontology is the second iteration of the EU DPP core ontology proposal of the CIRPASS-2 project.
+
+It maps the following 3 modules from the second iteration: Product and DPP, Actors and Roles, and Substance of Concern.
+
+ It reuses a part of  International System of Units (SI) ontology in the Product and DPP module (see https://si-digital-framework.org/).
+
+The following OWL files (RDF/XML) are mapped:
+EUDPP_onto_ver_1.7.1.owl
+EUDPP_actor_ver_1.5.1.owl
+EUDPP_soc_ver_1.4.7.owl"""@en ;
+  rdfs:label """This ontology is the SECOND iteration of the EU DPP core ontology proposal of the CIRPASS-2 project.
+
+It maps the following 3 modules: Product and DPP, Actors and Roles, and Substance of Concern."""@en ;
+  owl:versionInfo "1.3.1" .
+
+<http://dpp.taltech.ee/EUDPP#containsSubstanceOfConcern> rdfs:range <http://dpp.taltech.ee/EUDPP#SubstanceOfConcern> .
+<http://dpp.taltech.ee/EUDPP#hasBackUpCopyHost> rdfs:range [
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid4
+   ) ;
+    a owl:Class
+  ] .
+<http://dpp.taltech.ee/EUDPP#hasEconomicOperator> rdfs:range [
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid8
+   ) ;
+    a owl:Class
+  ] .
+<http://dpp.taltech.ee/EUDPP#hasIssuer> rdfs:range [
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid12
+   ) ;
+    a owl:Class
+  ] .
+<http://dpp.taltech.ee/EUDPP#hasManufacturer> rdfs:range [
+    owl:intersectionOf (
+     <http://dpp.taltech.ee/EUDPP#Actor>
+     _:genid16
+   ) ;
+    a owl:Class
+  ] .
+<http://dpp.taltech.ee/EUDPP#isResponsibleForProduct> rdfs:range <http://dpp.taltech.ee/EUDPP#Product> .
+<http://dpp.taltech.ee/EUDPP#Concentration> owl:equivalentClass <http://dpp.taltech.ee/EUDPP#ConcentrationOfSubstanceOfConcern> .
+<http://dpp.taltech.ee/EUDPP#Threshold> owl:equivalentClass <http://dpp.taltech.ee/EUDPP#ThresholdOfSubstanceOfConcern> .
+_:genid4
+  a owl:Restriction ;
+  owl:onProperty <http://dpp.taltech.ee/EUDPP#hasRole> ;
+  owl:someValuesFrom <http://dpp.taltech.ee/EUDPP#DPPServiceProviderRole> .
+
+_:genid8
+  a owl:Restriction ;
+  owl:onProperty <http://dpp.taltech.ee/EUDPP#hasRole> ;
+  owl:someValuesFrom <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole> .
+
+_:genid12
+  a owl:Restriction ;
+  owl:onProperty <http://dpp.taltech.ee/EUDPP#hasRole> ;
+  owl:someValuesFrom <http://dpp.taltech.ee/EUDPP#EconomicOperatorRole> .
+
+_:genid16
+  a owl:Restriction ;
+  owl:onProperty <http://dpp.taltech.ee/EUDPP#hasRole> ;
+  owl:someValuesFrom <http://dpp.taltech.ee/EUDPP#ManufacturerRole> .

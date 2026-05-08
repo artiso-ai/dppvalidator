@@ -138,23 +138,46 @@ def _check_pydantic(console: Console) -> tuple[bool, str, bool]:
 
 
 def _check_optional_deps(console: Console) -> tuple[bool, str, bool]:
-    """Check optional dependencies."""
-    optional_deps = {
-        "rich": ("CLI formatting", "pip install 'dppvalidator[cli]'"),
-        "httpx": ("HTTP schema fetching", "pip install 'dppvalidator[http]'"),
-        "jsonschema": ("JSON Schema validation", "pip install 'dppvalidator[jsonschema]'"),
+    """Check optional and core dependencies."""
+    # Core dependencies (required, should always be present)
+    core_deps = {
+        "httpx": "HTTP client for deep validation",
+        "jsonschema": "JSON Schema validation",
+        "pyld": "JSON-LD expansion",
+        "cryptography": "Signature verification",
     }
 
-    missing = []
+    # Optional dependencies
+    optional_deps = {
+        "rich": ("CLI formatting", "pip install 'dppvalidator[cli]'"),
+    }
+
+    # Check core dependencies
+    core_missing = []
+    for dep, purpose in core_deps.items():
+        try:
+            dep_ver = pkg_version(dep)
+            console.print(f"  [green]✓[/green] {dep} {dep_ver} ({purpose})")
+        except Exception:
+            core_missing.append((dep, purpose))
+
+    if core_missing:
+        for dep, purpose in core_missing:
+            console.print(f"  [red]✗[/red] {dep} not installed ({purpose})", style="red")
+            console.print("    💡 Run: pip install --force-reinstall dppvalidator")
+        return False, "Core dependencies missing - reinstall dppvalidator", False
+
+    # Check optional dependencies
+    optional_missing = []
     for dep, (purpose, install_cmd) in optional_deps.items():
         try:
             dep_ver = pkg_version(dep)
             console.print(f"  [green]✓[/green] {dep} {dep_ver} ({purpose})")
         except Exception:
-            missing.append((dep, purpose, install_cmd))
+            optional_missing.append((dep, purpose, install_cmd))
 
-    if missing:
-        for dep, purpose, install_cmd in missing:
+    if optional_missing:
+        for dep, purpose, install_cmd in optional_missing:
             console.print(f"  [yellow]○[/yellow] {dep} not installed ({purpose})")
             console.print(f"    💡 Run: {install_cmd}")
         return True, "Some optional dependencies missing", True
@@ -177,7 +200,7 @@ def _check_schema_cache(console: Console) -> tuple[bool, str, bool]:
                 valid_count = 0
                 for sf in schema_files:
                     try:
-                        json.loads(sf.read_text())
+                        json.loads(sf.read_text(encoding="utf-8"))
                         valid_count += 1
                     except (json.JSONDecodeError, OSError):
                         pass

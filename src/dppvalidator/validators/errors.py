@@ -109,16 +109,66 @@ ERROR_REGISTRY: dict[str, dict[str, Any]] = {
         "suggestion": "Specify operationalScope with carbonFootprint data.",
         "example": '"operationalScope": "Scope1"',
     },
+    # Plugin errors
+    "PLG001": {
+        "title": "Plugin Execution Failed",
+        "suggestion": "Check plugin implementation for errors or incompatibilities.",
+        "example": None,
+    },
+    # Parse errors (additional)
+    "PRS004": {
+        "title": "Input Size Exceeded",
+        "suggestion": "Reduce input size or split into smaller documents.",
+        "example": None,
+    },
+    "PRS005": {
+        "title": "File Size Exceeded",
+        "suggestion": "Reduce file size or adjust max_input_size limit.",
+        "example": None,
+    },
 }
 
-# Known valid values for "Did you mean?" suggestions
+# Known valid values for "Did you mean?" suggestions.
+#
+# Field names are the on-the-wire (camelCase) spellings. Both UNTP
+# version's spellings appear here for fields that were renamed across
+# v0.6 → v0.7 — e.g. ``granularityLevel`` (v0.6) and ``idGranularity``
+# (v0.7) share the same enum values, so users on either version get
+# typo suggestions.
+_GRANULARITY_VALUES: list[str] = ["item", "batch", "model"]
+_PARTY_ROLE_VALUES: list[str] = [
+    # Mirrors dppvalidator.models.v0_7.identifiers.PartyRoleEnum.
+    "owner",
+    "producer",
+    "manufacturer",
+    "processor",
+    "remanufacturer",
+    "recycler",
+    "operator",
+    "serviceProvider",
+    "inspector",
+    "certifier",
+    "logisticsProvider",
+    "carrier",
+    "consignor",
+    "consignee",
+    "importer",
+    "exporter",
+    "distributor",
+    "retailer",
+    "brandOwner",
+    "regulator",
+]
+
 KNOWN_VALUES: dict[str, list[str]] = {
     "type": [
         "DigitalProductPassport",
         "VerifiableCredential",
         "EnvelopedVerifiableCredential",
     ],
-    "granularityLevel": ["item", "batch", "model"],
+    "granularityLevel": _GRANULARITY_VALUES,  # v0.6 spelling
+    "idGranularity": _GRANULARITY_VALUES,  # v0.7 spelling
+    "role": _PARTY_ROLE_VALUES,  # v0.7 PartyRole.role
     "operationalScope": ["None", "Scope1", "Scope2", "Scope3", "CradleToGate", "CradleToGrave"],
     "claimType": [
         "Certification",

@@ -10,29 +10,40 @@ dppvalidator is the open-source compliance engine for EU Digital Product Passpor
 
 - Python 3.10+
 - Pydantic v2 for validation models
-- Optional: jsonschema, httpx, rich (CLI)
+- Included: httpx, jsonschema, pyld, cryptography, PyJWT
+- Optional: rich (CLI formatting via `[cli]` extra)
 
 ## Installation
 
 ```bash
-pip install dppvalidator          # Core only
-pip install dppvalidator[all]     # With all optional dependencies
+# Using uv (recommended)
+uv add dppvalidator               # Full functionality
+uv add "dppvalidator[cli]"        # With rich CLI formatting
+
+# Or using pip
+pip install dppvalidator
+pip install "dppvalidator[cli]"
 ```
 
 ## Architecture
 
-### Three-Layer Validation
+### Seven-Layer Validation
 
+0. **Schema Detection**: Auto-detect DPP schema version from $schema/@context
 1. **Schema Layer (SCH001-SCH099)**: JSON Schema Draft 2020-12 validation
 2. **Model Layer (MOD001-MOD099)**: Pydantic v2 type validation and coercion
-3. **Semantic Layer (SEM001-SEM099)**: Business rules, ISO codes, date logic
+3. **Semantic Layer (SEM001-SEM099)**: Business rules, ISO codes, GTIN checksums
+4. **JSON-LD Layer (JLD001-JLD099)**: PyLD expansion, context resolution
+5. **Vocabulary Layer (VOC001-VOC099)**: External code lists, ontology validation
+6. **Plugin Layer**: Custom validator plugins via entry points
+7. **Signature Layer (SIG001-SIG099)**: VC signature verification, DID resolution
 
 ### Performance
 
-- Schema: ~5μs (200k ops/sec)
-- Model: ~8μs (125k ops/sec)
-- Semantic: ~3μs (333k ops/sec)
-- All layers: ~13μs (80k ops/sec)
+- Model (minimal): 0.011ms (87k ops/sec)
+- Model (full): 0.016ms (62k ops/sec)
+- Semantic: 0.005ms (194k ops/sec)
+- Full (Model+Sem): 0.017ms (58k ops/sec)
 
 ## Core API
 
@@ -63,8 +74,7 @@ from dppvalidator.models import (
     DigitalProductPassport,
     CredentialIssuer,
     Product,
-    ProductBatch,
-    Identifier,
+    IdentifierScheme,
     Link,
 )
 
@@ -87,17 +97,26 @@ jsonld = exporter.export(passport)  # W3C Verifiable Credential format
 
 ```python
 from dppvalidator.plugins import PluginRegistry
+from dppvalidator.validators import ValidationEngine
 
-registry = PluginRegistry()
-
-@registry.register_validator("custom")
+# Define a validator implementing the SemanticRule protocol
 class CustomValidator:
-    def validate(self, data: dict) -> list:
-        errors = []
-        # Custom validation logic
-        return errors
+    rule_id = "CUSTOM001"
+    description = "Custom validation rule"
+    severity = "error"
 
-engine = ValidationEngine(plugins=registry)
+    def check(self, passport):
+        """Return list of (json_path, error_message) tuples."""
+        violations = []
+        # Custom validation logic
+        return violations
+
+# Manual registration
+registry = PluginRegistry(auto_discover=False)
+registry.register_validator("custom", CustomValidator)
+
+# Or use entry points for automatic discovery
+engine = ValidationEngine(load_plugins=True)
 ```
 
 ## CLI Usage
@@ -115,6 +134,7 @@ dppvalidator schema --version 0.6.1
 src/dppvalidator/
 ├── models/          # Pydantic models for DPP entities
 ├── validators/      # Validation engine and layers
+├── verifier/        # Signature and credential verification
 ├── exporters/       # JSON-LD and other export formats
 ├── schemas/         # JSON Schema loading and caching
 ├── vocabularies/    # Controlled vocabulary loading

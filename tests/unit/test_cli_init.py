@@ -116,7 +116,7 @@ class TestInitCommand:
         dpp_file = tmp_path / "data" / "sample_passport.json"
         assert dpp_file.exists()
 
-        content = json.loads(dpp_file.read_text())
+        content = json.loads(dpp_file.read_text(encoding="utf-8"))
         assert "type" in content
         assert "DigitalProductPassport" in content["type"]
 
@@ -137,7 +137,7 @@ class TestInitCommand:
 
         gitignore = tmp_path / ".gitignore"
         assert gitignore.exists()
-        assert ".dppvalidator/" in gitignore.read_text()
+        assert ".dppvalidator/" in gitignore.read_text(encoding="utf-8")
 
     def test_init_creates_readme(self, tmp_path: Path) -> None:
         """Init should create README.md."""
@@ -156,7 +156,7 @@ class TestInitCommand:
 
         readme = tmp_path / "README.md"
         assert readme.exists()
-        assert "TestProject" in readme.read_text()
+        assert "TestProject" in readme.read_text(encoding="utf-8")
 
     def test_init_creates_config(self, tmp_path: Path) -> None:
         """Init should create config file when requested."""
@@ -176,7 +176,7 @@ class TestInitCommand:
         config_file = tmp_path / ".dppvalidator.json"
         assert config_file.exists()
 
-        content = json.loads(config_file.read_text())
+        content = json.loads(config_file.read_text(encoding="utf-8"))
         assert "validation" in content
 
     def test_init_creates_precommit(self, tmp_path: Path) -> None:
@@ -196,7 +196,7 @@ class TestInitCommand:
 
         precommit = tmp_path / ".pre-commit-config.yaml"
         assert precommit.exists()
-        assert "dppvalidator" in precommit.read_text()
+        assert "dppvalidator" in precommit.read_text(encoding="utf-8")
 
     def test_init_skips_existing_files(self, tmp_path: Path) -> None:
         """Init should skip existing files without --force."""
@@ -205,7 +205,7 @@ class TestInitCommand:
         # Create existing file
         (tmp_path / "data").mkdir()
         existing = tmp_path / "data" / "sample_passport.json"
-        existing.write_text('{"existing": true}')
+        existing.write_text('{"existing": true}', encoding="utf-8")
 
         args = MagicMock()
         args.path = str(tmp_path)
@@ -219,7 +219,7 @@ class TestInitCommand:
         run(args, console)
 
         # Should not overwrite
-        content = json.loads(existing.read_text())
+        content = json.loads(existing.read_text(encoding="utf-8"))
         assert content == {"existing": True}
 
     def test_init_overwrites_with_force(self, tmp_path: Path) -> None:
@@ -229,7 +229,7 @@ class TestInitCommand:
         # Create existing file
         (tmp_path / "data").mkdir()
         existing = tmp_path / "data" / "sample_passport.json"
-        existing.write_text('{"existing": true}')
+        existing.write_text('{"existing": true}', encoding="utf-8")
 
         args = MagicMock()
         args.path = str(tmp_path)
@@ -243,7 +243,7 @@ class TestInitCommand:
         run(args, console)
 
         # Should be overwritten
-        content = json.loads(existing.read_text())
+        content = json.loads(existing.read_text(encoding="utf-8"))
         assert "type" in content
 
     def test_init_invalid_project_name(self, tmp_path: Path) -> None:

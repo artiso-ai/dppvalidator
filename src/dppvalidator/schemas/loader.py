@@ -7,6 +7,8 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
+import httpx
+
 from dppvalidator.logging import get_logger
 from dppvalidator.schemas.registry import (
     DEFAULT_SCHEMA_VERSION,
@@ -14,15 +16,19 @@ from dppvalidator.schemas.registry import (
     SchemaVersion,
 )
 
-try:
-    import httpx
-
-    HAS_HTTPX = True
-except ImportError:
-    httpx = None  # type: ignore[assignment]
-    HAS_HTTPX = False
-
 logger = get_logger(__name__)
+
+# Module-level schema cache shared across all SchemaLoader instances
+# This prevents redundant schema loading when multiple ValidationEngine instances are created
+_MODULE_SCHEMA_CACHE: dict[str, dict[str, Any]] = {}
+
+
+def clear_schema_cache() -> None:
+    """Clear the global module-level schema cache.
+
+    Call this to force schema reloading, e.g., after updating schema files.
+    """
+    _MODULE_SCHEMA_CACHE.clear()
 
 
 def _get_schema_data_dir() -> Any:
@@ -58,10 +64,11 @@ class SchemaLoader:
         """Load schema for a version.
 
         Attempts loading in order:
-        1. Memory cache
-        2. Bundled local file
-        3. Disk cache
-        4. Remote URL (with caching)
+        1. Module-level cache (shared across instances)
+        2. Instance cache
+        3. Bundled local file
+        4. Disk cache
+        5. Remote URL (with caching)
 
         Args:
             version: Schema version. Uses default if None.
@@ -76,6 +83,11 @@ class SchemaLoader:
         v = version or DEFAULT_SCHEMA_VERSION
         schema_def = self._registry.get_schema(v)
 
+        # Check module-level cache first (shared across instances)
+        if v in _MODULE_SCHEMA_CACHE:
+            return _MODULE_SCHEMA_CACHE[v]
+
+        # Check instance cache
         if v in self._schema_cache:
             return self._schema_cache[v]
 
@@ -88,6 +100,8 @@ class SchemaLoader:
         if schema is None:
             raise RuntimeError(f"Failed to load schema {v}")
 
+        # Store in both module and instance cache
+        _MODULE_SCHEMA_CACHE[v] = schema
         self._schema_cache[v] = schema
         return schema
 
@@ -124,10 +138,6 @@ class SchemaLoader:
 
     def _fetch_remote(self, schema_def: SchemaVersion) -> dict[str, Any] | None:
         """Fetch schema from remote URL and cache."""
-        if not HAS_HTTPX:
-            logger.warning("httpx not installed, cannot fetch remote schema")
-            return None
-
         try:
             with httpx.Client(timeout=self.timeout_seconds) as client:
                 response = client.get(schema_def.url, follow_redirects=True)
@@ -183,9 +193,6 @@ class SchemaLoader:
         out_dir = output_dir or Path.cwd()
         out_dir.mkdir(parents=True, exist_ok=True)
         out_path = out_dir / f"untp-dpp-schema-{version}.json"
-
-        if not HAS_HTTPX:
-            raise RuntimeError("httpx required for download. Install with: pip install httpx")
 
         try:
             with httpx.Client(timeout=self.timeout_seconds) as client:

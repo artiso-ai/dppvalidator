@@ -2,16 +2,21 @@
 """Main benchmark runner script.
 
 Usage:
-    uv run python -m benchmarks.run_benchmarks
-    uv run python -m benchmarks.run_benchmarks --validation
-    uv run python -m benchmarks.run_benchmarks --models
-    uv run python -m benchmarks.run_benchmarks --all --iterations 5000
+    uv run python benchmarks/run_benchmarks.py
+    uv run python benchmarks/run_benchmarks.py --validation
+    uv run python benchmarks/run_benchmarks.py --models
+    uv run python benchmarks/run_benchmarks.py --all --iterations 5000
 """
 
 import argparse
 import json
 import sys
 from datetime import datetime
+from pathlib import Path
+
+# Add parent directory to path for direct script execution
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_PROJECT_ROOT))
 
 from benchmarks.bench_models import ExporterBenchmarks, ModelBenchmarks
 from benchmarks.bench_validation import BenchmarkResult, ValidationBenchmarks
@@ -132,9 +137,10 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  uv run python -m benchmarks.run_benchmarks --all
-  uv run python -m benchmarks.run_benchmarks --validation --iterations 5000
-  uv run python -m benchmarks.run_benchmarks --all --json > results.json
+  uv run python benchmarks/run_benchmarks.py --all
+  uv run python benchmarks/run_benchmarks.py --validation --iterations 5000
+  uv run python benchmarks/run_benchmarks.py --all --json
+  uv run python benchmarks/run_benchmarks.py --output benchmark-results.json
         """,
     )
     parser.add_argument(
@@ -161,7 +167,14 @@ Examples:
     parser.add_argument(
         "--json",
         action="store_true",
-        help="Output results as JSON",
+        help="Output results as JSON to stdout",
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        metavar="FILE",
+        help="Save JSON results to file",
     )
 
     args = parser.parse_args()
@@ -177,8 +190,13 @@ Examples:
     print(f"\n  Iterations: {args.iterations}")
 
     if args.all:
-        results = run_all_benchmarks(iterations=args.iterations, output_json=args.json)
-        if args.json:
+        results = run_all_benchmarks(
+            iterations=args.iterations, output_json=args.json or args.output
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(results, indent=2), encoding="utf-8")
+            print(f"\n  Results saved to: {args.output}")
+        elif args.json:
             print(json.dumps(results, indent=2))
     elif args.validation:
         run_validation_benchmarks(iterations=args.iterations)
