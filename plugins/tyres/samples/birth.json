@@ -1,0 +1,70 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://vocabulary.uncefact.org/untp/0.7.0/context/"
+  ],
+  "type": ["DigitalProductPassport", "VerifiableCredential"],
+  "id": "https://example.com/dpp/tyre-birth-001",
+  "name": "Sample Tyre DPP — Birth",
+  "issuer": {
+    "id": "did:web:acme-tyres.example.com",
+    "name": "ACME Tyres",
+    "type": ["CredentialIssuer"]
+  },
+  "validFrom": "2026-04-15T00:00:00+00:00",
+  "credentialSubject": {
+    "type": ["Product"],
+    "id": "https://example.com/tyre/550e8400-e29b-41d4-a716-446655440000",
+    "name": "ACME PrimeRoad 205/55 R16 91V",
+    "idScheme": {
+      "id": "https://gs1.org/voc/",
+      "name": "GS1 GTIN"
+    },
+    "idGranularity": "item",
+    "itemNumber": "550e8400-e29b-41d4-a716-446655440000",
+    "productCategory": [
+      {
+        "schemeId": "https://www.wcoomd.org/en/topics/nomenclature/instrument-and-tools/hs-nomenclature-2022-edition.aspx",
+        "schemeName": "WCO HS",
+        "code": "401110",
+        "name": "New pneumatic tyres of rubber, of a kind used on motor cars"
+      }
+    ],
+    "producedAtFacility": {
+      "id": "https://example.com/facility/acme-bulgaria",
+      "name": "ACME Bulgaria Plant",
+      "type": ["Facility"]
+    },
+    "countryOfProduction": {
+      "countryCode": "BG",
+      "countryName": "Bulgaria"
+    },
+    "extensions": {
+      "tyreLifecycleHistory": {
+        "birth": {
+          "tyreUuid": "550e8400-e29b-41d4-a716-446655440000",
+          "manufacturer": {
+            "id": "https://example.com/operator/acme",
+            "name": "ACME Tyres",
+            "lei": "529900T8BM49AURSDO55"
+          },
+          "manufacturedAt": "2026-04-15T10:30:00+00:00",
+          "dotMarking": {
+            "plantCode": "B7",
+            "sizeCode": "5K",
+            "weekOfYear": 16,
+            "year": 2026
+          },
+          "size": {
+            "sectionWidth": 205,
+            "aspectRatio": 55,
+            "rimDiameter": 16,
+            "loadIndex": 91,
+            "speedRating": "V"
+          }
+        },
+        "events": []
+      }
+    }
+  }
+}

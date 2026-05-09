@@ -24,7 +24,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated, ClassVar
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from dppvalidator.models.base import UNTPBaseModel, UNTPStrictModel
 from dppvalidator.models.v0_7.identifiers import Party
@@ -138,13 +138,42 @@ class BitstringStatusListEntry(UNTPBaseModel):
         Field(default=None, alias="statusPurpose", description="e.g. 'revocation', 'suspension'."),
     ]
     status_list_index: Annotated[
-        str | None,
-        Field(default=None, alias="statusListIndex"),
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            alias="statusListIndex",
+            description=(
+                "Zero-based index into the bit-string status list "
+                "(W3C VC Status List 2021). Schema declares integer; "
+                "v0.6 fixtures using numeric strings are transparently "
+                "coerced via the before-validator on this field."
+            ),
+        ),
     ]
     status_list_credential: Annotated[
         FlexibleUri | None,
         Field(default=None, alias="statusListCredential"),
     ]
+
+    @field_validator("status_list_index", mode="before")
+    @classmethod
+    def _coerce_status_list_index(cls, value: object) -> object:
+        # v0.6 fixtures + the v0.6 → v0.7 upgrade shim emit string-shaped
+        # numeric values for statusListIndex (see models/v0_6/credential.py
+        # which declares `str | None`). The schema requires integer, so
+        # coerce numeric strings transparently here. Non-numeric strings
+        # surface as a model-layer ValueError (which the engine maps to
+        # MDL050) — those payloads were always invalid against schema.
+        if value is None or isinstance(value, int):
+            return value
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped and (
+                stripped.lstrip("-").isdigit() if stripped.startswith("-") else stripped.isdigit()
+            ):
+                return int(stripped)
+        return value
 
 
 # Type alias kept compatible with v0.6 for the engine's ``credentialStatus``

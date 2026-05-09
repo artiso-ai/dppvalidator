@@ -5,10 +5,10 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from dppvalidator.cli._io import load_input as _load_input
 from dppvalidator.logging import get_logger
 from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
 
@@ -20,6 +20,10 @@ logger = get_logger(__name__)
 EXIT_VALID = 0
 EXIT_INVALID = 1
 EXIT_ERROR = 2
+# Phase 6 task 6.7 — additional exit codes; see
+# docs/reference/cli/exit-codes.md for the full table.
+EXIT_FAMILY_MISMATCH = 3
+EXIT_IO_ERROR = 5
 
 
 def add_parser(subparsers: Any) -> argparse.ArgumentParser:
@@ -79,6 +83,31 @@ def add_parser(subparsers: Any) -> argparse.ArgumentParser:
             "warnings are reported alongside validation issues."
         ),
     )
+    parser.add_argument(
+        "--target",
+        choices=["auto", "untp", "cirpass"],
+        default="auto",
+        help=(
+            "Schema family to validate against. ``auto`` (default) detects "
+            "the family from the payload's @context / shape signature. "
+            "Explicit ``untp`` or ``cirpass`` overrides detection — when the "
+            "override contradicts the payload, the command exits with code 3 "
+            "and a DET001 diagnostic instead of silently re-routing."
+        ),
+    )
+    parser.add_argument(
+        "--profile",
+        choices=["textile-v1", "textile-v2"],
+        default=None,
+        help=(
+            "Optional pilot profile (Phase 7 of CIRPASS_2_MIGRATION). "
+            "``textile-v1`` runs the legacy textile rule pack (TXT001…TXT005, "
+            "all info/warning); ``textile-v2`` runs the MVP Textile DPP v2 "
+            "(2025-12-04) pack with stricter rules (TXT001…TXT007). When "
+            "omitted, no textile-specific profile is loaded — the default "
+            "rule set still applies."
+        ),
+    )
     return parser
 
 
@@ -89,19 +118,23 @@ def run(args: argparse.Namespace, console: Console) -> int:
     # Resolve input patterns to file paths
     files = _resolve_inputs(args.input, console)
     if not files:
-        return EXIT_ERROR
+        return EXIT_IO_ERROR
 
     engine = ValidationEngine(
         schema_version=args.schema_version,
         strict_mode=args.strict,
+        profile=getattr(args, "profile", None),
     )
 
     upgrade_from = getattr(args, "upgrade_from", None)
     if upgrade_from is not None:
         _verify_upgrade_path(upgrade_from, args.schema_version, console)
 
+    target = getattr(args, "target", "auto")
+
     all_valid = True
     has_load_error = False
+    has_family_mismatch = False
     results: list[tuple[str, Any]] = []
 
     for file_path in files:
@@ -115,6 +148,18 @@ def run(args: argparse.Namespace, console: Console) -> int:
             if upgrade_warnings:
                 _print_upgrade_warnings(upgrade_warnings, file_path, console)
 
+        # Phase 6 task 6.3: when the user pinned --target explicitly,
+        # check it against the detected family before validating. A
+        # contradiction emits DET001 + EXIT_FAMILY_MISMATCH; agreement
+        # falls through to ordinary validation.
+        if target != "auto":
+            mismatch = _check_target_family(data, target, file_path, console)
+            if mismatch is not None:
+                has_family_mismatch = True
+                results.append((file_path, mismatch))
+                all_valid = False
+                continue
+
         result = engine.validate(
             data,
             fail_fast=args.fail_fast,
@@ -124,9 +169,9 @@ def run(args: argparse.Namespace, console: Console) -> int:
         if not result.valid:
             all_valid = False
 
-    # If no files were successfully loaded, return error
+    # If no files were successfully loaded, return IO error
     if not results and has_load_error:
-        return EXIT_ERROR
+        return EXIT_IO_ERROR
 
     # Output results
     if len(results) == 1:
@@ -134,9 +179,12 @@ def run(args: argparse.Namespace, console: Console) -> int:
     elif results:
         _output_batch_results(results, args.format, console)
 
-    # Return error if any file failed to load, invalid if validation failed
+    # Phase 6: family mismatch is a distinct exit code so wrappers
+    # can route DET001 differently from regular validation errors.
+    if has_family_mismatch:
+        return EXIT_FAMILY_MISMATCH
     if has_load_error:
-        return EXIT_ERROR
+        return EXIT_IO_ERROR
     return EXIT_VALID if all_valid else EXIT_INVALID
 
 
@@ -171,6 +219,61 @@ def _resolve_inputs(inputs: list[str], console: Console) -> list[str]:
             console.print_error(f"No files match pattern: {pattern}")
 
     return files
+
+
+def _check_target_family(
+    data: dict[str, Any],
+    target: str,
+    file_path: str,
+    console: Console,
+) -> Any | None:
+    """Validate that ``--target`` agrees with the payload's detected family.
+
+    Phase 6 task 6.3 of [docs/plans/CIRPASS_2_MIGRATION.md]. Returns
+    ``None`` when there's no contradiction; returns a synthetic
+    :class:`ValidationResult` carrying ``DET001`` when the user-
+    supplied target overrides what the engine would have picked.
+    """
+    from dppvalidator.schemas.registry import SchemaFamily
+    from dppvalidator.validators.detection import (
+        DET_CODE_FAMILY_MISMATCH,
+        detect_schema_family,
+    )
+    from dppvalidator.validators.results import ValidationError, ValidationResult
+
+    detected = detect_schema_family(data)
+    target_family = SchemaFamily.UNTP if target == "untp" else SchemaFamily.CIRPASS
+    if detected is None:
+        # No detection signal — caller's --target wins silently.
+        return None
+    if detected is target_family:
+        # Detection agrees with --target. Continue.
+        return None
+    # Mismatch — fail fast with DET001.
+    error = ValidationError(
+        path="$",
+        message=(
+            f"--target={target!r} contradicts the payload's detected "
+            f"family ({detected.value!r}). Re-run with --target=auto "
+            f"or --target={detected.value!r} (or fix the payload)."
+        ),
+        code=DET_CODE_FAMILY_MISMATCH,
+        layer="engine",
+        severity="error",
+        context={
+            "detected_family": detected.value,
+            "configured_target": target,
+        },
+    )
+    console.print_error(
+        f"DET001: {file_path} — payload looks like {detected.value!r} "
+        f"but --target={target!r} pins the other family."
+    )
+    return ValidationResult(
+        valid=False,
+        errors=[error],
+        schema_version=target_family.value,
+    )
 
 
 def _verify_upgrade_path(source: str, target: str, console: Console) -> None:
@@ -215,34 +318,6 @@ def _print_upgrade_warnings(warnings: list[Any], input_path: str, console: Conso
     )
     for w in warnings:
         console.print(f"  [{w.code}] ({w.severity.value}) {w.path}: {w.message}")
-
-
-def _load_input(input_path: str, console: Console) -> dict[str, Any] | None:
-    """Load input data from file or stdin."""
-    try:
-        if input_path == "-":
-            # Ensure UTF-8 encoding for stdin on all platforms (if supported)
-            if hasattr(sys.stdin, "reconfigure"):
-                sys.stdin.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
-            content = sys.stdin.read()
-        else:
-            path = Path(input_path)
-            if not path.exists():
-                logger.error("File not found: %s", input_path)
-                console.print_error(f"File not found: {input_path}")
-                return None
-            content = path.read_text(encoding="utf-8")
-
-        return json.loads(content)
-
-    except json.JSONDecodeError as e:
-        logger.error("Invalid JSON: %s", e)
-        console.print_error(f"Invalid JSON: {e}")
-        return None
-    except Exception as e:
-        logger.exception("Unexpected error loading input")
-        console.print_error(str(e))
-        return None
 
 
 def _output_result(result: Any, fmt: str, input_path: str, console: Console) -> None:

@@ -154,20 +154,29 @@ nav:
       - JSON-LD Export: guides/jsonld.md
       - EU DPP Export: guides/eudpp-export.md
       - Migration 0.6 → 0.7: guides/migration-0-6-to-0-7.md
+      - Migrate UNTP → CIRPASS: guides/migrate-untp-to-cirpass.md
       - Plugin Development: guides/plugins.md
   - Reference:
       - CLI Reference: reference/cli.md
+      - CLI Exit Codes: reference/cli/exit-codes.md
       - API:
           - Models: reference/api/models.md
           - Validators: reference/api/validators.md
           - Exporters: reference/api/exporters.md
           - Plugins: reference/api/plugins.md
+      - CIRPASS Models: reference/cirpass/index.md
   - Concepts:
+      - CIRPASS-2 Alignment: concepts/cirpass-2-alignment.md
+      - CIRPASS-2 Spec Snapshot: concepts/cirpass-2-spec-snapshot.md
+      - EUDPP v1.9 Changelog: concepts/eudpp-1.9-changelog.md
+      - UNTP ↔ CIRPASS Mapping: concepts/untp-cirpass-mapping.md
       - UNTP DPP versions: concepts/untp-versions.md
       - UNTP DPP Schema: concepts/untp-schema.md
       - Five-Layer Validation: concepts/validation-layers.md
-      - EU DPP Ontology Alignment: concepts/eudpp-ontology-alignment.md
-      - CIRPASS-2 Implementation: concepts/cirpass-implementation.md
+      - EU DPP Ontology Alignment (legacy): concepts/eudpp-ontology-alignment.md
+      - CIRPASS-2 Implementation (legacy): concepts/cirpass-implementation.md
+  - Plugins:
+      - Tyres (Pre-1.0): plugins/tyres.md
   - Contributing:
       - Development Setup: contributing/development-setup.md
       - Code Style: contributing/code-style.md
@@ -270,6 +279,10 @@ nav:
           - TXT003 - Missing Microplastic Data: errors/TXT003.md
           - TXT004 - Missing Durability Info: errors/TXT004.md
           - TXT005 - Missing Care Instructions: errors/TXT005.md
+          - TXT006 - Missing Recycled-Content Disclosure: errors/TXT006.md
+          - TXT007 - Missing Repair Information: errors/TXT007.md
+      - Party-Role Errors:
+          - PRT001 - PartyRole Acceptance Gradient: errors/PRT001.md
       - Version Errors:
           - VER001 - UNTP Version Mismatch: errors/VER001.md
       - Upgrade-shim Errors:

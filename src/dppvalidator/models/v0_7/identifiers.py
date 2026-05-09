@@ -167,9 +167,32 @@ class Facility(UNTPBaseModel):
 
 
 class PartyRoleEnum(str, Enum):
-    """Closed enumeration of party-relationship roles in UNTP v0.7.0.
+    """Acceptance-gradient enumeration of party-relationship roles in UNTP v0.7.0.
 
-    Mirrors the schema's enum at ``$defs.PartyRole.properties.role.enum``.
+    The upstream JSON Schema closes ``$defs.PartyRole.properties.role.enum``
+    at exactly **6 strict values** (see :attr:`SCHEMA_STRICT_ROLES`). This
+    Pydantic enum exposes a wider 20-value surface so the package can
+    accept payloads that arrive from:
+
+    - the v0.6 → v0.7 upgrade shim (v0.6 actor metadata sometimes uses
+      the wider role taxonomy);
+    - the CIRPASS → UNTP reverse shim (its ``_EUDPP_TO_UNTP_ROLE`` table
+      maps EUDPP role IRIs onto the wider 14-value set to preserve
+      information fidelity — see
+      :mod:`dppvalidator.compat.cirpass_1_3_to_untp_0_7`);
+    - pilot extensions that adopt the wider role taxonomy informally.
+
+    The two acceptance tiers are:
+
+    - **Pydantic-permissive (Layer 2):** all 20 values accepted.
+    - **Schema-strict (Layer 1):** only the 6 in :attr:`SCHEMA_STRICT_ROLES`.
+
+    Phase 9 task 9.8 of [`docs/plans/CIRPASS_2_MIGRATION.md`](docs/plans/CIRPASS_2_MIGRATION.md)
+    introduces the advisory rule ``PRT001`` (severity ``info``) which
+    fires when a payload uses one of the 14 wider values, suggesting a
+    canonical schema-allowed counterpart. Pass
+    ``ValidationEngine(strict_role_enum=True)`` to upgrade ``PRT001``
+    from ``info`` to ``error``.
     """
 
     OWNER = "owner"
@@ -192,6 +215,27 @@ class PartyRoleEnum(str, Enum):
     RETAILER = "retailer"
     BRAND_OWNER = "brandOwner"
     REGULATOR = "regulator"
+
+    def is_schema_strict(self) -> bool:
+        """``True`` iff this role is in the schema's closed-6 enum."""
+        return self.value in SCHEMA_STRICT_ROLES
+
+
+SCHEMA_STRICT_ROLES: frozenset[str] = frozenset(
+    {
+        "owner",
+        "producer",
+        "manufacturer",
+        "processor",
+        "remanufacturer",
+        "recycler",
+    }
+)
+"""The 6 values the upstream JSON Schema accepts for ``PartyRole.role``.
+
+Matches ``$defs.PartyRole.properties.role.enum`` in
+``untp-dpp-schema-0.7.0.json``. Used by ``PRT001`` (advisory rule)
+and by ``ValidationEngine(strict_role_enum=True)``."""
 
 
 class PartyRole(UNTPBaseModel):

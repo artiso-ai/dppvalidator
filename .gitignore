@@ -227,8 +227,8 @@ docs/VC_WALLET_ROADMAP.md
 docs/STRATEGIC_ROADMAP.md
 
 # CIRPASS-2 spec-snapshot scratch (verbatim downloads).
-# Phase 0 of docs/plans/CIRPASS_2_MIGRATION.md. The canonical bundled
-# bytes land in src/dppvalidator/vocabularies/data/ontologies/ in
-# Phase 1; the gitignored scratch dir is the operator-audit workspace.
+# The canonical bundled bytes land in
+# src/dppvalidator/vocabularies/data/ontologies/; the gitignored
+# scratch dir is the operator-audit workspace.
 tools/snapshot/cirpass-2/
 tools/snapshot/manifest-rows.json

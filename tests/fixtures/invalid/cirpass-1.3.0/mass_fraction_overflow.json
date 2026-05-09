@@ -1,0 +1,31 @@
+{
+  "_failure": "Composition.materials mass_fraction values sum to 1.5 (> 1.0).",
+  "dppIdentifier": {
+    "value": "https://example.com/dpp/X",
+    "scheme": "https://example.com/"
+  },
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890128",
+      "scheme": "https://gs1.org/voc/"
+    },
+    "productName": [{"value": "Bad Composition", "language": "en"}]
+  },
+  "issuedAt": {"timestamp": "2026-05-08T12:00:00+00:00"},
+  "composition": {
+    "materials": [
+      {
+        "materialName": [{"value": "Cotton", "language": "en"}],
+        "materialType": "CO",
+        "originCountry": "TR",
+        "massFraction": 0.7
+      },
+      {
+        "materialName": [{"value": "Polyester", "language": "en"}],
+        "materialType": "PL",
+        "originCountry": "CN",
+        "massFraction": 0.8
+      }
+    ]
+  }
+}

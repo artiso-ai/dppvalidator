@@ -15,39 +15,42 @@ from dppvalidator.validators.shacl import (
 )
 from dppvalidator.vocabularies.ontology import (
     TERM_MAPPINGS,
-    CIRPASSNamespace,
     EUDPPNamespace,
     OntologyMapper,
     TermMapping,
-    compact_cirpass_uri,
     compact_eudpp_uri,
-    expand_cirpass_uri,
     expand_eudpp_uri,
-    get_cirpass_context,
     get_eudpp_context,
 )
 
 
 class TestEUDPPNamespace:
-    """Tests for EU DPP Core Ontology namespace definitions."""
+    """Tests for EU DPP Core Ontology namespace definitions.
+
+    Phase 1 (CIRPASS-2 migration) rebased the EUDPP namespace onto the
+    canonical W3ID prefix per ADR 0002.
+    """
 
     def test_official_namespace(self):
-        """Test official EU DPP namespace is correct."""
-        assert EUDPPNamespace.EUDPP.value == "http://dpp.taltech.ee/EUDPP#"
+        """EUDPP namespace uses the canonical W3ID fragment term IRI.
+
+        Phase 1 of the CIRPASS-2 migration confirmed (against the
+        bundled v1.9.1 TTLs) that every EUDPP class/property IRI lives
+        in this single fragment namespace. Per-module path prefixes
+        (``/p_dpp/``, ``/soc/``, etc.) are document IRIs, not term
+        namespaces, and were dropped from the enum.
+        """
+        assert EUDPPNamespace.EUDPP.value == "https://w3id.org/eudpp#"
 
     def test_si_namespace(self):
-        """Test SI Digital Framework namespace."""
+        """SI Digital Framework namespace unchanged."""
         assert EUDPPNamespace.SI.value == "https://si-digital-framework.org/SI#"
 
     def test_namespace_values(self):
         """Test namespace enum values exist."""
-        assert EUDPPNamespace.EUDPP.value.startswith("http")
+        assert EUDPPNamespace.EUDPP.value.startswith("https://")
         assert EUDPPNamespace.UNTP_DPP.value.startswith("https://")
         assert EUDPPNamespace.VC2.value.startswith("https://")
-
-    def test_backward_compatibility_alias(self):
-        """Test CIRPASSNamespace is alias for EUDPPNamespace."""
-        assert CIRPASSNamespace is EUDPPNamespace
 
 
 class TestTermMapping:
@@ -138,9 +141,9 @@ class TestURIExpansion:
     """Tests for URI expansion and compaction."""
 
     def test_expand_eudpp_uri(self):
-        """Test expanding compact EU DPP URI."""
+        """Compact ``eudpp:Product`` expands to the canonical fragment IRI."""
         result = expand_eudpp_uri("eudpp:Product")
-        assert result == "http://dpp.taltech.ee/EUDPP#Product"
+        assert result == "https://w3id.org/eudpp#Product"
 
     def test_expand_already_full_uri(self):
         """Test expanding already full URI."""
@@ -160,26 +163,27 @@ class TestURIExpansion:
         result = compact_eudpp_uri(unknown)
         assert result == unknown
 
-    def test_backward_compat_expand(self):
-        """Test backward compatibility alias for expand."""
-        result = expand_cirpass_uri("eudpp:Product")
-        assert "Product" in result
-
-    def test_backward_compat_compact(self):
-        """Test backward compatibility alias for compact."""
-        full = f"{EUDPPNamespace.EUDPP.value}Product"
-        result = compact_cirpass_uri(full)
-        assert result == "eudpp:Product"
-
 
 class TestGetEUDPPContext:
     """Tests for get_eudpp_context function."""
 
     def test_context_has_eudpp(self):
-        """Test context includes eudpp namespace."""
+        """Context includes ``eudpp`` prefix pointing at the canonical fragment IRI."""
         ctx = get_eudpp_context()
         assert "eudpp" in ctx
-        assert ctx["eudpp"] == "http://dpp.taltech.ee/EUDPP#"
+        assert ctx["eudpp"] == "https://w3id.org/eudpp#"
+
+    def test_context_has_lca_alias(self):
+        """``lca`` is registered as a human-readability alias for ``eudpp``.
+
+        The LCA module's own TTL declares
+        ``@prefix ns1: <https://w3id.org/eudpp#>`` — i.e. LCA terms live
+        in the same flat namespace as every other EUDPP module. The
+        compact ``lca:`` prefix is therefore an alias for ``eudpp:``,
+        not a distinct namespace.
+        """
+        ctx = get_eudpp_context()
+        assert ctx.get("lca") == ctx.get("eudpp")
 
     def test_context_has_si(self):
         """Test context includes SI namespace."""
@@ -197,11 +201,6 @@ class TestGetEUDPPContext:
         ctx = get_eudpp_context()
         assert isinstance(ctx, dict)
         assert len(ctx) >= 5
-
-    def test_backward_compat_context(self):
-        """Test backward compatibility alias."""
-        ctx = get_cirpass_context()
-        assert "eudpp" in ctx
 
 
 class TestSHACLShapes:

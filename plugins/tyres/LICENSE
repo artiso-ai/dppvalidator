@@ -1,0 +1,30 @@
+dppvalidator-tyres — Tyres pilot plugin for dppvalidator
+Copyright (C) 2026 artiso-ai
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+The full text of the GNU General Public License version 3 is available
+at <https://www.gnu.org/licenses/gpl-3.0.html> and in the source-tree
+file `LICENSE.GPL-3.0` when bundled by Phase 8 of
+`docs/plans/CIRPASS_2_MIGRATION.md` (documentation phase).
+
+The SPDX identifier `GPL-3.0-or-later` in `pyproject.toml` is the
+legally binding license declaration; this file is a human-readable
+pointer to the canonical text.
+
+Decision rationale: Phase 7 OA-1 of `docs/plans/CIRPASS_2_MIGRATION.md`
+chose GPL-3.0-or-later for the tyres plugin so derived rule-pack
+extensions remain in the open-source commons. The dppvalidator core
+(`src/dppvalidator/`) is MIT-licensed; per the plugin-license isolation
+rule (`.claude/rules/plugin-licenses.md`), the core never imports from
+this plugin — the dependency direction is one-way (plugin → core).

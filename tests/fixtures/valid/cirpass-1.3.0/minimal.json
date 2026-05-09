@@ -1,0 +1,20 @@
+{
+  "dppIdentifier": {
+    "value": "https://example.com/dpp/01J9X3M4N5K7Q2",
+    "scheme": "https://example.com/dpp-register/",
+    "schemeName": "Example DPP Register"
+  },
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890128",
+      "scheme": "https://gs1.org/voc/",
+      "schemeName": "GS1 GTIN"
+    },
+    "productName": [
+      {"value": "Cotton T-shirt", "language": "en"}
+    ]
+  },
+  "issuedAt": {
+    "timestamp": "2026-05-08T12:00:00+00:00"
+  }
+}

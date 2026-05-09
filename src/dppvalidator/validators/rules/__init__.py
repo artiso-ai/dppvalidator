@@ -55,7 +55,11 @@ from dppvalidator.validators.rules.v0_6 import (
     get_textile_environmental_categories,
     is_textile_product,
 )
-from dppvalidator.validators.rules.v0_7 import ALL_RULES_V0_7
+from dppvalidator.validators.rules.v0_7 import (
+    ALL_RULES_V0_7,
+    TEXTILE_RULES_V0_7,
+    TEXTILE_RULES_V0_7_V2,
+)
 
 # Backward-compat default. The 0.4.x line ships with v0.6 as the default
 # schema version, so ``ALL_RULES`` points at the v0.6 list. Phase 9 flips
@@ -71,11 +75,40 @@ ALL_RULES_BY_VERSION: dict[str, list] = {
     "0.7.0": ALL_RULES_V0_7,
 }
 
+
+# Phase 7 task 7.2 of [docs/plans/CIRPASS_2_MIGRATION.md]: profile-keyed
+# dispatch for the textile rule packs. ``textile-v1`` is the legacy
+# pack (already in :data:`TEXTILE_RULES` for v0.6 and inside
+# :data:`ALL_RULES_V0_7` for v0.7); ``textile-v2`` is the MVP Textile
+# DPP v2 (2025-12-04) rule pack at v0.7.
+#
+# The CLI ``validate --profile`` flag selects the active profile;
+# ``SemanticValidator`` consults this table when ``profile`` is set.
+# The default profile is ``textile-v1`` for back-compat with pre-
+# Phase-7 callers.
+TEXTILE_PROFILES: dict[str, list] = {
+    # ``textile-v1`` uses the v0.7-shaped legacy textile pack (the
+    # original pre-Phase-7 textile rules ported to v0.7 envelope
+    # access in ``rules/v0_7/textile.py``). The v0.6 pack is still
+    # available via :data:`TEXTILE_RULES`, but mixing v0.6 textile
+    # rules with a v0.7 engine produces wrong-envelope crashes.
+    "textile-v1": list(TEXTILE_RULES_V0_7),
+    "textile-v2": list(TEXTILE_RULES_V0_7_V2),
+}
+
+# Stable canonical name for the default textile profile. Pinned
+# here so the CLI / tests can reference it without hardcoding.
+DEFAULT_TEXTILE_PROFILE = "textile-v1"
+
 __all__ = [
     "ALL_RULES",
     "ALL_RULES_BY_VERSION",
     "ALL_RULES_V0_6",
     "ALL_RULES_V0_7",
+    # Phase 7 textile profile dispatch
+    "DEFAULT_TEXTILE_PROFILE",
+    "TEXTILE_PROFILES",
+    "TEXTILE_RULES_V0_7_V2",
     # v0.6 re-exports (backward compat)
     "CIRPASS_RULES",
     "CIRPASSGranularityConsistencyRule",

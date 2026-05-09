@@ -56,14 +56,14 @@ class TestEudppTermMapperPerVersion:
 
     def test_v06_mapper_uses_canonical_spellings(self) -> None:
         mapper = EUDPPTermMapper(schema_version="0.6.1")
-        assert mapper.map_key("serialNumber") == "uniqueProductID"
+        assert mapper.map_key("serialNumber") == "uniqueProductIdentifier"
         assert mapper.map_key("granularityLevel") == "granularity"
         assert mapper.map_key("producedByParty") == "hasManufacturer"
         assert mapper.map_key("gtin") == "GTIN"
 
     def test_v07_mapper_uses_renamed_spellings(self) -> None:
         mapper = EUDPPTermMapper(schema_version="0.7.0")
-        assert mapper.map_key("itemNumber") == "uniqueProductID"
+        assert mapper.map_key("itemNumber") == "uniqueProductIdentifier"
         assert mapper.map_key("idGranularity") == "granularity"
         assert mapper.map_key("relatedParty") == "hasManufacturer"
         assert mapper.map_key("materialProvenance") == "hasMaterialProvenance"
@@ -207,13 +207,13 @@ class TestTermMappingSummaryPerVersion:
 
     def test_v06_summary_includes_legacy_terms(self) -> None:
         summary = get_term_mapping_summary("0.6.1")
-        assert summary.get("serialNumber") == "uniqueProductID"
+        assert summary.get("serialNumber") == "uniqueProductIdentifier"
         assert summary.get("granularityLevel") == "granularity"
         assert summary.get("gtin") == "GTIN"
 
     def test_v07_summary_uses_renamed_terms(self) -> None:
         summary = get_term_mapping_summary("0.7.0")
-        assert summary.get("itemNumber") == "uniqueProductID"
+        assert summary.get("itemNumber") == "uniqueProductIdentifier"
         assert summary.get("idGranularity") == "granularity"
         assert summary.get("relatedParty") == "hasManufacturer"
         assert "gtin" not in summary

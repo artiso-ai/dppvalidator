@@ -1,11 +1,13 @@
 {
   "$schema": "https://artiso-ai.github.io/dppvalidator/schemas/manifest-v1.json",
   "manifest_version": 1,
-  "description": "Provenance + integrity manifest for every artefact bundled into the dppvalidator wheel under src/dppvalidator/{schemas,vocabularies}/data/. Each artefact carries the upstream URL it was vendored from and a SHA-256 of the bundled bytes; tests/unit/test_manifest_integrity.py (added in Phase 5) re-computes the hashes on every CI run. See docs/plans/UNTP_0.7.0_MIGRATION.md for the migration context.",
+  "description": "Provenance + integrity manifest for every artefact bundled into the dppvalidator wheel under src/dppvalidator/{schemas,vocabularies}/data/. Each artefact carries the upstream URL it was vendored from and a SHA-256 of the bundled bytes; tests/unit/test_manifest_integrity.py (added in Phase 5) re-computes the hashes on every CI run. See docs/plans/UNTP_0.7.0_MIGRATION.md and docs/plans/CIRPASS_2_MIGRATION.md (Phase 1) for migration context.",
+  "schema_extension_notes": "Phase 1 of the CIRPASS-2 migration extended the per-row schema with four optional fields: `family` (\"untp\" | \"cirpass\" | \"eudpp-ontology\"), `module` (CIRPASS module code, e.g. \"P_DPP\"), `vocabulary_hub_guid` (opaque hub identifier such as `OntologyVersion_<uuid>`), and `superseded_by` (manifest key of the row that replaces this one \u2014 a Phase 1 deprecation marker). Existing rows carry `family: \"untp\"` for forward consistency; required-field set is unchanged.",
   "artefacts": [
     {
       "version": "0.6.1",
       "kind": "untp-dpp-schema",
+      "family": "untp",
       "path": "src/dppvalidator/schemas/data/untp-dpp-schema-0.6.1.json",
       "source_url": "https://test.uncefact.org/vocabulary/untp/dpp/untp-dpp-schema-0.6.1.json",
       "sha256": "c0fdd7da5d23b6aec5d1d0ce198ca8d1cd67ca27609395a1b4961b3d1a8549a8",
@@ -16,6 +18,7 @@
     {
       "version": "0.6.1",
       "kind": "untp-jsonld-context",
+      "family": "untp",
       "path": "src/dppvalidator/vocabularies/data/untp-context-0.6.1.jsonld",
       "source_url": "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
       "sha256": "e956ab00591cebabeb6080eb02cd2f22adbda88c4d7861e8e7f03ea64284370f",
@@ -26,6 +29,7 @@
     {
       "version": "0.7.0",
       "kind": "untp-dpp-schema",
+      "family": "untp",
       "path": "src/dppvalidator/schemas/data/untp-dpp-schema-0.7.0.json",
       "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json",
       "production_url": "https://untp.unece.org/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json",
@@ -34,11 +38,12 @@
       "pulled_at": "2026-05-07",
       "upstream_tag": "v0.7.0",
       "upstream_commit": "707cd5267deddede24bb74e453a758561972a109",
-      "notes": "Self-contained: every $ref is internal (#/$defs/...). Product.json from the upstream split layout is intentionally NOT vendored — its $defs are already embedded inside this file's $defs. The bytes at ``production_url`` were re-fetched and verified bit-identical to ``source_url`` on 2026-05-08 (same SHA-256). Known upstream quirk: the embedded ``$defs.Characteristics`` carries an empty ``properties: {}`` and a description that was copy-pasted from ``$defs.Claim`` (\"A declaration of conformance with one or more criteria…\"). The standalone ``Product.json`` upstream file has the canonical, richer Characteristics definition with a ``@context`` field for JSON-LD vocabulary scoping. dppvalidator models Characteristics as ``extra=\"allow\"`` so behaviour is unaffected; this is documented for future readers who hit the discrepancy."
+      "notes": "Self-contained: every $ref is internal (#/$defs/...). Product.json from the upstream split layout is intentionally NOT vendored \u2014 its $defs are already embedded inside this file's $defs. The bytes at ``production_url`` were re-fetched and verified bit-identical to ``source_url`` on 2026-05-08 (same SHA-256). Known upstream quirk: the embedded ``$defs.Characteristics`` carries an empty ``properties: {}`` and a description that was copy-pasted from ``$defs.Claim`` (\"A declaration of conformance with one or more criteria\u2026\"). The standalone ``Product.json`` upstream file has the canonical, richer Characteristics definition with a ``@context`` field for JSON-LD vocabulary scoping. dppvalidator models Characteristics as ``extra=\"allow\"`` so behaviour is unaffected; this is documented for future readers who hit the discrepancy."
     },
     {
       "version": "0.7.0",
       "kind": "untp-jsonld-context",
+      "family": "untp",
       "path": "src/dppvalidator/vocabularies/data/untp-context-0.7.0.jsonld",
       "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/contexts/v0.7.0/untp-context.jsonld",
       "production_url": "https://vocabulary.uncefact.org/untp/0.7.0/context/",
@@ -52,6 +57,7 @@
     {
       "version": "0.7.0",
       "kind": "untp-vocabulary-ontology",
+      "family": "untp",
       "path": "src/dppvalidator/vocabularies/data/untp-ontology.jsonld",
       "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/vocabularies/untp-core/untp-ontology.jsonld",
       "sha256": "752060cc15c6c77bfcea8b170f173239a705e9da389314c1cb2dacc8a69d93bc",
@@ -64,6 +70,7 @@
     {
       "version": "0.7.0",
       "kind": "untp-vocabulary-metrics",
+      "family": "untp",
       "path": "src/dppvalidator/vocabularies/data/untp-metrics.jsonld",
       "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/vocabularies/untp-metrics/untp-metrics.jsonld",
       "sha256": "77900ce1138be124976d138750bea24bacb6c8ba327672fe8598b85db99a0a36",
@@ -76,6 +83,7 @@
     {
       "version": "0.7.0",
       "kind": "untp-vocabulary-topics",
+      "family": "untp",
       "path": "src/dppvalidator/vocabularies/data/untp-topics.jsonld",
       "source_url": "https://opensource.unicc.org/un/unece/uncefact/spec-untp/-/raw/707cd5267deddede24bb74e453a758561972a109/artefacts/vocabularies/untp-topics/untp-topics.jsonld",
       "sha256": "49affcb265bdf2a7a92d1b171c49a27543bfb4915bcbd11dd6e571252a57bb12",
@@ -84,6 +92,168 @@
       "upstream_tag": "v0.7.0",
       "upstream_commit": "707cd5267deddede24bb74e453a758561972a109",
       "notes": "Conformity-topic taxonomy referenced by Claim.conformityTopic in the DPP schema."
+    },
+    {
+      "version": "1.7.1",
+      "kind": "eudpp-p_dpp-ontology",
+      "family": "eudpp-ontology",
+      "module": "P_DPP",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/product_dpp_v1.7.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/specifications",
+      "sha256": "c11d133a209212a7a793a9554535784d8a1c5accf8742f3f21e7dd7f6cf5d44c",
+      "bytes": 33226,
+      "pulled_at": "<pre-Phase-1 vendor; date not recorded>",
+      "superseded_by": "eudpp-p_dpp-ontology@1.9.1",
+      "notes": "Pre-Phase-1 EUDPP vendor (per-publisher IRI namespace). Superseded by Phase 1 v1.9.x vendor; removed in Phase 10 task 10.1."
+    },
+    {
+      "version": "1.5.1",
+      "kind": "eudpp-actor-ontology",
+      "family": "eudpp-ontology",
+      "module": "ACTOR",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/actors_roles_v1.5.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/specifications",
+      "sha256": "43afbf0cad3e1c80c353b76777ae6c350391a9032961fed9a9d1193eaa152d49",
+      "bytes": 24583,
+      "pulled_at": "<pre-Phase-1 vendor; date not recorded>",
+      "superseded_by": "eudpp-actor-ontology@1.9.1",
+      "notes": "Pre-Phase-1 EUDPP vendor (per-publisher IRI namespace). Superseded by Phase 1 v1.9.x vendor; removed in Phase 10 task 10.1."
+    },
+    {
+      "version": "1.4.7",
+      "kind": "eudpp-soc-ontology",
+      "family": "eudpp-ontology",
+      "module": "SOC",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/soc_v1.4.7.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/specifications",
+      "sha256": "f76133d531f468b5663610f938e22fcd0f3da2d5e5dc8aaa6beee0dd8d2382ed",
+      "bytes": 10709,
+      "pulled_at": "<pre-Phase-1 vendor; date not recorded>",
+      "superseded_by": "eudpp-soc-ontology@1.9.1",
+      "notes": "Pre-Phase-1 EUDPP vendor (per-publisher IRI namespace). Superseded by Phase 1 v1.9.x vendor; removed in Phase 10 task 10.1."
+    },
+    {
+      "version": "2.0",
+      "kind": "eudpp-lca-ontology",
+      "family": "eudpp-ontology",
+      "module": "LCA",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/lca_v2.0.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/specifications",
+      "sha256": "169c4a51a819705b9b1565a781be99e2f9a2e0832d68b1985fef256e427520bf",
+      "bytes": 19600,
+      "pulled_at": "<pre-Phase-1 vendor; date not recorded>",
+      "superseded_by": "eudpp-lca-ontology@1.9.4-Maki",
+      "notes": "Pre-Phase-1 EUDPP vendor (per-publisher IRI namespace). Superseded by Phase 1 v1.9.x vendor; removed in Phase 10 task 10.1."
+    },
+    {
+      "version": "1.3.1",
+      "kind": "eudpp-core-ontology",
+      "family": "eudpp-ontology",
+      "module": "CORE",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/eudpp_core_v1.3.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/specifications",
+      "sha256": "08ff1b0fa52512bf8dddb9817e09dd10554df77e65fbddf0e9e775507c4b8eec",
+      "bytes": 3460,
+      "pulled_at": "<pre-Phase-1 vendor; date not recorded>",
+      "superseded_by": "eudpp-core-ontology@1.9.1",
+      "notes": "Pre-Phase-1 EUDPP vendor (per-publisher IRI namespace). Superseded by Phase 1 v1.9.x vendor; removed in Phase 10 task 10.1."
+    },
+    {
+      "family": "eudpp-ontology",
+      "module": "P_DPP",
+      "version": "1.9.1",
+      "kind": "eudpp-p_dpp-ontology",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/product_dpp_v1.9.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/api/ontology/-/version/OntologyVersion_ab5a976e-95f4-4363-87c9-3abd11ee556b/export",
+      "vocabulary_hub_guid": "OntologyVersion_ab5a976e-95f4-4363-87c9-3abd11ee556b",
+      "canonical_iri": "https://w3id.org/eudpp/P_DPP",
+      "sha256": "224c9cd4364838e8fc10061262351c4754e002598c23f5e21b72816b710202e8",
+      "bytes": 35040,
+      "pulled_at": "2026-05-08",
+      "notes": "Core product/DPP axioms. Imported by CORE."
+    },
+    {
+      "family": "eudpp-ontology",
+      "module": "SOC",
+      "version": "1.9.1",
+      "kind": "eudpp-soc-ontology",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/soc_v1.9.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/api/ontology/-/version/OntologyVersion_11fcca33-b738-476a-a029-be53a333d81b/export",
+      "vocabulary_hub_guid": "OntologyVersion_11fcca33-b738-476a-a029-be53a333d81b",
+      "canonical_iri": "https://w3id.org/eudpp/SOC",
+      "sha256": "47cd34000c8972a622e0609c8c3befc417afc6555ec165f702a5a77fa3920858",
+      "bytes": 12870,
+      "pulled_at": "2026-05-08",
+      "notes": "Substances of Concern (REACH/SVHC). Imported by CORE."
+    },
+    {
+      "family": "eudpp-ontology",
+      "module": "LCA",
+      "version": "1.9.4-Maki",
+      "kind": "eudpp-lca-ontology",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/lca_v1.9.4_Maki.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/api/ontology/-/version/OntologyVersion_f007b19e-b148-417a-8930-3b58e50fe7c7/export",
+      "vocabulary_hub_guid": "OntologyVersion_f007b19e-b148-417a-8930-3b58e50fe7c7",
+      "canonical_iri": "https://w3id.org/eudpp/LCA",
+      "sha256": "fcc0bf86d60189813a872d921c87b049c84bb71962165e05e4321c0a1592bd3f",
+      "bytes": 91511,
+      "pulled_at": "2026-05-08",
+      "notes": "PEF 3.1 impact categories. Newer than its sibling modules; the 'Maki' suffix is part of the upstream version string."
+    },
+    {
+      "family": "eudpp-ontology",
+      "module": "ACTOR",
+      "version": "1.9.1",
+      "kind": "eudpp-actor-ontology",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/actors_roles_v1.9.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/api/ontology/-/version/OntologyVersion_e11d0f5e-fe86-4d51-86c4-53f9f66ac536/export",
+      "vocabulary_hub_guid": "OntologyVersion_e11d0f5e-fe86-4d51-86c4-53f9f66ac536",
+      "canonical_iri": "https://w3id.org/eudpp/ACTOR",
+      "sha256": "42c2741347c7c5a9c95a1be307f0aaa3ed8c12dd44797eb1e5f833d164d33e2a",
+      "bytes": 29485,
+      "pulled_at": "2026-05-08",
+      "notes": "Actor / role hierarchy per ESPR Art 2(37-55). Imported by CORE."
+    },
+    {
+      "family": "eudpp-ontology",
+      "module": "CON",
+      "version": "1.9.1",
+      "kind": "eudpp-con-ontology",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/connector_v1.9.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/api/ontology/-/version/OntologyVersion_a50b649e-28cc-4107-a8e6-b69c3a401944/export",
+      "vocabulary_hub_guid": "OntologyVersion_a50b649e-28cc-4107-a8e6-b69c3a401944",
+      "canonical_iri": "https://w3id.org/eudpp/CON",
+      "sha256": "b7d285191ce782eef1bc7174b64aaab35ab66fa16170ed6807922fc8e3547245",
+      "bytes": 7425,
+      "pulled_at": "2026-05-08",
+      "notes": "Cross-module relations bridge. New module with no predecessor in the current bundle."
+    },
+    {
+      "family": "eudpp-ontology",
+      "module": "CORE",
+      "version": "1.9.1",
+      "kind": "eudpp-core-ontology",
+      "path": "src/dppvalidator/vocabularies/data/ontologies/eudpp_core_v1.9.1.ttl",
+      "source_url": "https://dpp.vocabulary-hub.eu/api/ontology/-/version/OntologyVersion_086dd88c-15a4-4139-9b98-928d3d6b5b57/export",
+      "vocabulary_hub_guid": "OntologyVersion_086dd88c-15a4-4139-9b98-928d3d6b5b57",
+      "canonical_iri": "https://w3id.org/eudpp/",
+      "sha256": "2fc00b15c14a2e125945fa0a76c620d5c705fb4339bd17cee85f7cb24c759c37",
+      "bytes": 2169,
+      "pulled_at": "2026-05-08",
+      "notes": "Umbrella that owl:imports the other modules. Vendor last so import chain resolves."
+    },
+    {
+      "version": "1.3.0",
+      "kind": "cirpass-reference-schema",
+      "family": "cirpass",
+      "module": null,
+      "path": "src/dppvalidator/schemas/data/cirpass-reference-1.3.0.json",
+      "source_url": "https://dpp.vocabulary-hub.eu/specifications#cirpass-dpp-reference-structure-v1.3.0",
+      "sha256": "3c957b6a5c6e9d92ae582e1c2acd20bb73820be8d27860cffdb5b721489025a6",
+      "bytes": 44145,
+      "pulled_at": "2026-05-08",
+      "vocabulary_hub_guid": null,
+      "notes": "Derived from dppvalidator.models.cirpass.v1_3.ReferencePassport via tools/codegen/cirpass/derive_schema.py. Phase 4 flipped derivation mode from 'serialization' to 'validation' so the input-side schema matches Pydantic's coercion rules (numeric Decimals, etc.). Drift gate at tools/codegen/check_drift.py. The hub does not publish a JSON Schema for v1.3.0 (per ADR 0001/D-0.1); cross-check with the eventual tree-view export is a follow-on."
     }
   ]
 }

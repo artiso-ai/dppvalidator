@@ -26,7 +26,7 @@ src/dppvalidator/      # Main package
 │   ├── rules/v0_6/    # Semantic rules — v0.6
 │   ├── rules/v0_7/    # Semantic rules — v0.7
 │   └── …
-├── compat/            # Cross-version compat shims (Phase 4)
+├── compat/            # Cross-version compat shims
 ├── verifier/          # Signature and credential verification
 ├── exporters/         # JSON-LD and EU DPP export formats
 ├── schemas/           # JSON Schema loading + version registry

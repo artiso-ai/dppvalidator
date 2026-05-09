@@ -35,6 +35,10 @@ from dppvalidator.validators.rules.v0_7.cirpass import (
     CIRPASSValidityPeriodRule,
     CIRPASSWeightVolumeRule,
 )
+from dppvalidator.validators.rules.v0_7.party_role import (
+    SUGGESTED_STRICT_REMAP,
+    PartyRoleAcceptanceGradientRule,
+)
 from dppvalidator.validators.rules.v0_7.textile import (
     TEXTILE_RULES_V0_7,
     TextileCareInstructionsRule,
@@ -44,6 +48,17 @@ from dppvalidator.validators.rules.v0_7.textile import (
     TextileMaterialCompositionRule,
     TextileMicroplasticRule,
     is_textile_product,
+)
+from dppvalidator.validators.rules.v0_7.textile_v2 import (
+    TEXTILE_RULES_V0_7_V2,
+    TextileV2CareInstructionsRule,
+    TextileV2DurabilityRule,
+    TextileV2HSCodeRule,
+    TextileV2MaterialCompositionRule,
+    TextileV2MicroplasticRule,
+    TextileV2RecycledContentRule,
+    TextileV2RepairInfoRule,
+    is_textile_product_v2,
 )
 
 # v0.7 default rule list. Note the absence of OperationalScopeRule
@@ -59,6 +74,8 @@ ALL_RULES_V0_7 = [
     MaterialCodeRule(),
     HSCodeRule(),
     GTINChecksumRule(),
+    # PRT-coded acceptance-gradient advisory rule (Phase 9 task 9.8)
+    PartyRoleAcceptanceGradientRule(),
     # CIRPASS-2 CQ-coded rules (v0.7 shape)
     *CIRPASS_RULES_V0_7,
 ]
@@ -84,7 +101,10 @@ __all__ = [
     "CIRPASSSubstancesOfConcernRule",
     "CIRPASSValidityPeriodRule",
     "CIRPASSWeightVolumeRule",
-    # Textile
+    # PartyRole acceptance gradient (Phase 9 task 9.8)
+    "PartyRoleAcceptanceGradientRule",
+    "SUGGESTED_STRICT_REMAP",
+    # Textile v1
     "TEXTILE_RULES_V0_7",
     "TextileCareInstructionsRule",
     "TextileDurabilityRule",
@@ -93,4 +113,14 @@ __all__ = [
     "TextileMaterialCompositionRule",
     "TextileMicroplasticRule",
     "is_textile_product",
+    # Textile v2 (Phase 7)
+    "TEXTILE_RULES_V0_7_V2",
+    "TextileV2CareInstructionsRule",
+    "TextileV2DurabilityRule",
+    "TextileV2HSCodeRule",
+    "TextileV2MaterialCompositionRule",
+    "TextileV2MicroplasticRule",
+    "TextileV2RecycledContentRule",
+    "TextileV2RepairInfoRule",
+    "is_textile_product_v2",
 ]

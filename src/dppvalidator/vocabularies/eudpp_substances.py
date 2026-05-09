@@ -1,11 +1,15 @@
 """EU DPP Core Ontology substances of concern definitions.
 
-Provides dataclass representations of substances of concern from the EU DPP
-Core Ontology, based on ESPR Art 2(28) and Art 7(5) substance tracking.
+Provides dataclass representations of substances of concern from the EU
+DPP Core Ontology, based on ESPR Art 2(28) and Art 7(5) substance
+tracking.
 
-Source: EU DPP Core Ontology v1.4.7 (Substances of Concern module)
-Namespace: http://dpp.taltech.ee/EUDPP#
-DOI: 10.5281/zenodo.15270342
+Source: EU DPP Core Ontology v1.9.1 (SOC module, 2026-03-04 — Phase 1
+target). Until the v1.9.1 TTL is vendored (Phase 1 task 1.1), this module
+ships the v1.4.7 SoC set; only the namespace IRI was rebased onto
+``https://w3id.org/eudpp/soc/`` per ADR 0002.
+
+DOI (legacy v1.4.7 publication): 10.5281/zenodo.15270342
 """
 
 from __future__ import annotations
@@ -22,7 +26,14 @@ from typing import ClassVar
 
 
 class EUDPPSubstanceClass(str, Enum):
-    """EU DPP Core Ontology substance class URIs."""
+    """EU DPP Core Ontology substance class URIs.
+
+    Phase 1 task 1.9 (CIRPASS-2 migration): regenerated against SOC
+    v1.9.1; the four classes are unchanged from v1.4.7. ``HazardCategory``
+    and ``LifeCycleStage`` below are project-defined string
+    enumerations (not OWL classes in the SOC TTL) and therefore not
+    affected by spec updates.
+    """
 
     SUBSTANCE = "eudpp:Substance"
     SUBSTANCE_OF_CONCERN = "eudpp:SubstanceOfConcern"

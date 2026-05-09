@@ -21,10 +21,18 @@ from pathlib import Path
 
 import pytest
 
-from dppvalidator.schemas.registry import SCHEMA_REGISTRY
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION, SCHEMA_REGISTRY
 from dppvalidator.validators.detection import detect_schema_version
 
 _SAMPLES_DIR = Path(__file__).resolve().parents[1] / "fixtures" / "samples"
+
+
+# Sentinel for samples that lack an explicit version signal in their
+# JSON content and thus track the registry default — Phase 9 task 9.1
+# flipped this from "0.6.1" to "0.7.0". Test resolves the sentinel at
+# runtime against ``DEFAULT_SCHEMA_VERSION`` so future flips don't
+# require touching the pinned map.
+_FALLBACK = "<<DEFAULT>>"
 
 
 # Pinned classifications for the currently-vendored samples. Adding a
@@ -32,17 +40,19 @@ _SAMPLES_DIR = Path(__file__).resolve().parents[1] / "fixtures" / "samples"
 # (or marking the file as not-applicable in
 # ``_NOT_DPP_SAMPLES`` below).
 _EXPECTED_VERSIONS: dict[str, str] = {
-    "BatteryPassDataModel_BatteryPass_GeneralProductInformation-payload.json": "0.6.1",
-    "batterypass_BatteryPassDataModel_CarbonFootprintForBatteries-ld.json": "0.6.1",
-    "batterypass_BatteryPassDataModel_Circularity-ld.json": "0.6.1",
-    "batterypass_BatteryPassDataModel_GeneralProductInformation-ld.json": "0.6.1",
-    "batterypass_BatteryPassDataModel_MaterialComposition-ld.json": "0.6.1",
-    "eclipse-tractusx_sldt-semantic-models_BatteryPass.json": "0.6.1",
-    "nfc-forum_org_long-dpp-example.json": "0.6.1",
-    "opensource_unicc_org_untp-digital-facility-record-v0.3.9.json": "0.6.1",
-    "opensource_unicc_org_untp-digital-product-passport-v0.3.10.json": "0.6.1",
-    "schemas_testing_breathable-t-shirt.json": "0.6.1",
-    "test_uncefact_org_DigitalIdentityAnchor-instance-0.6.1.json": "0.6.1",
+    # Samples without explicit version signals — track the registry default.
+    "BatteryPassDataModel_BatteryPass_GeneralProductInformation-payload.json": _FALLBACK,
+    "batterypass_BatteryPassDataModel_CarbonFootprintForBatteries-ld.json": _FALLBACK,
+    "batterypass_BatteryPassDataModel_Circularity-ld.json": _FALLBACK,
+    "batterypass_BatteryPassDataModel_GeneralProductInformation-ld.json": _FALLBACK,
+    "batterypass_BatteryPassDataModel_MaterialComposition-ld.json": _FALLBACK,
+    "eclipse-tractusx_sldt-semantic-models_BatteryPass.json": _FALLBACK,
+    "nfc-forum_org_long-dpp-example.json": _FALLBACK,
+    "opensource_unicc_org_untp-digital-facility-record-v0.3.9.json": _FALLBACK,
+    "opensource_unicc_org_untp-digital-product-passport-v0.3.10.json": _FALLBACK,
+    "schemas_testing_breathable-t-shirt.json": _FALLBACK,
+    "test_uncefact_org_DigitalIdentityAnchor-instance-0.6.1.json": _FALLBACK,
+    # Samples with explicit version signals.
     "test_uncefact_org_untp-dpp-instance-0.6.0.json": "0.6.0",
     "untp-verifiable-credentials_s3_amazonaws_com_bc075c5f-2304-4b3f-bb24-46d9fa9a8e60.json": "0.6.0",
 }
@@ -85,9 +95,12 @@ def test_sample_pinned_classification(sample_path: Path, expected: str) -> None:
         pytest.skip(f"sample no longer present: {sample_path.name}")
     data = json.loads(sample_path.read_text(encoding="utf-8"))
     assert isinstance(data, dict)
+    # Resolve the _FALLBACK sentinel against the registry default
+    # so future flips of DEFAULT_SCHEMA_VERSION don't require map edits.
+    resolved_expected = DEFAULT_SCHEMA_VERSION if expected == _FALLBACK else expected
     detected = detect_schema_version(data)
-    assert detected == expected, (
-        f"{sample_path.name}: expected {expected!r}, got {detected!r}. "
+    assert detected == resolved_expected, (
+        f"{sample_path.name}: expected {resolved_expected!r}, got {detected!r}. "
         "Either the sample contents drifted or the detection regex changed; "
         "update the pinned expectation if this is intentional."
     )

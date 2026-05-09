@@ -1,4 +1,17 @@
-"""Pydantic models for UNTP Digital Product Passport entities."""
+"""Pydantic models for UNTP Digital Product Passport entities.
+
+Phase 3 task 3.14 of [docs/plans/CIRPASS_2_MIGRATION.md]: CIRPASS
+reference-structure models live under
+:mod:`dppvalidator.models.cirpass.v1_3` and are *not* re-exported here
+— the cold-start budget (cross-cutting workstream X3) requires that
+``import dppvalidator`` not pull the CIRPASS surface eagerly. Plugin
+authors and consumers needing CIRPASS classes import them explicitly:
+
+    from dppvalidator.models.cirpass.v1_3 import ReferencePassport
+
+The :func:`tests/unit/test_cold_start_import.py` guard pins the
+non-eager-load contract.
+"""
 
 from dppvalidator.models.base import UNTPBaseModel, UNTPStrictModel
 from dppvalidator.models.claims import Claim, Criterion, Metric, Regulation, Standard

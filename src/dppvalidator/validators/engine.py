@@ -19,9 +19,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 from dppvalidator.logging import get_logger
+from dppvalidator.schemas.registry import SchemaFamily
 from dppvalidator.validators.detection import (
     detect_declared_version,
-    detect_schema_version,
+    detect_schema,
 )
 from dppvalidator.validators.layers import (
     JsonLdLayer,
@@ -42,6 +43,28 @@ from dppvalidator.vocabularies.rdf_loader import is_shacl_available
 
 if TYPE_CHECKING:
     from dppvalidator.validators.deep import DeepValidationResult
+
+
+# =============================================================================
+# Pipeline dispatch (Phase 4 task 4.7)
+# =============================================================================
+#
+# The CIRPASS-2 migration plan locks down a per-family layer ordering:
+#
+# - UNTP: schema → model → semantic → JSON-LD → vocabulary → plugin → signature
+# - CIRPASS: schema → model → semantic → SHACL  (per Phase 4 §4.7;
+#   JSON-LD / signature don't apply to bare CIRPASS reference messages,
+#   plugin discovery is reused unchanged)
+#
+# The ``_PIPELINE_BY_FAMILY`` table records the ordered layer names
+# for each family. The actual layer instances are built per-call by
+# :meth:`_build_layers`, which honours both the table and the
+# user-supplied ``layers`` override (back-compat).
+
+_PIPELINE_BY_FAMILY: dict[SchemaFamily, tuple[str, ...]] = {
+    SchemaFamily.UNTP: ("schema", "model", "semantic", "jsonld"),
+    SchemaFamily.CIRPASS: ("schema", "model", "semantic", "shacl"),
+}
 
 
 def _is_jsonld_available() -> bool:
@@ -97,6 +120,8 @@ class ValidationEngine:
         load_plugins: bool = True,
         max_input_size: int | None = None,
         enable_shacl: bool = False,
+        profile: str | None = None,
+        strict_role_enum: bool = False,
     ) -> None:
         """Initialize the validation engine.
 
@@ -114,6 +139,11 @@ class ValidationEngine:
             enable_shacl: If True, enables SHACL validation against official
                 CIRPASS-2 shapes. Requires: uv add dppvalidator[rdf] or
                 pip install dppvalidator[rdf]
+            strict_role_enum: If True, the PRT001 advisory rule (PartyRole.role
+                acceptance gradient) is upgraded from ``info`` severity to
+                ``error``. Default ``False`` keeps the rule informational —
+                see Phase 9 task 9.8 in
+                `docs/plans/CIRPASS_2_MIGRATION.md`.
 
         Raises:
             ImportError: If optional features are enabled but dependencies not installed:
@@ -141,6 +171,17 @@ class ValidationEngine:
         self._auto_detect = schema_version == "auto"
         self.schema_version = schema_version
         self.strict_mode = strict_mode
+        # Phase 7 task 7.2: pilot profile selector. ``None`` (default)
+        # means no profile is applied — pre-Phase-7 back-compat. The
+        # validator constructor reads this and *replaces* the v1
+        # textile rules with the chosen profile's pack.
+        self.profile = profile
+        # Phase 9 task 9.8: when True, upgrades PRT001 severity from
+        # ``info`` to ``error`` so consumers can opt into schema-strict
+        # PartyRole.role enforcement at the engine boundary. Default
+        # remains False for back-compat with v0.6 fixtures and the
+        # CIRPASS reverse-shim's wider-target mapping.
+        self.strict_role_enum = strict_role_enum
         self.validate_vocabularies = validate_vocabularies
         self.validate_jsonld = validate_jsonld
         self.verify_signatures = verify_signatures
@@ -157,9 +198,14 @@ class ValidationEngine:
         self._semantic_validator: SemanticValidator | None = None
         self._jsonld_validator: Any = None  # JSONLDValidator (optional)
         self._credential_verifier: Any = None  # CredentialVerifier (optional)
+        self._shacl_validator: Any = None  # CirpassSHACLValidator (optional)
+        # Phase 4 task 4.7: family axis. Resolved at first validate()
+        # call when ``schema_version="auto"``; otherwise pinned at
+        # construction time. Defaults to UNTP for back-compat.
+        self.family: SchemaFamily = SchemaFamily.UNTP
 
         if not self._auto_detect:
-            self._init_validators(schema_version)
+            self._init_validators(schema_version, family=SchemaFamily.UNTP)
 
         # Initialize vocabulary loader if needed
         self._vocab_loader = None
@@ -175,20 +221,41 @@ class ValidationEngine:
         if load_plugins:
             self._init_plugin_registry()
 
-    def _init_validators(self, version: str) -> None:
-        """Initialize validators for a specific schema version.
+    def _init_validators(self, version: str, *, family: SchemaFamily = SchemaFamily.UNTP) -> None:
+        """Initialize validators for a specific ``(family, schema version)``.
 
         Args:
-            version: Schema version string
-
+            version: Schema version string.
+            family: Schema family. Phase 4 of the CIRPASS-2 migration
+                added this axis so the engine can pick the right
+                Pydantic root model and rule set for CIRPASS payloads.
+                Defaults to ``SchemaFamily.UNTP`` for back-compat.
         """
-        self._schema_validator = SchemaValidator(version, strict=self.strict_mode)
-        self._model_validator = ModelValidator(version)
-        self._semantic_validator = SemanticValidator(version)
+        self.family = family
+        schema_type: Literal["untp", "cirpass"] = (
+            "cirpass" if family is SchemaFamily.CIRPASS else "untp"
+        )
+        self._schema_validator = SchemaValidator(
+            version,
+            schema_type=schema_type,
+            strict=self.strict_mode,
+        )
+        self._model_validator = ModelValidator(version, family=family)
+        self._semantic_validator = SemanticValidator(
+            version,
+            family=family,
+            profile=self.profile,
+            strict_role_enum=self.strict_role_enum,
+        )
 
-        # Initialize JSON-LD validator if enabled
-        if self.validate_jsonld or "jsonld" in self.layers:
+        # Initialize JSON-LD validator if enabled (UNTP only — CIRPASS
+        # reference structure does not carry a JSON-LD context layer).
+        if family is SchemaFamily.UNTP and (self.validate_jsonld or "jsonld" in self.layers):
             self._init_jsonld_validator(version)
+
+        # Initialize CIRPASS SHACL validator when on the CIRPASS pipeline.
+        if family is SchemaFamily.CIRPASS:
+            self._init_cirpass_shacl_validator(version)
 
     def _init_jsonld_validator(self, version: str) -> None:
         """Initialize JSON-LD semantic validator.
@@ -210,6 +277,25 @@ class ValidationEngine:
                 "pyld import failed - JSON-LD validation disabled. "
                 "Try: pip install --force-reinstall dppvalidator"
             )
+
+    def _init_cirpass_shacl_validator(self, version: str) -> None:
+        """Initialize the CIRPASS per-module SHACL validator (Phase 4.8).
+
+        The validator infrastructure exists regardless of whether
+        ``pyshacl`` / ``rdflib`` are installed; the validator surfaces
+        a single info-level diagnostic when the optional dependencies
+        are missing rather than throwing at validate-time.
+        """
+        try:
+            from dppvalidator.validators.shacl_cirpass import CirpassSHACLValidator
+
+            self._shacl_validator = CirpassSHACLValidator(version=version)
+            logger.debug("CIRPASS SHACL validator initialized for version=%s", version)
+        except ImportError as exc:
+            # Hard-failing the engine when pyshacl is missing would
+            # break callers who only want schema/model/semantic.
+            logger.debug("CIRPASS SHACL validator unavailable: %s", exc)
+            self._shacl_validator = None
 
     def _init_vocabulary_loader(self) -> None:
         """Initialize the vocabulary loader for external vocabulary validation."""
@@ -276,12 +362,18 @@ class ValidationEngine:
         if isinstance(parsed_data, ValidationResult):
             return parsed_data
 
-        # Auto-detect schema version if enabled
+        # Auto-detect (family, version) when enabled. Falls back to the
+        # historical UNTP default when the payload carries no signals
+        # (preserves pre-Phase-2 behaviour).
         effective_version = self.schema_version
         if self._auto_detect:
-            effective_version = detect_schema_version(parsed_data)
-            self._init_validators(effective_version)
-            logger.debug("Auto-detected schema version: %s", effective_version)
+            family, effective_version = detect_schema(parsed_data)
+            self._init_validators(effective_version, family=family)
+            logger.debug(
+                "Auto-detected schema: family=%s, version=%s",
+                family.value,
+                effective_version,
+            )
 
         parse_time = (time.perf_counter() - start_time) * 1000
         context = ValidationContext(
@@ -337,7 +429,16 @@ class ValidationEngine:
         return context.result
 
     def _build_layers(self, schema_version: str) -> list[ValidationLayer]:
-        """Build the ordered list of validation layers based on configuration."""
+        """Build the ordered list of validation layers based on configuration.
+
+        Family routing follows the :data:`_PIPELINE_BY_FAMILY` dispatch
+        table from Phase 4 task 4.7. UNTP keeps the original layer set
+        (schema → model → semantic → JSON-LD); CIRPASS substitutes a
+        per-module SHACL layer in place of the JSON-LD one. Vocabulary
+        / plugin / signature layers are family-neutral and run for both.
+        """
+        from dppvalidator.validators.shacl_cirpass import CirpassSHACLLayer
+
         layers: list[ValidationLayer] = []
 
         if "schema" in self.layers:
@@ -349,8 +450,13 @@ class ValidationEngine:
         if "semantic" in self.layers:
             layers.append(SemanticLayer(self._semantic_validator))
 
-        if "jsonld" in self.layers or self.validate_jsonld:
+        # Family-aware layer 4: JSON-LD for UNTP, per-module SHACL for
+        # CIRPASS. Both are governed by ``_PIPELINE_BY_FAMILY``.
+        if self.family is SchemaFamily.UNTP and ("jsonld" in self.layers or self.validate_jsonld):
             layers.append(JsonLdLayer(self._jsonld_validator))
+
+        if self.family is SchemaFamily.CIRPASS:
+            layers.append(CirpassSHACLLayer(self._shacl_validator, schema_version=schema_version))
 
         if self.validate_vocabularies:
             layers.append(VocabularyLayer(self._vocab_loader, schema_version))

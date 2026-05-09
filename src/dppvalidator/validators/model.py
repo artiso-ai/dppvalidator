@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Any
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 
 from dppvalidator.models import v0_6, v0_7
-from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION, SchemaFamily
 from dppvalidator.validators.results import ValidationError, ValidationResult
 
 if TYPE_CHECKING:
@@ -28,6 +29,62 @@ _MODEL_BY_VERSION: dict[str, type[BaseModel]] = {
     "0.6.1": v0_6.DigitalProductPassport,
     "0.7.0": v0_7.DigitalProductPassport,
 }
+
+
+def _load_cirpass_v1_3_model() -> type[BaseModel]:
+    """Lazy loader for the CIRPASS reference-structure root model.
+
+    Phase 4 task 4.7 of [docs/plans/CIRPASS_2_MIGRATION.md]. The
+    cross-cutting workstream X3 (cold-start budget) requires that
+    ``import dppvalidator`` not eagerly load the CIRPASS surface;
+    that contract is pinned by
+    ``tests/unit/test_cold_start_import.py``. Resolution happens
+    inside this function rather than at module-import time so the
+    CIRPASS package is only loaded when the engine actually needs
+    it (auto-detect routes a CIRPASS payload to the CIRPASS pipeline,
+    or the caller explicitly configures ``schema_version='1.3.0'``).
+    """
+    from dppvalidator.models.cirpass.v1_3 import ReferencePassport
+
+    return ReferencePassport
+
+
+# Phase 4 task 4.7: family-aware model dispatch. Keys are
+# ``(SchemaFamily, version)``; values are *either* the resolved model
+# class (UNTP — eagerly imported above) or a zero-arg callable that
+# resolves the model class lazily (CIRPASS — preserves cold-start
+# budget). The two-shape table avoids burning module-import time on
+# CIRPASS for callers that only ever exercise the UNTP family.
+_MODEL_BY_FAMILY_VERSION: dict[
+    tuple[SchemaFamily, str], type[BaseModel] | Callable[[], type[BaseModel]]
+] = {
+    (SchemaFamily.UNTP, "0.6.0"): v0_6.DigitalProductPassport,
+    (SchemaFamily.UNTP, "0.6.1"): v0_6.DigitalProductPassport,
+    (SchemaFamily.UNTP, "0.7.0"): v0_7.DigitalProductPassport,
+    (SchemaFamily.CIRPASS, "1.3.0"): _load_cirpass_v1_3_model,
+}
+
+
+def _resolve_model(family: SchemaFamily, version: str) -> type[BaseModel] | None:
+    """Resolve the Pydantic root model for a ``(family, version)``.
+
+    Returns ``None`` when the pair is unregistered. Callers translate
+    ``None`` into a structured ``MDL098`` error (no model registered).
+    """
+    entry = _MODEL_BY_FAMILY_VERSION.get((family, version))
+    if entry is None:
+        return None
+    # Class objects implement ``BaseModel.model_validate``; lazy
+    # loaders are zero-arg callables that return such a class. We
+    # discriminate via ``callable``-vs-``isinstance(type)`` here so
+    # both branches narrow cleanly.
+    if callable(entry) and not isinstance(entry, type):
+        return entry()
+    # ``entry`` is a model class object at this point. Bypass ty's
+    # narrowing of ``isinstance(..., type)`` (which collapses to
+    # ``type[Any]``) by routing through Any.
+    return cast("type[BaseModel]", entry)
+
 
 # Stable error code mapping based on Pydantic error types
 # See: https://docs.pydantic.dev/latest/errors/validation_errors/
@@ -89,21 +146,34 @@ class ModelValidator:
     name: str = "model"
     layer: str = "model"
 
-    def __init__(self, schema_version: str = DEFAULT_SCHEMA_VERSION) -> None:
+    def __init__(
+        self,
+        schema_version: str = DEFAULT_SCHEMA_VERSION,
+        family: SchemaFamily = SchemaFamily.UNTP,
+    ) -> None:
         """Initialize model validator.
 
         Args:
-            schema_version: UNTP DPP schema version for result metadata
+            schema_version: Schema version (UNTP or CIRPASS) used for
+                Pydantic root-class lookup and result metadata.
+            family: Schema family. Phase 4 of the CIRPASS-2 migration
+                added this axis so the validator can pick a CIRPASS
+                root model (``ReferencePassport``) instead of the UNTP
+                ``DigitalProductPassport`` envelope. Defaults to
+                ``SchemaFamily.UNTP`` for back-compat with pre-Phase-4
+                callers.
         """
         self.schema_version = schema_version
+        self.family = family
 
     def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Validate data using Pydantic models.
 
-        The Pydantic root class is selected from :data:`_MODEL_BY_VERSION`
-        keyed on ``self.schema_version``. Adding a new UNTP version means
-        adding one entry there (and shipping the model package); no
-        changes are needed in this method.
+        The Pydantic root class is selected from
+        :data:`_MODEL_BY_FAMILY_VERSION` keyed on
+        ``(self.family, self.schema_version)``. Adding a new version
+        means adding one entry there (and shipping the model package);
+        no changes are needed in this method.
 
         Args:
             data: Raw JSON data to validate
@@ -114,28 +184,39 @@ class ModelValidator:
         start_time = time.perf_counter()
         errors: list[ValidationError] = []
         # Annotated as ``BaseModel | None`` rather than the v0.6
-        # ``DigitalProductPassport`` so ``_MODEL_BY_VERSION`` can return
-        # either a v0.6 or a v0.7 root class. Callers downcast or use
-        # ``isinstance`` when they need a specific shape — see
+        # ``DigitalProductPassport`` so the dispatch can return any of:
+        # v0.6 / v0.7 ``DigitalProductPassport`` or CIRPASS
+        # ``ReferencePassport``. Callers downcast or use ``isinstance``
+        # when they need a specific shape — see
         # docs/plans/UNTP_0.7.0_MIGRATION.md §3.3.
         passport: BaseModel | None = None
 
-        model_cls = _MODEL_BY_VERSION.get(self.schema_version)
+        model_cls = _resolve_model(self.family, self.schema_version)
         if model_cls is None:
             # Unsupported version — fail fast with a structured error rather
             # than silently coercing to whatever the default model accepts.
-            available = ", ".join(sorted(_MODEL_BY_VERSION))
+            available = ", ".join(
+                f"({f.value}, {v})"
+                for (f, v) in sorted(
+                    _MODEL_BY_FAMILY_VERSION,
+                    key=lambda k: (k[0].value, k[1]),
+                )
+            )
             errors.append(
                 ValidationError(
                     path="$",
                     message=(
-                        f"No Pydantic model registered for schema version "
-                        f"{self.schema_version!r}. Registered: {available}."
+                        f"No Pydantic model registered for "
+                        f"{(self.family.value, self.schema_version)!r}. "
+                        f"Registered: {available}."
                     ),
                     code="MDL098",
                     layer="model",
                     severity="error",
-                    context={"requested_version": self.schema_version},
+                    context={
+                        "requested_family": self.family.value,
+                        "requested_version": self.schema_version,
+                    },
                 ),
             )
         else:

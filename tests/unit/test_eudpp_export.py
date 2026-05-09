@@ -1,11 +1,11 @@
 """Tests for EU DPP JSON-LD export (Phase 9)."""
 
 import json
+import warnings
 
 import pytest
 
 from dppvalidator.exporters.eudpp_jsonld import (
-    EUDPP_CONTEXT_URL,
     EUDPPJsonLDExporter,
     EUDPPTermMapper,
     export_eudpp_jsonld,
@@ -15,6 +15,21 @@ from dppvalidator.exporters.eudpp_jsonld import (
     validate_eudpp_export,
 )
 from dppvalidator.vocabularies.ontology import EUDPPNamespace
+
+
+# The legacy ``EUDPP_CONTEXT_URL`` constant is deprecated in Phase 6
+# of the CIRPASS-2 migration; resolve it through the module-level
+# ``__getattr__`` while suppressing the warning so back-compat tests
+# below can still reference the value.
+def _legacy_context_url() -> str:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        from dppvalidator.exporters.eudpp_jsonld import EUDPP_CONTEXT_URL
+
+        return EUDPP_CONTEXT_URL
+
+
+EUDPP_CONTEXT_URL = _legacy_context_url()
 
 
 class TestEUDPPTermMapper:

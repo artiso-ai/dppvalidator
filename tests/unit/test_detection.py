@@ -1,9 +1,16 @@
 """Unit tests for schema version auto-detection."""
 
+import pytest
+
+from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION  # noqa: F401
 from dppvalidator.validators.detection import (
     detect_schema_version,
     is_dpp_document,
 )
+
+# Phase 9 task 9.1: fallback tests use DEFAULT_SCHEMA_VERSION so they
+# follow the registry default automatically.
+_DEFAULT = DEFAULT_SCHEMA_VERSION
 
 
 class TestDetectSchemaVersion:
@@ -73,17 +80,17 @@ class TestDetectSchemaVersion:
             "type": ["DigitalProductPassport", "VerifiableCredential"],
             "credentialSubject": {},
         }
-        # Should return default (0.6.1) when type is DPP but no version info
-        assert detect_schema_version(data) == "0.6.1"
+        # Should return registry default when type is DPP but no version info.
+        assert detect_schema_version(data) == _DEFAULT
 
     def test_detect_from_type_string(self) -> None:
         """Detect DPP from type as string (not array)."""
         data = {"type": "DigitalProductPassport"}
-        assert detect_schema_version(data) == "0.6.1"
+        assert detect_schema_version(data) == _DEFAULT
 
     def test_fallback_to_default_empty_data(self) -> None:
         """Falls back to default for empty data."""
-        assert detect_schema_version({}) == "0.6.1"
+        assert detect_schema_version({}) == _DEFAULT
 
     def test_fallback_to_default_unknown_version(self) -> None:
         """Falls back to default for unknown version in $schema."""
@@ -91,8 +98,8 @@ class TestDetectSchemaVersion:
             "$schema": "https://example.com/untp-dpp-schema-9.9.9.json",
             "type": ["DigitalProductPassport"],
         }
-        # Unknown version 9.9.9 not in registry, should fallback
-        assert detect_schema_version(data) == "0.6.1"
+        # Unknown version 9.9.9 not in registry, should fallback to DEFAULT.
+        assert detect_schema_version(data) == _DEFAULT
 
     def test_fallback_to_default_invalid_context(self) -> None:
         """Falls back to default for non-UNTP context."""
@@ -100,17 +107,17 @@ class TestDetectSchemaVersion:
             "@context": ["https://example.com/other-context"],
             "type": ["DigitalProductPassport"],
         }
-        assert detect_schema_version(data) == "0.6.1"
+        assert detect_schema_version(data) == _DEFAULT
 
     def test_handles_none_schema(self) -> None:
         """Handles None $schema value."""
         data = {"$schema": None, "type": ["DigitalProductPassport"]}
-        assert detect_schema_version(data) == "0.6.1"
+        assert detect_schema_version(data) == _DEFAULT
 
     def test_handles_none_context(self) -> None:
         """Handles None @context value."""
         data = {"@context": None, "type": ["DigitalProductPassport"]}
-        assert detect_schema_version(data) == "0.6.1"
+        assert detect_schema_version(data) == _DEFAULT
 
     # ---- UNTP 0.7.0 detection (Phase 1) ----------------------------------
 
@@ -165,7 +172,7 @@ class TestDetectSchemaVersion:
             "type": ["DigitalProductPassport"],
         }
         # 9.9.9 is not in SCHEMA_REGISTRY so detection ignores it.
-        assert detect_schema_version(data) == "0.6.1"
+        assert detect_schema_version(data) == _DEFAULT
 
     def test_detect_from_upstream_070_sample(self) -> None:
         """Real-world: vendored 0.7.0 sample is detected as 0.7.0."""
@@ -193,7 +200,21 @@ class TestDetectSchemaVersion:
 
 
 class TestIsDppDocument:
-    """Tests for is_dpp_document function."""
+    """Tests for is_dpp_document function (deprecated alias since 0.5.0)."""
+
+    @pytest.fixture(autouse=True)
+    def _suppress_deprecation(self):
+        """Suppress the Phase 9 task 9.4 DeprecationWarning here.
+
+        These tests assert the alias's *return value*; the warning
+        behaviour itself is asserted in
+        ``test_detection_cirpass.py::test_is_dpp_document_emits_deprecation_warning_in_0_5_0``.
+        """
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            yield
 
     def test_dpp_with_type_array(self) -> None:
         """Identifies DPP from type array."""

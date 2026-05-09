@@ -34,8 +34,15 @@ class TestLCANamespace:
     """Tests for LCA namespace constants."""
 
     def test_namespace_constants(self):
-        """Test LCA namespace constants are defined."""
-        assert LCA_NAMESPACE == "http://dpp.cea.fr/EUDPP/LCA#"
+        """LCA namespace is the canonical EUDPP fragment namespace.
+
+        Phase 1 of the CIRPASS-2 migration found (against the bundled
+        v1.9.4-Maki TTL) that LCA terms share the same flat fragment
+        namespace as every other EUDPP module. ``lca:`` is a
+        human-readability alias for ``eudpp:``; the expanded IRIs are
+        identical.
+        """
+        assert LCA_NAMESPACE == "https://w3id.org/eudpp#"
         assert LCA_PREFIX == "lca"
 
 
@@ -366,10 +373,13 @@ class TestURIExpansion:
     """Tests for URI expansion and compaction."""
 
     def test_expand_lca_uri(self):
-        """Test expanding compact LCA URI."""
+        """Compact LCA URI expands to the canonical EUDPP fragment namespace.
+
+        Phase 1 collapsed LCA's namespace into the umbrella EUDPP one.
+        """
         compact = "lca:Climate_change_total"
         full = expand_lca_uri(compact)
-        assert full == "http://dpp.cea.fr/EUDPP/LCA#Climate_change_total"
+        assert full == "https://w3id.org/eudpp#Climate_change_total"
 
     def test_expand_lca_uri_already_full(self):
         """Test expanding already full URI."""
@@ -378,8 +388,8 @@ class TestURIExpansion:
         assert result == full
 
     def test_compact_lca_uri(self):
-        """Test compacting full LCA URI."""
-        full = "http://dpp.cea.fr/EUDPP/LCA#Climate_change_total"
+        """Full LCA URI compacts back from the canonical EUDPP fragment namespace."""
+        full = "https://w3id.org/eudpp#Climate_change_total"
         compact = compact_lca_uri(full)
         assert compact == "lca:Climate_change_total"
 

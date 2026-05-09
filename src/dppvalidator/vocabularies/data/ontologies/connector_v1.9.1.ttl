@@ -1,0 +1,173 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ns0: <http://purl.org/vocab/vann#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://w3id.org/eudpp/CONNECTOR>
+  a owl:Ontology ;
+  dcterms:created "2025-02-27"@en ;
+  dcterms:creator "Riina Maigre"@en, "Tarmo Robal"@en ;
+  dcterms:description """Connector (Bridge) module that only defines object properties between modules. The connector contains only object properties that have domain and range specified in different modules. 
+
+--
+THIS DOCUMENT IS PROVIDED WITH NO WARRANTIES WHATSOEVER. 
+All liability for any damages arising from use or misuse of this vocabulary is with the user."""@en ;
+  dcterms:issued "2026-02-28"@en ;
+  dcterms:licence <https://www.apache.org/licenses/LICENSE-2.0>, """This ontology is licensed under the Apache License, Version 2.0. 
+In case of dispute over Apache 2.0 applicability, or in case considering the ontology as a document, this ontology document is to be considered licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)."""@en ;
+  dcterms:title "The connector module of the EU regulatory compliant Digital Product Passport Core Ontology (EU DPP CO) proposed by the CIRPASS-2 European project."@en ;
+  ns0:preferredNamespacePrefix "con" ;
+  rdfs:comment "The CONNECTOR module of the EU DPP core ontology proposal of the CIRPASS-2 European project."@en ;
+  rdfs:label "EU DPP CORE CONNECTOR"@en ;
+  owl:versionInfo "1.9.1" .
+
+dcterms:contributor a owl:AnnotationProperty .
+dcterms:created a owl:AnnotationProperty .
+dcterms:creator a owl:AnnotationProperty .
+dcterms:description a owl:AnnotationProperty .
+dcterms:identifier a owl:AnnotationProperty .
+dcterms:issued a owl:AnnotationProperty .
+dcterms:licence a owl:AnnotationProperty .
+dcterms:references a owl:AnnotationProperty .
+dcterms:source a owl:AnnotationProperty .
+dcterms:title a owl:AnnotationProperty .
+ns0:preferredNamespacePrefix a owl:AnnotationProperty .
+<https://w3id.org/eudpp#isMandatory> a owl:AnnotationProperty .
+xsd:date a rdfs:Datatype .
+<https://w3id.org/eudpp#containsSubstanceOfConcern>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#Product> ;
+  rdfs:range <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:comment """Linking the product to a substance of concern the product contains.
+
+Product is modelled in the EU DPP CO P_DPP module.
+Substance of concern is modelled in the EU DPP CO SOC module."""@en ;
+  rdfs:label "Contains substance of concern"@en .
+
+<https://w3id.org/eudpp#hasBackUpCopyHost>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#DPP> ;
+  rdfs:range <https://w3id.org/eudpp#Actor> ;
+  dcterms:references "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  dcterms:source "ESPR Annex III" ;
+  rdfs:comment """The reference of the digital product passport service provider hosting the back-up copy of the digital product passport [ESPR Annex III].
+
+DPP is modelled in the EU DPP CO P_DPP module.
+Actor is modelled in the EU DPP CO ACTOR module."""@en ;
+  rdfs:label "Has back-up-copy host"@en .
+
+<https://w3id.org/eudpp#hasEconomicOperator>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#Product> ;
+  rdfs:range <https://w3id.org/eudpp#Actor> ;
+  rdfs:comment """Linking the product to the economic operator (Actor from ACTOR module).
+
+Product is modelled in the EU DPP CO P_DPP module.
+Actor is modelled in the EU DPP CO ACTOR module."""@en ;
+  rdfs:label "Has economic operator"@en .
+
+<https://w3id.org/eudpp#hasIssuer>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#DPP> ;
+  rdfs:range <https://w3id.org/eudpp#Actor> ;
+  rdfs:comment """Linking DPP with its issuer (Actor from ACTOR module).
+
+DPP is modelled in the EU DPP CO P_DPP module.
+Actor is modelled in the EU DPP CO ACTOR module."""@en ;
+  rdfs:label "Has issuer"@en .
+
+<https://w3id.org/eudpp#hasManufacturer>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#Product> ;
+  rdfs:range <https://w3id.org/eudpp#Actor> ;
+  rdfs:comment """A product has a manufacturer (Actor from ACTOR module).
+
+Product is modelled in the EU DPP CO P_DPP module.
+Actor is modelled in the EU DPP CO ACTOR module."""@en ;
+  rdfs:label "Has manufacturer"@en .
+
+<https://w3id.org/eudpp#isConnectedTo>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#DPP> ;
+  rdfs:range <https://w3id.org/eudpp#Facility> ;
+  rdfs:comment """A DPP is connected to a facility.
+
+DPP is modelled in the EU DPP CO P_DPP module.
+Facility is modelled in the EU DPP CO ACTOR module."""@en ;
+  rdfs:label "Is connected to"@en .
+
+<https://w3id.org/eudpp#inContextOfActivity>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#ActorRoleAssignment> ;
+  rdfs:range <https://w3id.org/eudpp#Event> ;
+  rdfs:comment """Relates the actor role assignment to a specific lifecycle activity, such as a repair or recycling event (from the Event module).
+        
+ActorRoleAssignment is modelled in the EU DPP CO ACTOR module.
+Event is modelled in the EU DPP CO EVENT module.
+        """@en ;
+  rdfs:label "In context of activity"@en .
+
+<https://w3id.org/eudpp#inContextOfDPP>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#ActorRoleAssignment> ;
+  rdfs:range <https://w3id.org/eudpp#DPP> ;
+  rdfs:comment """Relates the actor role assignment to a specific Digital Product Passport instance (from P_DPP module).
+
+ActorRoleAssignment is modelled in the EU DPP CO ACTOR module.
+DPP is modelled in the EU DPP CO P_DPP module.
+        """@en ;
+  rdfs:label "In context of DPP"@en .
+
+<https://w3id.org/eudpp#inContextOfProduct>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#ActorRoleAssignment> ;
+  rdfs:range <https://w3id.org/eudpp#Product> ;
+  rdfs:comment """Relates the actor role assignment to a specific product (from P_DPP module).
+
+ActorRoleAssignment is modelled in the EU DPP CO ACTOR module.
+Product is modelled in the EU DPP CO P_DPP module."""@en ;
+  rdfs:label "In context of product"@en .
+
+<https://w3id.org/eudpp#representsManufacturerForProduct>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#AuthorisedRepresentationAssignment> ;
+  rdfs:range <https://w3id.org/eudpp#Product> ;
+  rdfs:comment """Indicates which product(s) the authorised representative's mandate covers.
+
+AuthorisedRepresentationAssignment is modelled in the EU DPP CO ACTOR module.
+Product is modelled in the EU DPP CO P_DPP module."""@en ;
+  rdfs:label "Represents manufacturer for product"@en .
+
+<https://w3id.org/eudpp#Actor>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/ACTOR> .
+
+<https://w3id.org/eudpp#ActorRoleAssignment>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/ACTOR> .
+
+<https://w3id.org/eudpp#AuthorisedRepresentationAssignment>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/ACTOR> .
+
+<https://w3id.org/eudpp#Facility>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/ACTOR> .
+
+<https://w3id.org/eudpp#DPP>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/P_DPP> .
+
+<https://w3id.org/eudpp#Event>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/EVENT> .
+
+<https://w3id.org/eudpp#Product>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/P_DPP> .
+
+<https://w3id.org/eudpp#SubstanceOfConcern>
+  a owl:Class ;
+  rdfs:isDefinedBy <https://w3id.org/eudpp/SOC> .
+

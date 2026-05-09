@@ -6,7 +6,12 @@ Tests complete user workflows through the CLI interface.
 import json
 from pathlib import Path
 
-from dppvalidator.cli.main import EXIT_ERROR, EXIT_INVALID, EXIT_VALID, main
+from dppvalidator.cli.main import (
+    EXIT_ERROR,
+    EXIT_INVALID,
+    EXIT_VALID,
+    main,
+)
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 
@@ -31,10 +36,18 @@ class TestValidateWorkflow:
         assert exit_code == EXIT_INVALID
 
     def test_validate_nonexistent_file_errors(self):
-        """Validating nonexistent file returns error code."""
+        """Validating nonexistent file returns IO error code (5).
+
+        Pre-Phase-6 the CLI returned ``EXIT_ERROR`` (2) for IO failures;
+        Phase 6 task 6.7 of [docs/plans/CIRPASS_2_MIGRATION.md]
+        introduces ``EXIT_IO_ERROR`` (5) so wrappers can branch
+        precisely on "file not found / unreadable" vs "engine crash".
+        """
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         exit_code = main(["validate", "/does/not/exist.json"])
 
-        assert exit_code == EXIT_ERROR
+        assert exit_code == EXIT_IO_ERROR
 
     def test_validate_with_json_output(self, capsys):
         """Validate with --format json produces JSON output."""
@@ -239,13 +252,21 @@ class TestErrorHandling:
     """Integration tests for error handling."""
 
     def test_malformed_json_graceful_error(self, tmp_path, capsys):
-        """Malformed JSON produces helpful error message."""
+        """Malformed JSON produces helpful error message + IO error exit code.
+
+        Phase 6 task 6.7 of [docs/plans/CIRPASS_2_MIGRATION.md] groups
+        IO and parse errors under the same exit code (5) so wrappers
+        can distinguish "I couldn't even read the input" from "the
+        input parsed but failed validation".
+        """
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         file_path = tmp_path / "bad.json"
         file_path.write_text("{not valid json", encoding="utf-8")
 
         exit_code = main(["validate", str(file_path)])
 
-        assert exit_code == EXIT_ERROR
+        assert exit_code == EXIT_IO_ERROR
         captured = capsys.readouterr()
         # Should mention JSON or parse error
         output = captured.out + captured.err

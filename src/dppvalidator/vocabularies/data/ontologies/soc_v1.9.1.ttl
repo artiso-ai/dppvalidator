@@ -1,0 +1,216 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ns0: <http://purl.org/vocab/vann#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://w3id.org/eudpp/SOC>
+  a owl:Ontology ;
+  dcterms:contributor "Hele-Mai Haav"@en ;
+  dcterms:created "2025-02-27"@en ;
+  dcterms:creator "Tarmo Robal"@en ;
+  dcterms:description """MODULE: SOC
+Substances of Concern module of the  EU DPP core ontology proposal of the CIRPASS-2 European project.
+
+DEPENDENCIES:  This module has dependencies to the following EU DPP Core Ontology (CO) modules: CON, P_DPP.  
+
+The third iteration of the Substances of Concern module of the EU DPP core ontology proposal of the CIRPASS-2 European project.
+
+The information requirements laid out in ESPR Art 7(2) and Art 7(5) for products require the information requirements to make it possible to track the substances of concern, throughout the life cycle of the products concerned. These information requirements for specific product groups are specified in the delegated acts adopted pursuant to Art 4 of ESPR.
+	
+This module addresses only the information requirements referred and stated in the ESPR. 
+=====================================
+CONTEXT: 
+Regulation (EC) No 1907/2006  Art 3(1) defines Substance: means a chemical element and its compounds in the natural state or obtained by
+any manufacturing process, including any additive necessary to preserve its stability and any impurity deriving from the process used, but excluding any solvent which may be separated without affecting the stability of the substance or changing its composition; 
+
+------------------------------------------------------------------- 
+Known issues:
+ - hasLifeCycleStage misses range (Event).
+
+--
+THIS DOCUMENT IS PROVIDED WITH NO WARRANTIES WHATSOEVER. 
+All liability for any damages arising from use or misuse of this vocabulary is with the user."""@en ;
+  dcterms:issued "2026-02-28"@en ;
+  dcterms:licence <https://www.apache.org/licenses/LICENSE-2.0>, """This ontology is licensed under the Apache License, Version 2.0. 
+In case of dispute over Apache 2.0 applicability, or in case considering the ontology as a document, this ontology document is to be considered licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)."""@en ;
+  dcterms:title "The Substance of Concern (SOC) module of the EU DPP core ontology proposed by the CIRPASS-2 European project."@en ;
+  ns0:preferredNamespacePrefix "soc" ;
+  rdfs:comment "Third iteration of the Substances of Concern module of the EU DPP core ontology proposal of the CIRPASS-2 European project."@en ;
+  rdfs:label "EU DPP SOC"@en ;
+  owl:versionInfo "1.9.1" .
+
+dcterms:contributor a owl:AnnotationProperty .
+dcterms:created a owl:AnnotationProperty .
+dcterms:creator a owl:AnnotationProperty .
+dcterms:description a owl:AnnotationProperty .
+dcterms:identifier a owl:AnnotationProperty .
+dcterms:issued a owl:AnnotationProperty .
+dcterms:licence a owl:AnnotationProperty .
+dcterms:references a owl:AnnotationProperty .
+dcterms:source a owl:AnnotationProperty .
+dcterms:title a owl:AnnotationProperty .
+ns0:preferredNamespacePrefix a owl:AnnotationProperty .
+<https://w3id.org/eudpp#isMandatory> a owl:AnnotationProperty .
+xsd:date a rdfs:Datatype .
+<https://w3id.org/eudpp#hasConcentration>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range <https://w3id.org/eudpp#Concentration> ;
+  dcterms:references "ESPR Art 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "Defines the the concentration, maximum concentration or concentration range of the substances of concern, at the level of the product, its relevant components, or spare parts; ESPR Art 7(5)"@en ;
+  rdfs:label "Has concentration"@en .
+
+<https://w3id.org/eudpp#hasLifeCycleStage>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  dcterms:references "ESPR Annex I (f)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment """Describes the life cycle stage during which the Substance of Concern occurs for product (used during production, resulting being in product, in waste); ESPR Annex I (f).
+
+Known issue: Range is some type of an Event, not yet present in the EU DPP CO."""@en ;
+  rdfs:label "Has life cycle stage"@en .
+
+<https://w3id.org/eudpp#hasThreshold>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range <https://w3id.org/eudpp#Threshold> ;
+  dcterms:references "ESPR FAQ 10.115, p59"@en ;
+  dcterms:source "https://circabc.europa.eu/ui/group/418195ae-4919-45fa-a959-3b695c9aab28/library/25c48e7c-9ce3-41cb-96ac-d2942a8a29d6/details" ;
+  rdfs:comment """Describes relevant threshold of Substance of Concern.
+
+By default, information on all substances of concern present in a product, above the  relevant thresholds, should be included in the DPP [ESPR FAQ 10.115, p59]"""@en ;
+  rdfs:label "Has threshold"@en .
+
+<https://w3id.org/eudpp#abbreviation>
+  a owl:DatatypeProperty ;
+  rdfs:subPropertyOf <https://w3id.org/eudpp#otherName> ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The abbreviation used for the Substance of Concern; [ESPR Article 7(5)]"@en ;
+  rdfs:label "Abbreviation"@en .
+
+<https://w3id.org/eudpp#hasImpactOnEnvironment>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Annex I (f)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "Describes the impacts of Substance of Concern on environment; ESPR Annex I (f)"@en ;
+  rdfs:label "Has impact on environment"@en .
+
+<https://w3id.org/eudpp#hasImpactOnHumanHealth>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Annex I (f)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "Describes the impacts of Substance of Concern on human health; ESPR Annex I (f)"@en ;
+  rdfs:label "Has impact on human health"@en .
+
+<https://w3id.org/eudpp#nameCAS>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Article 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "The Chemical Abstract Service (CAS) name, if available; [ESPR Article 7(5)]"@en ;
+  rdfs:label "CAS name"@en .
+
+<https://w3id.org/eudpp#nameIUPAC>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Article 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "Name in the International Union of Pure and Applied Chemistry (IUPAC) nomenclature, or another international name when IUPAC name is not available [ESPR Article 7(5)]"@en ;
+  rdfs:label "IUPAC name"@en .
+
+<https://w3id.org/eudpp#numberCAS>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Article 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "The Chemical Abstract Service (CAS) number, if available; [ESPR Article 7(5)]"@en ;
+  rdfs:label "CAS number"@en .
+
+<https://w3id.org/eudpp#numberEC>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Article 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment """EXAMPLES:
+
+Mercurous Oxide
+EC Number: 239-934-0
+CAS Number: 15829-53-5""", "European Community (EC) number, as indicated in the European Inventory of Existing Commercial Chemical Substances (EINECS), the European List of Notified Chemical Substances (ELINCS) or the No Longer Polymer (NLP) list or the number assigned by the European Chemicals Agency (ECHA), if available and appropriate [ESPR Article 7(5)]"@en ;
+  rdfs:label "EC number"@en .
+
+<https://w3id.org/eudpp#otherName>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Article 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "Other names, including usual name, trade name, abbreviation; [ESPR Article 7(5)]"@en ;
+  rdfs:label "Other names"@en .
+
+<https://w3id.org/eudpp#substanceLocation>
+  a owl:DatatypeProperty ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  dcterms:references "ESPR Article 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "Location of the substance in the product; ESPR Art 7(5)"@en ;
+  rdfs:label "Location of substance"@en .
+
+<https://w3id.org/eudpp#tradeName>
+  a owl:DatatypeProperty ;
+  rdfs:subPropertyOf <https://w3id.org/eudpp#otherName> ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The trade name under which the Substance of Concern is known; [ESPR Article 7(5)]"@en ;
+  rdfs:label "Trade name"@en .
+
+<https://w3id.org/eudpp#usualName>
+  a owl:DatatypeProperty ;
+  rdfs:subPropertyOf <https://w3id.org/eudpp#otherName> ;
+  rdfs:domain <https://w3id.org/eudpp#SubstanceOfConcern> ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The usual name under which the Substance of Concern is known; [ESPR Article 7(5)]"@en ;
+  rdfs:label "Usual name"@en .
+
+<https://w3id.org/eudpp#Concentration>
+  a owl:Class ;
+  dcterms:references "ESPR Art 7(5)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "The concentration of the substances of concern, at the level of the product, its relevant components, or spare parts ESPR Art 7(5)"@en ;
+  rdfs:label "Concentration of the substance of concern"@en .
+
+<https://w3id.org/eudpp#Substance>
+  a owl:Class ;
+  dcterms:references "ESPR Art 2"@en, "Regulation (EC) No 1907/2006"@en ;
+  dcterms:source "http://data.europa.eu/eli/reg/2006/1907/oj", "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "Means a chemical element and its compounds in the natural state or obtained by any manufacturing process, including any additive necessary to preserve its stability and any impurity deriving from the process used, but excluding any solvent which may be separated without affecting the stability of the substance or changing its composition; ESPR Art 2, Regulation (EC) No 1907/2006"@en ;
+  rdfs:label "Substance"@en .
+
+<https://w3id.org/eudpp#SubstanceOfConcern>
+  a owl:Class ;
+  rdfs:subClassOf <https://w3id.org/eudpp#Substance> ;
+  dcterms:references "ESPR Art 2(10)"@en ;
+  dcterms:source "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" ;
+  rdfs:comment "means a substance that:(a) meets the criteria laid down in Article 57 of Regulation (EC) No 1907/2006 and is identified in accordance with Article 59(1) of that Regulation; (b) is classified in Part 3 of Annex VI to Regulation (EC) No 1272/2008 in one of the following hazard classes or hazard categories: (i) carcinogenicity categories 1 and 2; (ii) germ cell mutagenicity categories 1 and 2; (iii) reproductive toxicity categories 1 and 2; (iv) endocrine disruption for human health categories 1 and 2; (v) endocrine disruption for the environment categories 1 and 2; (vi) persistent, mobile and toxic or very persistent, very mobile properties; (vii) persistent, bioaccumulative and toxic or very persistent, very bioaccumulative properties; (viii) respiratory sensitisation category 1; (ix) skin sensitisation category 1; (x) hazardous to the aquatic environment — categories chronic 1 to 4; (xi) hazardous to the ozone layer; (xii) specific target organ toxicity — repeated exposure categories 1 and 2; (xiii) specific target organ toxicity — single exposure categories 1 and 2; (c) is regulated under Regulation (EU) 2019/1021; or (d) negatively affects the reuse and recycling of materials in the product in which it is present [ESPR Art 2(10)]"@en ;
+  rdfs:label "Substance of concern"@en .
+
+<https://w3id.org/eudpp#Threshold>
+  a owl:Class ;
+  dcterms:references "ESPR FAQ 10.115, p59"@en ;
+  dcterms:source "https://circabc.europa.eu/ui/group/418195ae-4919-45fa-a959-3b695c9aab28/library/25c48e7c-9ce3-41cb-96ac-d2942a8a29d6/details" ;
+  rdfs:comment """Relevant threshold of Substance of Concern.
+
+By default, information on all substances of concern present in a product, above the  relevant thresholds, should be included in the DPP [ESPR FAQ 10.115, p59]"""@en ;
+  rdfs:label "Threshold of substance of concern"@en .
+

@@ -124,12 +124,12 @@ class TestOntologyMapperVersionDispatch:
         mapper = OntologyMapper()
         result = mapper.find_mapping_for_term("itemNumber")
         assert result is not None
-        assert result.cirpass_uri == "eudpp:uniqueProductID"
+        assert result.cirpass_uri == "eudpp:uniqueProductIdentifier"
 
     def test_to_untp_with_version_returns_correct_spelling(self) -> None:
         """``to_untp(uri, version)`` returns the spelling for the given version."""
         mapper = OntologyMapper()
-        uri = "eudpp:uniqueProductID"
+        uri = "eudpp:uniqueProductIdentifier"
         assert mapper.to_untp(uri, version="0.6.1") == "serialNumber"
         assert mapper.to_untp(uri, version="0.7.0") == "itemNumber"
 
@@ -144,7 +144,7 @@ class TestOntologyMapperVersionDispatch:
         """No-version call returns the canonical (v0.6) spelling."""
         mapper = OntologyMapper()
         # Legacy callers (pre-Phase-3c) get the same result they always did.
-        assert mapper.to_untp("eudpp:uniqueProductID") == "serialNumber"
+        assert mapper.to_untp("eudpp:uniqueProductIdentifier") == "serialNumber"
         assert mapper.to_untp("eudpp:GTIN") == "gtin"
 
 
@@ -159,7 +159,7 @@ class TestBackwardCompatibility:
     def test_to_cirpass_unchanged(self) -> None:
         mapper = OntologyMapper()
         assert mapper.to_cirpass("Product") == "eudpp:Product"
-        assert mapper.to_cirpass("serialNumber") == "eudpp:uniqueProductID"
+        assert mapper.to_cirpass("serialNumber") == "eudpp:uniqueProductIdentifier"
         assert mapper.to_cirpass("nope") is None
 
     def test_mapping_count_includes_v07_only_rows(self) -> None:

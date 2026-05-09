@@ -175,34 +175,78 @@ jsonld_output = exporter.export(passport)
 # Ready for W3C Verifiable Credentials ecosystem
 ```
 
-## Supported versions
+## Supported specs
 
-dppvalidator supports both UNTP DPP wire formats in the same release.
-The version is auto-detected from the payload's `@context` /
-`$schema` URLs; pin explicitly with `--schema-version` (CLI) or
-`schema_version=` (Python).
+dppvalidator validates **two parallel families** in the same
+release: UNTP DPP (UN/CEFACT Verifiable Credential format) and the
+CIRPASS DPP reference structure (CIRPASS-2 hierarchical message).
+Family + version are auto-detected from the payload's `@context` /
+shape; pin explicitly with `--target` (family) and `--schema-version`
+(version), or `target=` / `schema_version=` in Python.
 
 <!-- markdownlint-disable MD013 MD060 -->
 
-| UNTP DPP  | Status             | Default? | Wire shape                                                                                                                                                                          |
+### UNTP DPP
+
+| Version   | Status             | Default? | Wire shape                                                                                                                                                                          |
 | --------- | ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **0.6.0** | Supported (legacy) | no       | `credentialSubject` is `ProductPassport` wrapping `Product`.                                                                                                                        |
 | **0.6.1** | Default            | **yes**  | Same shape as 0.6.0; current `DEFAULT_SCHEMA_VERSION`.                                                                                                                              |
 | **0.7.0** | Fully supported    | no       | `credentialSubject` IS the `Product` directly. New required fields: `name` (envelope), `idScheme`, `idGranularity`, `productCategory`, `producedAtFacility`, `countryOfProduction`. |
 
+### CIRPASS DPP reference structure
+
+| Version   | Status          | Default? | Wire shape                                                                                                                                                                        |
+| --------- | --------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1.3.0** | Fully supported | **yes**  | Hierarchical message: root carries `dppIdentifier`, `product`, `issuedAt`, `effectivePeriod`, `relatedActors`, `composition`, `substancesOfConcern`, `lca`, `connectorRelations`. |
+
+EUDPP modules bundled: P_DPP / ACTOR / SOC / CON v1.9.1, LCA
+v1.9.4-Maki. Per-module SHACL pass with attributed source (Phase 4).
+
 <!-- markdownlint-enable MD013 MD060 -->
 
-A compat shim upgrades v0.6.x payloads to v0.7.0 shape:
+### Migration shims
+
+Two shims project between families and across UNTP versions:
 
 ```bash
+# UNTP 0.6 → 0.7 (intra-family upgrade)
 dppvalidator migrate passport-v06.json -o passport-v07.json
-dppvalidator validate passport-v06.json --upgrade-from 0.6.1 --schema-version 0.7.0
+
+# UNTP 0.7 → CIRPASS reference structure 1.3 (cross-family forward)
+dppvalidator migrate passport-v07.json --to cirpass-1.3 -o cirpass.json --accept-warnings
+
+# CIRPASS 1.3 → UNTP 0.7 (cross-family reverse)
+dppvalidator migrate cirpass.json --to untp-0.7 -o untp.json --accept-warnings
 ```
 
-The full version-handling story is documented in
-[`docs/concepts/untp-versions.md`](docs/concepts/untp-versions.md);
-the field rename table and warning codes are in
-[`docs/guides/migration-0-6-to-0-7.md`](docs/guides/migration-0-6-to-0-7.md).
+### Pilot profiles + plugins
+
+<!-- markdownlint-disable MD013 MD060 -->
+
+| Pilot                                           | Activation                       | Source                                                              |
+| ----------------------------------------------- | -------------------------------- | ------------------------------------------------------------------- |
+| Textile DPP v1 (legacy)                         | `--profile textile-v1`           | built-in                                                            |
+| Textile DPP v2 (MVP 2025-12-04)                 | `--profile textile-v2`           | built-in                                                            |
+| Tyres (GDSO Birth/Collection/Retread/Recycling) | `pip install dppvalidator-tyres` | [`plugins/tyres/`](plugins/tyres) — Pre-1.0 / Experimental, GPL-3.0 |
+
+<!-- markdownlint-enable MD013 MD060 -->
+
+### Reading guide
+
+<!-- markdownlint-disable MD013 MD060 -->
+
+| You want…                         | See                                                                                |
+| --------------------------------- | ---------------------------------------------------------------------------------- |
+| Big-picture orientation           | [`docs/concepts/cirpass-2-alignment.md`](docs/concepts/cirpass-2-alignment.md)     |
+| Migrate a UNTP fixture to CIRPASS | [`docs/guides/migrate-untp-to-cirpass.md`](docs/guides/migrate-untp-to-cirpass.md) |
+| UNTP version handling             | [`docs/concepts/untp-versions.md`](docs/concepts/untp-versions.md)                 |
+| 0.6 → 0.7 upgrade                 | [`docs/guides/migration-0-6-to-0-7.md`](docs/guides/migration-0-6-to-0-7.md)       |
+| Field-by-field UNTP↔CIRPASS map   | [`docs/concepts/untp-cirpass-mapping.md`](docs/concepts/untp-cirpass-mapping.md)   |
+| CLI exit codes                    | [`docs/reference/cli/exit-codes.md`](docs/reference/cli/exit-codes.md)             |
+| CIRPASS Pydantic API              | [`docs/reference/cirpass/index.md`](docs/reference/cirpass/index.md)               |
+
+<!-- markdownlint-enable MD013 MD060 -->
 
 ## Features
 

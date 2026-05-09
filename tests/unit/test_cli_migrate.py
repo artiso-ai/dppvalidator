@@ -115,10 +115,15 @@ class TestMigrateCommand:
 
     def test_refuses_to_write_when_warnings_fire(self, v06_payload: Path, tmp_path: Path) -> None:
         # The fixture has registeredId → UPG001 (lossy/warning) — without
-        # --accept-warnings the command must refuse.
+        # --accept-warnings the command must refuse. Phase 6 task 6.7
+        # of [docs/plans/CIRPASS_2_MIGRATION.md] introduces a distinct
+        # exit code (4 = ``EXIT_BLOCKING_WARNINGS``) for this path so
+        # CI wrappers can differentiate it from validation errors (1).
+        from dppvalidator.cli.main import EXIT_BLOCKING_WARNINGS
+
         out = tmp_path / "upgraded.json"
         exit_code = main(["migrate", str(v06_payload), "-o", str(out)])
-        assert exit_code == 1
+        assert exit_code == EXIT_BLOCKING_WARNINGS
         # Sidecar must always be written when blocking warnings fire.
         sidecar = out.with_suffix(out.suffix + ".warnings.json")
         assert sidecar.is_file(), "sidecar warnings file must be written"

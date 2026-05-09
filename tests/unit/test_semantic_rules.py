@@ -114,8 +114,13 @@ class TestSemanticRulesWithViolations:
     """Tests for semantic rules that produce violations."""
 
     def test_mass_fraction_sum_exceeds_one_via_engine(self):
-        """Test model validator catches mass fractions exceeding 1.0 via engine."""
-        engine = ValidationEngine()
+        """Test model validator catches mass fractions exceeding 1.0 via engine.
+
+        Pinned to v0.6.1 — the payload uses v0.6's plural
+        ``materialsProvenance`` and a lean envelope that doesn't meet
+        v0.7.0's required-field bar (Phase 9 task 9.1).
+        """
+        engine = ValidationEngine(schema_version="0.6.1")
         data = {
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
@@ -131,8 +136,11 @@ class TestSemanticRulesWithViolations:
         assert any("mass fraction" in e.message.lower() for e in result.errors)
 
     def test_validity_date_rule_violation(self):
-        """Test ValidityDateRule detects invalid date order via engine."""
-        engine = ValidationEngine()
+        """Test ValidityDateRule detects invalid date order via engine.
+
+        Pinned to v0.6.1 — see note above (Phase 9 task 9.1).
+        """
+        engine = ValidationEngine(schema_version="0.6.1")
         data = {
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},

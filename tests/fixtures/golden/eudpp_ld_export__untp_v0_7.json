@@ -1,0 +1,284 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    {
+      "dpp": "https://dpp.vocabulary-hub.eu/",
+      "eudpp": "https://w3id.org/eudpp#",
+      "gs1": "https://gs1.org/voc/",
+      "lca": "https://w3id.org/eudpp#",
+      "qudt": "http://qudt.org/schema/qudt#",
+      "schema": "https://schema.org/",
+      "sh": "http://www.w3.org/ns/shacl#",
+      "si": "https://si-digital-framework.org/SI#",
+      "untp": "https://test.uncefact.org/vocabulary/untp/dpp/"
+    }
+  ],
+  "credentialSubject": {
+    "Facility": {
+      "idScheme": {
+        "productName": "UNTP Sample Facility Register",
+        "type": [
+          "IdentifierScheme"
+        ],
+        "uniqueDPPID": "https://facility-register.example.com"
+      },
+      "productName": "Sample Copper Mine",
+      "registeredId": "fac-001",
+      "type": [
+        "Facility"
+      ],
+      "uniqueDPPID": "https://facility-register.example.com/fac-001"
+    },
+    "batchNumber": "2025-Q1-4501",
+    "commodityCode": [
+      {
+        "code": "14110",
+        "definition": "Copper ores and concentrates obtained from mining operations.",
+        "productName": "Copper ores and concentrates",
+        "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+        "schemeName": "UN Central Product Classification (CPC)"
+      }
+    ],
+    "countryOfProduction": {
+      "countryCode": "ZM",
+      "countryName": "Zambia"
+    },
+    "description": "Copper sulphide flotation concentrate with approximately 30% copper content, produced at Sample Copper Mine. Suitable for smelting to produce refined copper cathode.",
+    "dimensions": {
+      "weight": {
+        "unit": "KGM",
+        "value": 1000.0
+      }
+    },
+    "granularity": "model",
+    "hasManufacturer": [
+      {
+        "party": {
+          "idScheme": {
+            "productName": "Patents and Companies Registration Agency (Zambia)",
+            "type": [
+              "IdentifierScheme"
+            ],
+            "uniqueDPPID": "https://sample-register.example.com"
+          },
+          "productName": "Sample Copper Mine Pty Ltd",
+          "registeredId": "MINE-001",
+          "registrationCountry": {
+            "countryCode": "ZM",
+            "countryName": "Zambia"
+          },
+          "type": [
+            "Party"
+          ],
+          "uniqueDPPID": "did:web:sample-mine.example.com"
+        },
+        "role": "manufacturer"
+      }
+    ],
+    "hasMaterialProvenance": [
+      {
+        "containsSubstanceOfConcern": false,
+        "mass": {
+          "unit": "KGM",
+          "value": 300.0
+        },
+        "massFraction": 0.3,
+        "materialType": {
+          "code": "14110",
+          "definition": "Copper ores and concentrates obtained from mining operations.",
+          "productName": "Copper ores and concentrates",
+          "schemeId": "https://unstats.un.org/unsd/classifications/Econ/cpc/",
+          "schemeName": "UN Central Product Classification (CPC)"
+        },
+        "originCountry": {
+          "countryCode": "ZM",
+          "countryName": "Zambia"
+        },
+        "productName": "Copper ore",
+        "recycledMassFraction": 0.0
+      }
+    ],
+    "hasPerformanceClaim": [
+      {
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "measure": {
+              "unit": "KGM",
+              "value": 2.1
+            },
+            "metric": {
+              "productName": "Product Carbon Footprint",
+              "type": [
+                "PerformanceMetric"
+              ],
+              "uniqueDPPID": "https://vocabulary.uncefact.org/performance-metric/product-carbon-footprint"
+            }
+          }
+        ],
+        "classification": [],
+        "conformityTopic": [
+          {
+            "definition": "Assessment of direct and indirect greenhouse gas emissions across scopes 1, 2, and 3, including measurement, reporting, and reduction targets aligned with climate science.",
+            "productName": "Greenhouse Gas Emissions",
+            "type": [
+              "ConformityTopic"
+            ],
+            "uniqueDPPID": "https://vocabulary.uncefact.org/conformity-topic/greenhouse-gas-emissions"
+          }
+        ],
+        "description": "Cradle-to-gate carbon footprint of copper concentrate per tonne produced at Sample mine.",
+        "evidence": [],
+        "productName": "Product Carbon Footprint — Copper Concentrate",
+        "referenceCriteria": [
+          {
+            "conformityTopic": [
+              {
+                "definition": "Assessment of direct and indirect greenhouse gas emissions across scopes 1, 2, and 3, including measurement, reporting, and reduction targets aligned with climate science.",
+                "productName": "Greenhouse Gas Emissions",
+                "type": [
+                  "ConformityTopic"
+                ],
+                "uniqueDPPID": "https://vocabulary.uncefact.org/conformity-topic/greenhouse-gas-emissions"
+              }
+            ],
+            "productName": "GHG Emissions Management (Coppermark RRA Criterion 26)",
+            "type": [
+              "Criterion"
+            ],
+            "uniqueDPPID": "https://sample-scheme.coppermark.org/criteria/ghg-management/v3"
+          }
+        ],
+        "referenceRegulation": [],
+        "referenceStandard": [],
+        "type": [
+          "Claim"
+        ],
+        "uniqueDPPID": "https://sample-mine.example.com/claims/product-carbon-2025"
+      },
+      {
+        "claimDate": "2025-03-01",
+        "claimedPerformance": [
+          {
+            "measure": {
+              "unit": "MTQ",
+              "value": 15.0
+            },
+            "metric": {
+              "productName": "Water Intensity",
+              "type": [
+                "PerformanceMetric"
+              ],
+              "uniqueDPPID": "https://vocabulary.uncefact.org/performance-metric/water-intensity"
+            }
+          }
+        ],
+        "classification": [],
+        "conformityTopic": [
+          {
+            "definition": "Efficient and responsible management of water resources, including reduction of water consumption, recycling, and protection of water quality in operations and supply chains.",
+            "productName": "Water Conservation",
+            "type": [
+              "ConformityTopic"
+            ],
+            "uniqueDPPID": "https://vocabulary.uncefact.org/conformity-topic/water-conservation"
+          }
+        ],
+        "description": "Water consumption per tonne of copper concentrate produced at Sample mine.",
+        "evidence": [],
+        "productName": "Water Intensity — Copper Concentrate",
+        "referenceCriteria": [
+          {
+            "conformityTopic": [
+              {
+                "definition": "Efficient and responsible management of water resources, including reduction of water consumption, recycling, and protection of water quality in operations and supply chains.",
+                "productName": "Water Conservation",
+                "type": [
+                  "ConformityTopic"
+                ],
+                "uniqueDPPID": "https://vocabulary.uncefact.org/conformity-topic/water-conservation"
+              }
+            ],
+            "productName": "Water Stewardship (Coppermark RRA Criterion 27)",
+            "type": [
+              "Criterion"
+            ],
+            "uniqueDPPID": "https://sample-scheme.coppermark.org/criteria/water-stewardship/v3"
+          }
+        ],
+        "referenceRegulation": [],
+        "referenceStandard": [],
+        "type": [
+          "Claim"
+        ],
+        "uniqueDPPID": "https://sample-mine.example.com/claims/product-water-2025"
+      }
+    ],
+    "idScheme": {
+      "productName": "Sample Product Identifier Scheme",
+      "type": [
+        "IdentifierScheme"
+      ],
+      "uniqueDPPID": "https://id.sample-mine.example.com"
+    },
+    "modelNumber": "SM-CU-CONC-30",
+    "productLabel": [],
+    "productName": "Copper Concentrate (Cu 30%)",
+    "productionDate": "2025-03-01",
+    "relatedDocument": [
+      {
+        "linkName": "Coppermark Certification — Sample Copper Mine",
+        "linkType": "https://test.uncefact.org/vocabulary/linkTypes/dcc",
+        "linkURL": "https://credentials.sample-cab.example.com/dcc/mine-001",
+        "mediaType": "application/ld+json"
+      }
+    ],
+    "type": [
+      "eudpp:Product"
+    ],
+    "uniqueDPPID": "https://id.sample-mine.example.com/product/cu-conc-2025"
+  },
+  "granularity": "model",
+  "hasIssuer": {
+    "issuerAlsoKnownAs": [
+      {
+        "idScheme": {
+          "productName": "Patents and Companies Registration Agency (Zambia)",
+          "type": [
+            "IdentifierScheme"
+          ],
+          "uniqueDPPID": "https://sample-register.example.com"
+        },
+        "productName": "Sample Copper Mine Pty Ltd",
+        "registeredId": "MINE-001",
+        "type": [
+          "Party"
+        ],
+        "uniqueDPPID": "https://sample-register.example.com/companies/MINE-001"
+      }
+    ],
+    "productName": "Sample Copper Mine Pty Ltd",
+    "type": [
+      "CredentialIssuer"
+    ],
+    "uniqueDPPID": "did:web:sample-mine.example.com"
+  },
+  "issuingSoftware": {
+    "productName": "Sample Passport Builder",
+    "uniqueDPPID": "https://sample-software-vendor.example.com/.well-known/untp/software/passport-builder/2026.04.1",
+    "vendor": {
+      "productName": "Sample Software Vendor Inc",
+      "uniqueDPPID": "did:web:sample-software-vendor.example.com"
+    },
+    "version": "2026.04.1"
+  },
+  "productName": "Digital Product Passport — Copper Concentrate (Cu 30%)",
+  "schemaVersion": "CIRPASS-2 v1.3.0",
+  "type": [
+    "eudpp:DPP",
+    "VerifiableCredential"
+  ],
+  "uniqueDPPID": "https://credentials.sample-mine.example.com/dpp/cu-conc-2025",
+  "validFrom": "2025-03-01T00:00:00Z",
+  "validUntil": "2026-03-01T00:00:00Z"
+}

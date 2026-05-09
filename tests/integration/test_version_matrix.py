@@ -176,3 +176,79 @@ def test_invalid_v07_fixture_is_rejected(fixture: Path) -> None:
         f"{fixture.name} returned valid=False but no errors — the engine "
         "should always surface the cause."
     )
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 (CIRPASS-2): family-aware detection routing
+# ---------------------------------------------------------------------------
+#
+# The full CIRPASS validation pipeline lands in Phase 4 of the
+# CIRPASS-2 migration. Phase 2 only adds the registry + detection
+# axes. These tests assert that:
+#   1. The CIRPASS family surfaces in the registry alongside UNTP.
+#   2. ``detect_schema()`` routes synthetic CIRPASS-shaped payloads to
+#      the CIRPASS family with the right version.
+#   3. A payload that carries *both* UNTP and EUDPP context references
+#      routes to UNTP (the EUDPP IRI is a downstream binding, not a
+#      family override).
+
+
+def test_registry_exposes_both_families() -> None:
+    """Phase 2 task 2.1+2.5: both UNTP and CIRPASS surface in the registry."""
+    from dppvalidator.schemas.registry import SchemaFamily, SchemaRegistry
+
+    r = SchemaRegistry()
+    families = set(r.available_families)
+    assert SchemaFamily.UNTP in families
+    assert SchemaFamily.CIRPASS in families
+
+
+def test_cirpass_detection_routes_synthetic_payload() -> None:
+    """A CIRPASS-shaped payload (root Product + EUDPP context) routes
+    to ``(SchemaFamily.CIRPASS, "1.3.0")`` per Phase 2 task 2.7+2.8."""
+    from dppvalidator.schemas.registry import DEFAULT_VERSIONS, SchemaFamily
+    from dppvalidator.validators.detection import detect_schema
+
+    payload = {
+        "@context": ["https://www.w3.org/ns/credentials/v2", "https://w3id.org/eudpp/"],
+        "type": ["DigitalProductPassport"],
+        "Product": {"name": "Sample"},
+    }
+    family, version = detect_schema(payload)
+    assert family is SchemaFamily.CIRPASS
+    assert version == DEFAULT_VERSIONS[SchemaFamily.CIRPASS]
+
+
+def test_mixed_context_payload_routes_to_untp() -> None:
+    """A payload with both UNTP and EUDPP @context references stays
+    routed to UNTP — the EUDPP IRI is a downstream binding the UNTP-VC
+    declares, not a family override."""
+    from dppvalidator.schemas.registry import SchemaFamily
+    from dppvalidator.validators.detection import detect_schema
+
+    payload = {
+        "@context": [
+            "https://www.w3.org/ns/credentials/v2",
+            "https://test.uncefact.org/vocabulary/untp/dpp/0.6.1/",
+            "https://w3id.org/eudpp/",
+        ],
+        "type": ["DigitalProductPassport", "VerifiableCredential"],
+        "credentialSubject": {"name": "Sample"},
+    }
+    family, version = detect_schema(payload)
+    assert family is SchemaFamily.UNTP
+    assert version == "0.6.1"
+
+
+def test_cirpass_default_version_resolves() -> None:
+    """``SchemaRegistry.get_schema_for(CIRPASS)`` returns the default."""
+    from dppvalidator.schemas.registry import (
+        DEFAULT_VERSIONS,
+        SchemaFamily,
+        SchemaRegistry,
+    )
+
+    r = SchemaRegistry()
+    schema = r.get_schema_for(SchemaFamily.CIRPASS)
+    assert schema.version == DEFAULT_VERSIONS[SchemaFamily.CIRPASS]
+    assert schema.family is SchemaFamily.CIRPASS

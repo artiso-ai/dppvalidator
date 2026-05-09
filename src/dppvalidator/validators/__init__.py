@@ -5,7 +5,16 @@ from dppvalidator.validators.deep import (
     DeepValidator,
     validate_deep,
 )
-from dppvalidator.validators.detection import detect_schema_version, is_dpp_document
+from dppvalidator.validators.detection import (
+    DET_CODE_FAMILY_MISMATCH,
+    detect_schema,
+    detect_schema_family,
+    detect_schema_version,
+    is_cirpass_dpp,
+    is_dpp_document,
+    is_untp_dpp,
+    looks_like_dpp,
+)
 from dppvalidator.validators.engine import ValidationEngine
 from dppvalidator.validators.jsonld_semantic import (
     JSONLDValidator,
@@ -37,9 +46,16 @@ from dppvalidator.validators.shacl import (
 )
 
 __all__ = [
-    # Detection
+    # Detection (pre-Phase-2 API; UNTP-only)
     "detect_schema_version",
     "is_dpp_document",
+    # Detection (Phase 2 family-aware API)
+    "DET_CODE_FAMILY_MISMATCH",
+    "detect_schema",
+    "detect_schema_family",
+    "is_cirpass_dpp",
+    "is_untp_dpp",
+    "looks_like_dpp",
     # Engine
     "ValidationEngine",
     # Results

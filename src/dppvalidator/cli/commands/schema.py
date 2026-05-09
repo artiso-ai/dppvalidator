@@ -76,47 +76,79 @@ def run(args: argparse.Namespace, console: Console) -> int:
 
 
 def _list_schemas(console: Console) -> int:
-    """List available schema versions registered in ``SCHEMA_REGISTRY``.
+    """List available schema versions registered in ``SCHEMA_REGISTRY_BY_FAMILY``.
 
-    Source of truth is ``SCHEMA_REGISTRY``; ``CONTEXTS`` is consulted for the
-    JSON-LD context URLs of each version. Both are kept in lock-step — see
-    docs/plans/UNTP_0.7.0_MIGRATION.md §Phase 1.
+    Phase 6 task 6.6 of [docs/plans/CIRPASS_2_MIGRATION.md] extended
+    this with a family column and a per-family default marker so
+    consumers can see UNTP 0.6 / 0.7 and CIRPASS 1.3 in one view.
     """
     from dppvalidator.exporters.contexts import CONTEXTS
-    from dppvalidator.schemas.registry import SCHEMA_REGISTRY, SchemaRegistry
+    from dppvalidator.schemas.registry import (
+        DEFAULT_VERSIONS,
+        SCHEMA_REGISTRY_BY_FAMILY,
+        SchemaFamily,
+    )
 
-    default_version = SchemaRegistry().default_version
-
-    table = console.create_table(title="Available UNTP DPP Schema Versions")
+    table = console.create_table(title="Available DPP Schema Versions")
+    table.add_column("Family")
     table.add_column("Version")
     table.add_column("Default", justify="center")
     table.add_column("Bundled", justify="center")
     table.add_column("Contexts")
 
-    for version in sorted(SCHEMA_REGISTRY):
-        schema = SCHEMA_REGISTRY[version]
-        is_default = "✓" if version == default_version else ""
-        # ``sha256 is not None`` is the proxy for "we ship this file in-tree";
-        # versions without a hash are registered but rely on a custom path
-        # being supplied at validate-time.
+    # Sort: family alphabetically, then version ascending. Stable so
+    # consumers / golden-snapshot tests can pin against the table.
+    sorted_keys = sorted(
+        SCHEMA_REGISTRY_BY_FAMILY,
+        key=lambda fv: (
+            fv[0].value,
+            tuple(int(x) if x.isdigit() else 0 for x in fv[1].split(".")),
+        ),
+    )
+
+    for family, version in sorted_keys:
+        schema = SCHEMA_REGISTRY_BY_FAMILY[(family, version)]
+        family_label = family.value
+        is_default = "✓" if DEFAULT_VERSIONS.get(family) == version else ""
         is_bundled = "✓" if schema.sha256 is not None else ""
-        ctx = CONTEXTS.get(version)
-        contexts = ", ".join(ctx.contexts) if ctx else "(no @context registered)"
-        table.add_row(version, is_default, is_bundled, contexts)
+        # Each row's @context list comes from two sources:
+        # - UNTP rows use the legacy CONTEXTS table (key = bare version).
+        # - CIRPASS rows use the registry row's ``context_urls`` tuple
+        #   directly (no legacy CONTEXTS entry exists for CIRPASS).
+        if family is SchemaFamily.UNTP:
+            ctx = CONTEXTS.get(version)
+            contexts = ", ".join(ctx.contexts) if ctx else "(no @context registered)"
+        else:
+            contexts = (
+                ", ".join(schema.context_urls)
+                if schema.context_urls
+                else "(no @context registered)"
+            )
+        table.add_row(family_label, version, is_default, is_bundled, contexts)
 
     console.print_table(table)
     return EXIT_VALID
 
 
 def _download_schema(version: str, output_dir: str | None, console: Console) -> int:
-    """Download a schema by version using the URL recorded in ``SCHEMA_REGISTRY``."""
+    """Download a schema by version using the URL recorded in the registry.
+
+    Uses the tuple-keyed :data:`SCHEMA_REGISTRY_BY_FAMILY` (Phase 2
+    source of truth) — the bare-string ``SCHEMA_REGISTRY`` view is
+    deprecated since 0.5.0 (Phase 9 task 9.4).
+    """
     from pathlib import Path
 
-    from dppvalidator.schemas.registry import SCHEMA_REGISTRY
+    from dppvalidator.schemas.registry import SCHEMA_REGISTRY_BY_FAMILY, SchemaFamily
 
-    if version not in SCHEMA_REGISTRY:
+    untp_versions = {
+        v: schema
+        for (family, v), schema in SCHEMA_REGISTRY_BY_FAMILY.items()
+        if family is SchemaFamily.UNTP
+    }
+    if version not in untp_versions:
         console.print_error(f"Unknown version: {version}")
-        console.print(f"Available: {', '.join(sorted(SCHEMA_REGISTRY))}")
+        console.print(f"Available: {', '.join(sorted(untp_versions))}")
         return EXIT_ERROR
 
     try:
@@ -126,7 +158,7 @@ def _download_schema(version: str, output_dir: str | None, console: Console) -> 
         console.print("Install with: pip install 'dppvalidator[http]'")
         return EXIT_ERROR
 
-    schema_url = SCHEMA_REGISTRY[version].url
+    schema_url = untp_versions[version].url
 
     try:
         logger.info("Downloading schema %s from %s", version, schema_url)
@@ -149,16 +181,24 @@ def _download_schema(version: str, output_dir: str | None, console: Console) -> 
 
 
 def _show_info(version: str, console: Console) -> int:
-    """Show schema information for ``version`` from the registries."""
-    from dppvalidator.exporters.contexts import CONTEXTS
-    from dppvalidator.schemas.registry import SCHEMA_REGISTRY
+    """Show schema information for ``version`` from the registries.
 
-    if version not in SCHEMA_REGISTRY:
+    Uses the tuple-keyed :data:`SCHEMA_REGISTRY_BY_FAMILY` source of
+    truth — the bare-string ``SCHEMA_REGISTRY`` view is deprecated
+    since 0.5.0 (Phase 9 task 9.4).
+    """
+    from dppvalidator.exporters.contexts import CONTEXTS
+    from dppvalidator.schemas.registry import SCHEMA_REGISTRY_BY_FAMILY, SchemaFamily
+
+    untp_versions = {
+        v: s for (family, v), s in SCHEMA_REGISTRY_BY_FAMILY.items() if family is SchemaFamily.UNTP
+    }
+    if version not in untp_versions:
         console.print_error(f"Unknown version: {version}")
-        console.print(f"Available: {', '.join(sorted(SCHEMA_REGISTRY))}")
+        console.print(f"Available: {', '.join(sorted(untp_versions))}")
         return EXIT_ERROR
 
-    schema = SCHEMA_REGISTRY[version]
+    schema = untp_versions[version]
     ctx = CONTEXTS.get(version)
     type_arr = ctx.default_type if ctx else ()
     sha = schema.sha256 or "(not bundled — fetched on demand)"

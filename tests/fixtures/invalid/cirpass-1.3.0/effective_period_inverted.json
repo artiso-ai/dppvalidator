@@ -1,0 +1,19 @@
+{
+  "_failure": "EffectivePeriod.start (2031) is later than .end (2026) — empty period.",
+  "dppIdentifier": {
+    "value": "https://example.com/dpp/X",
+    "scheme": "https://example.com/"
+  },
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890128",
+      "scheme": "https://gs1.org/voc/"
+    },
+    "productName": [{"value": "Inverted Period", "language": "en"}]
+  },
+  "issuedAt": {"timestamp": "2026-05-08T12:00:00+00:00"},
+  "effectivePeriod": {
+    "start": "2031-12-31T23:59:59+00:00",
+    "end": "2026-01-01T00:00:00+00:00"
+  }
+}
