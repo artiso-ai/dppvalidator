@@ -2796,13 +2796,31 @@ Every Phase 9 BLOCKER fix MUST preserve:
 - [ ] All four UAT scenarios pass with reviewer sign-off.
 - [ ] `pypi-publish` skill clean.
 
-#### Phase 9 status — 2026-05-09 (10/11 tasks complete; 9.6 PyPI step reserved)
+#### Phase 9 status — 2026-05-09 (PR #8 open; awaiting CI + tag v0.5.0)
 
 End-to-end implementation of the Phase 9 release cut. **Tasks 9.1
-through 9.5 plus 9.7 through 9.11 are landed in source on
-`develop`.** Task 9.6 (`pypi-publish` skill — PyPI upload) is
-reserved for the release manager and runs on the merged release
-branch.
+through 9.11 are landed in source.** Task 9.6 (`pypi-publish`)
+fires automatically on the `v0.5.0` tag via the
+[`release.yml`](https://github.com/artiso-ai/dppvalidator/blob/main/.github/workflows/release.yml)
+workflow.
+
+**Release-cut state (2026-05-09):**
+
+- `develop` advanced from `c61f0ea` to `a8ea0c0` with two commits:
+  - `290e303` — `feat: add CIRPASS-2 reference structure v1.3.0
+    and complete UNTP 0.7.0 alignment` (Phases 0–9 work).
+  - `a8ea0c0` — `chore(release): 0.5.0` (pyproject + uv.lock
+    version bump 0.4.0 → 0.5.0).
+- `release/0.5.0` branch cut from `develop` and pushed to
+  origin.
+- **Pull request:** [#8](https://github.com/artiso-ai/dppvalidator/pull/8)
+  `release/0.5.0 → main`. MERGEABLE; CI matrix running (lint +
+  3 OS × 5 Python test jobs + CodeQL).
+- **Final manual step (release manager):** after PR #8 CI is
+  green and PR is merged to `main`, push tag `v0.5.0` to fire
+  the release workflow (build → TestPyPI → smoke → PyPI →
+  GitHub Release with SBOM → SLSA provenance). Tag command:
+  `git tag -a v0.5.0 -m "release/0.5.0" && git push origin v0.5.0`.
 
 **Refactors and additions:**
 
