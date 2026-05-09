@@ -857,6 +857,276 @@ def section_content_negotiation(s: Smoke) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Phase 9 (0.5.0) — user-visible contract checks
+# ---------------------------------------------------------------------------
+#
+# The five sections below pin the Phase 9 contracts on the *installed*
+# wheel so a regression in any of them blocks a release. They run on
+# both the local dev env and the TestPyPI smoke job in release.yml
+# (see DPP_BIN env var). Each is small and self-contained.
+
+
+def section_exit_codes(s: Smoke) -> None:
+    s.section("18. CLI — six-code exit surface (Phase 6 task 6.7)")
+    v06 = FIXTURES / "valid" / "untp-dpp-instance-0.6.1.json"
+    v07 = FIXTURES / "valid" / "untp-dpp-instance-0.7.0.json"
+    if not v06.is_file() or not v07.is_file():
+        s.skip("six-code exit surface", "fixtures unavailable")
+        return
+
+    # Exit 0 — valid v0.7 fixture
+    r = s.cli(["validate", str(v07)])
+    s.assert_(
+        "exit 0 (EXIT_VALID) on a valid v0.7.0 fixture",
+        r.returncode == 0,
+        r.stderr or r.stdout,
+    )
+
+    # Exit 1 — schema-violating junk payload
+    with tempfile.TemporaryDirectory() as tmpdir:
+        junk = Path(tmpdir) / "junk.json"
+        junk.write_text(
+            '{"id":"https://x.com","issuer":{"id":"https://x.com","name":"T"}}',
+            encoding="utf-8",
+        )
+        r = s.cli(["validate", str(junk)])
+        s.assert_(
+            "exit 1 (EXIT_INVALID) on a schema-violating payload",
+            r.returncode == 1,
+            r.stderr or r.stdout,
+        )
+
+    # Exit 3 — DET001 family mismatch (--target cirpass on a UNTP fixture)
+    r = s.cli(["validate", "--target", "cirpass", str(v07)])
+    s.assert_(
+        "exit 3 (EXIT_FAMILY_MISMATCH) on --target/payload contradiction",
+        r.returncode == 3,
+        r.stderr or r.stdout,
+    )
+    s.assert_(
+        "DET001 surfaced in stderr/stdout for the family mismatch",
+        "DET001" in (r.stderr + r.stdout),
+        r.stderr or r.stdout,
+    )
+
+    # Exit 4 — migrate without --accept-warnings (blocking warnings)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        out = Path(tmpdir) / "blocked.json"
+        r = s.cli(["migrate", str(v06), "-o", str(out)])
+        s.assert_(
+            "exit 4 (EXIT_BLOCKING_WARNINGS) on migrate w/o --accept-warnings",
+            r.returncode == 4,
+            r.stderr or r.stdout,
+        )
+        sidecar = out.with_suffix(out.suffix + ".warnings.json")
+        s.assert_(
+            "sidecar warnings file written even when main output is blocked",
+            sidecar.is_file(),
+            f"expected {sidecar} to exist; tmpdir contents: {list(Path(tmpdir).iterdir())}",
+        )
+
+    # Exit 5 — IO error (file not found)
+    r = s.cli(["validate", "/tmp/_dppvalidator_smoke_does_not_exist.json"])
+    s.assert_(
+        "exit 5 (EXIT_IO_ERROR) on a missing input file",
+        r.returncode == 5,
+        r.stderr or r.stdout,
+    )
+
+    # Exit 5 — IO error (invalid JSON)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        bad = Path(tmpdir) / "bad.json"
+        bad.write_text("{not valid json", encoding="utf-8")
+        r = s.cli(["validate", str(bad)])
+        s.assert_(
+            "exit 5 (EXIT_IO_ERROR) on syntactically-invalid JSON",
+            r.returncode == 5,
+            r.stderr or r.stdout,
+        )
+
+
+def section_status_list_index_coercion(s: Smoke) -> None:
+    s.section("19. D1 (Phase 9.7) — BitstringStatusListEntry.statusListIndex int coercion")
+    r = s.py(
+        """
+        from dppvalidator.models.v0_7.envelope import BitstringStatusListEntry
+        # Numeric-string from a v0.6 fixture shape — must coerce to int.
+        e = BitstringStatusListEntry.model_validate({
+            'id': 'https://example.com/sl/1',
+            'type': 'BitstringStatusListEntry',
+            'statusPurpose': 'revocation',
+            'statusListIndex': '12345',
+            'statusListCredential': 'https://example.com/sl',
+        })
+        assert e.status_list_index == 12345, e.status_list_index
+        assert isinstance(e.status_list_index, int), type(e.status_list_index)
+        # Round-trip — model_dump emits int, not the original string.
+        dumped = e.model_dump(by_alias=True, exclude_none=True)
+        assert dumped['statusListIndex'] == 12345, dumped
+        assert isinstance(dumped['statusListIndex'], int), type(dumped['statusListIndex'])
+        # Negative integer is rejected (ge=0).
+        try:
+            BitstringStatusListEntry.model_validate({
+                'id': 'https://example.com/sl/2',
+                'type': 'BitstringStatusListEntry',
+                'statusPurpose': 'revocation',
+                'statusListIndex': -1,
+                'statusListCredential': 'https://example.com/sl',
+            })
+            raise AssertionError('negative statusListIndex should have been rejected')
+        except Exception:
+            pass
+        print('OK')
+        """
+    )
+    s.assert_(
+        "statusListIndex coerces numeric strings to int and rejects negatives",
+        r.returncode == 0 and "OK" in r.stdout,
+        r.stderr or r.stdout,
+    )
+
+
+def section_party_role_gradient(s: Smoke) -> None:
+    s.section("20. D2 (Phase 9.8) — PartyRoleEnum gradient + PRT001 advisory")
+    v07 = FIXTURES / "valid" / "untp-dpp-instance-0.7.0.json"
+    if not v07.is_file():
+        s.skip("PartyRoleEnum gradient", "v0.7 fixture unavailable")
+        return
+
+    r = s.py(
+        f"""
+        import copy, json
+        from pathlib import Path
+        from dppvalidator.models.v0_7.identifiers import PartyRoleEnum, SCHEMA_STRICT_ROLES
+        from dppvalidator.validators.engine import ValidationEngine
+
+        # Surface invariants — gradient sizes are part of the public contract.
+        assert len(SCHEMA_STRICT_ROLES) == 6, len(SCHEMA_STRICT_ROLES)
+        assert len(list(PartyRoleEnum)) == 20, len(list(PartyRoleEnum))
+        assert PartyRoleEnum.MANUFACTURER.is_schema_strict() is True
+        assert PartyRoleEnum.IMPORTER.is_schema_strict() is False
+
+        # Build a payload with one of the 14 wider PartyRole values.
+        payload = json.loads(Path({json.dumps(str(v07))}).read_text(encoding='utf-8'))
+        related = payload.get('credentialSubject', {{}}).setdefault('relatedParty', [])
+        wider = {{'type': ['PartyRole'], 'role': 'importer',
+                  'party': {{'type': ['Party'], 'id': 'did:web:imp.example.com', 'name': 'Imp Co'}}}}
+        if related:
+            related[0] = wider
+        else:
+            related.append(wider)
+
+        # Default mode: PRT001 fires as info (informational).
+        r_default = ValidationEngine(schema_version='0.7.0').validate(payload)
+        prt_info = [i for i in (r_default.info or []) if i.code == 'PRT001']
+        assert len(prt_info) == 1, prt_info
+        assert all(e.code != 'PRT001' for e in (r_default.errors or [])), r_default.errors
+
+        # Strict mode: same payload, PRT001 promoted to error; valid flips to False.
+        r_strict = ValidationEngine(schema_version='0.7.0', strict_role_enum=True).validate(payload)
+        prt_err = [e for e in (r_strict.errors or []) if e.code == 'PRT001']
+        assert len(prt_err) == 1, prt_err
+        assert prt_err[0].severity == 'error', prt_err[0].severity
+        assert all(i.code != 'PRT001' for i in (r_strict.info or [])), r_strict.info
+
+        print('OK')
+        """
+    )
+    s.assert_(
+        "PRT001 emits as info by default, upgrades to error under strict_role_enum=True",
+        r.returncode == 0 and "OK" in r.stdout,
+        r.stderr or r.stdout,
+    )
+
+
+def section_deprecation_warnings(s: Smoke) -> None:
+    s.section("21. Phase 9.4 — deprecation warnings activated for 0.5.0")
+    r = s.py(
+        """
+        import warnings
+
+        # is_dpp_document — Phase 2 alias deprecated in 0.5.0.
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter('always')
+            from dppvalidator.validators.detection import is_dpp_document
+            is_dpp_document({'type': ['DigitalProductPassport']})
+        ddep = [w for w in captured if issubclass(w.category, DeprecationWarning)]
+        assert len(ddep) == 1, [str(w.message) for w in ddep]
+        assert 'looks_like_dpp' in str(ddep[0].message), str(ddep[0].message)
+
+        # SCHEMA_REGISTRY[version] bare-string lookup — deprecated in 0.5.0.
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter('always')
+            from dppvalidator.schemas.registry import SCHEMA_REGISTRY
+            _ = SCHEMA_REGISTRY['0.7.0']
+            _ = SCHEMA_REGISTRY['0.6.1']
+        sdep = [w for w in captured if issubclass(w.category, DeprecationWarning)]
+        assert len(sdep) == 2, [str(w.message) for w in sdep]
+        assert 'SCHEMA_REGISTRY_BY_FAMILY' in str(sdep[0].message), str(sdep[0].message)
+
+        # Recommended replacement — must NOT warn.
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter('always')
+            from dppvalidator.schemas.registry import SCHEMA_REGISTRY_BY_FAMILY, SchemaFamily
+            _ = SCHEMA_REGISTRY_BY_FAMILY[(SchemaFamily.UNTP, '0.7.0')]
+        clean = [w for w in captured if issubclass(w.category, DeprecationWarning)]
+        assert clean == [], [str(w.message) for w in clean]
+
+        print('OK')
+        """
+    )
+    s.assert_(
+        "is_dpp_document() and SCHEMA_REGISTRY[] each emit DeprecationWarning",
+        r.returncode == 0 and "OK" in r.stdout,
+        r.stderr or r.stdout,
+    )
+
+
+def section_cross_family_round_trip(s: Smoke) -> None:
+    s.section("22. Cross-family round-trip — UNTP ↔ CIRPASS via Python compat")
+    v07 = FIXTURES / "valid" / "untp-dpp-instance-0.7.0.json"
+    if not v07.is_file():
+        s.skip("cross-family round-trip", "v0.7 fixture unavailable")
+        return
+
+    r = s.py(
+        f"""
+        import json
+        from pathlib import Path
+        from dppvalidator.compat import to_cirpass_1_3, to_untp_0_7
+        from dppvalidator.validators.engine import ValidationEngine
+
+        untp = json.loads(Path({json.dumps(str(v07))}).read_text(encoding='utf-8'))
+
+        # Forward shim — UNTP 0.7 → CIRPASS 1.3.
+        cirpass, fwd_warnings = to_cirpass_1_3(untp)
+        assert isinstance(cirpass, dict), type(cirpass)
+        assert 'dppIdentifier' in cirpass and 'product' in cirpass and 'issuedAt' in cirpass, sorted(cirpass.keys())
+        fwd_codes = {{w.code for w in fwd_warnings}}
+        # The shim is documented to emit MAP00X warnings on lossy projections.
+        assert fwd_codes & {{'MAP001', 'MAP002', 'MAP003', 'MAP004', 'MAP005'}}, fwd_codes
+
+        # Reverse shim — round-trip back to UNTP.
+        back, rev_warnings = to_untp_0_7(cirpass)
+        assert isinstance(back, dict), type(back)
+        assert '@context' in back and 'credentialSubject' in back, sorted(back.keys())
+
+        # Round-tripped UNTP must validate cleanly against the v0.7 schema.
+        r_back = ValidationEngine(schema_version='0.7.0').validate(back)
+        assert r_back.valid, [e.message for e in r_back.errors[:3]]
+        assert r_back.schema_version == '0.7.0', r_back.schema_version
+
+        print('OK')
+        """
+    )
+    s.assert_(
+        "UNTP→CIRPASS→UNTP round-trip emits MAP-warnings and re-validates",
+        r.returncode == 0 and "OK" in r.stdout,
+        r.stderr or r.stdout,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Orchestrator
 # ---------------------------------------------------------------------------
 
@@ -888,6 +1158,15 @@ def main() -> int:
     section_manifest_integrity(s)
     section_doctor(s)
     section_content_negotiation(s)
+
+    # Phase 9 (0.5.0) — pin user-visible 0.5.0 contracts on the
+    # installed wheel. Run last because they're the freshest layer
+    # and any flake here is most actionable.
+    section_exit_codes(s)
+    section_status_list_index_coercion(s)
+    section_party_role_gradient(s)
+    section_deprecation_warnings(s)
+    section_cross_family_round_trip(s)
 
     return s.report()
 

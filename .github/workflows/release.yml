@@ -138,6 +138,25 @@ jobs:
       - name: Validate real fixture
         run: dppvalidator validate tests/fixtures/valid/minimal_dpp.json
 
+      # Full functional smoke against the TestPyPI-installed wheel.
+      # ``scripts/smoke_test.py`` ships ~22 sections (~109 assertions)
+      # across CLI, Python API, compat shim, exporter, plugins,
+      # manifest integrity, doctor, content-negotiation, and the
+      # Phase 9 (0.5.0) contracts (six-code exit surface, D1
+      # statusListIndex int coercion, D2 PartyRoleEnum gradient +
+      # PRT001 advisory, deprecation warnings, UNTP↔CIRPASS round-
+      # trip). DPP_BIN/PY_BIN point the script at the just-installed
+      # binary instead of a dev .venv. This is the deeper second-
+      # pass gate that runs after the lightweight import + CLI
+      # smoke checks above.
+      - name: Run full smoke-test suite against TestPyPI install
+        run: |
+          export DPP_BIN="$(which dppvalidator)"
+          export PY_BIN="$(which python)"
+          echo "DPP_BIN=$DPP_BIN"
+          echo "PY_BIN=$PY_BIN"
+          python scripts/smoke_test.py
+
   publish-pypi:
     name: Publish to PyPI
     runs-on: ubuntu-latest
