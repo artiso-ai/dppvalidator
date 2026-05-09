@@ -3,9 +3,12 @@
 Provides dataclass representations of actors and roles from the EU DPP
 Core Ontology, based on ESPR Art 2(37-48) economic operator definitions.
 
-Source: EU DPP Core Ontology v1.5.1 (Actors and Roles module)
-Namespace: http://dpp.taltech.ee/EUDPP#
-DOI: 10.5281/zenodo.15270342
+Source: EU DPP Core Ontology v1.9.1 (ACTOR module, 2026-03-04 — Phase 1
+target). Until the v1.9.1 TTL is vendored (Phase 1 task 1.1), this module
+ships the v1.5.1 actor/role set; only the namespace IRI was rebased onto
+``https://w3id.org/eudpp/actor/`` per ADR 0002.
+
+DOI (legacy v1.5.1 publication): 10.5281/zenodo.15270342
 """
 
 from __future__ import annotations
@@ -24,18 +27,39 @@ if TYPE_CHECKING:
 
 
 class EUDPPActorClass(str, Enum):
-    """EU DPP Core Ontology actor class URIs."""
+    """EU DPP Core Ontology actor class URIs.
+
+    Phase 1 task 1.8 (CIRPASS-2 migration): regenerated against ACTOR
+    v1.9.1. Two new classes added (assignment relationships); the four
+    pre-existing classes are unchanged.
+    """
 
     ACTOR = "eudpp:Actor"
     LEGAL_PERSON = "eudpp:LegalPerson"
     NATURAL_PERSON = "eudpp:NaturalPerson"
     FACILITY = "eudpp:Facility"
+    # +1.9.1 — assignment relationship classes added in ACTOR v1.9.1
+    # to model "actor X plays role Y in context Z" as a first-class
+    # entity rather than a binary predicate.
+    ACTOR_ROLE_ASSIGNMENT = "eudpp:ActorRoleAssignment"
+    AUTHORISED_REPRESENTATION_ASSIGNMENT = "eudpp:AuthorisedRepresentationAssignment"
 
 
 class EUDPPRoleClass(str, Enum):
     """EU DPP Core Ontology role class URIs.
 
     Role hierarchy per ESPR Art 2(37-55).
+
+    Phase 1 task 1.8 (CIRPASS-2 migration) note: ACTOR v1.9.1
+    consolidated specific economic-operator role IRIs (Manufacturer,
+    Importer, Distributor, Dealer, …) into 6 super-role classes.
+    The v1.7.1-era specific roles below are *not declared* in the
+    bundled v1.9.1 TTL but remain meaningful as ESPR-derived role
+    labels — downstream consumers that emit them still see well-formed
+    LD payloads, the IRIs just don't dereference against the v1.9.1
+    bundle. The new v1.9.1 super-role members
+    (``CIRCULAR_ECONOMY_ROLE``, ``CONFORMITY_ASSESSMENT_ROLE``) are
+    added alongside the legacy specifics.
     """
 
     # Base role
@@ -43,38 +67,40 @@ class EUDPPRoleClass(str, Enum):
 
     # Economic operators (ESPR Art 2(46))
     ECONOMIC_OPERATOR = "eudpp:EconomicOperatorRole"
-    MANUFACTURER = "eudpp:ManufacturerRole"
-    IMPORTER = "eudpp:ImporterRole"
-    DISTRIBUTOR = "eudpp:DistributorRole"
-    DEALER = "eudpp:DealerRole"
-    FULFILMENT_PROVIDER = "eudpp:FulfilmentServiceProviderRole"
-    AUTHORISED_REP = "eudpp:AuthorisedRepresentativeRole"
+    MANUFACTURER = "eudpp:ManufacturerRole"  # −1.9.1 (ESPR finer-grained; not in v1.9.1 TTL)
+    IMPORTER = "eudpp:ImporterRole"  # −1.9.1
+    DISTRIBUTOR = "eudpp:DistributorRole"  # −1.9.1
+    DEALER = "eudpp:DealerRole"  # −1.9.1
+    FULFILMENT_PROVIDER = "eudpp:FulfilmentServiceProviderRole"  # −1.9.1
+    AUTHORISED_REP = "eudpp:AuthorisedRepresentativeRole"  # −1.9.1
 
     # Authorities
     AUTHORITY = "eudpp:AuthorityRole"
-    MARKET_SURVEILLANCE = "eudpp:MarketSurveillanceAuthorityRole"
-    CUSTOMS = "eudpp:CustomsAuthorityRole"
+    MARKET_SURVEILLANCE = "eudpp:MarketSurveillanceAuthorityRole"  # −1.9.1
+    CUSTOMS = "eudpp:CustomsAuthorityRole"  # −1.9.1
 
     # Customers (ESPR Art 2(35))
-    CUSTOMER = "eudpp:CustomerRole"
-    CONSUMER = "eudpp:ConsumerRole"
+    CUSTOMER = "eudpp:CustomerRole"  # −1.9.1
+    CONSUMER = "eudpp:ConsumerRole"  # −1.9.1
     END_USER = "eudpp:EndUserRole"
 
     # Independent operators (ESPR Art 2(47))
-    INDEPENDENT_OPERATOR = "eudpp:IndependentOperatorRole"
-    PROFESSIONAL_REPAIRER = "eudpp:ProfessionalRepairerRole"
+    INDEPENDENT_OPERATOR = "eudpp:IndependentOperatorRole"  # −1.9.1
+    PROFESSIONAL_REPAIRER = "eudpp:ProfessionalRepairerRole"  # −1.9.1
 
     # Circular economy roles
-    RECYCLER = "eudpp:RecyclerRole"
-    REFURBISHER = "eudpp:RefurbisherRole"
-    REMANUFACTURER = "eudpp:RemanufacturerRole"
+    CIRCULAR_ECONOMY_ROLE = "eudpp:CircularEconomyRole"  # +1.9.1 super-category
+    RECYCLER = "eudpp:RecyclerRole"  # −1.9.1 (collapsed into CIRCULAR_ECONOMY_ROLE)
+    REFURBISHER = "eudpp:RefurbisherRole"  # −1.9.1
+    REMANUFACTURER = "eudpp:RemanufacturerRole"  # −1.9.1
 
-    # Service providers
-    DPP_SERVICE_PROVIDER = "eudpp:DPPServiceProviderRole"
-    CONFORMITY_BODY = "eudpp:ConformityAssessmentBodyRole"
-    NOTIFIED_BODY = "eudpp:NotifiedBodyRole"
-    CREDENTIAL_AGENCY = "eudpp:CredentialAgencyRole"
-    ISSUING_AGENCY = "eudpp:IssuingAgencyRole"
+    # Conformity / service providers
+    CONFORMITY_ASSESSMENT_ROLE = "eudpp:ConformityAssessmentRole"  # +1.9.1 super-category
+    DPP_SERVICE_PROVIDER = "eudpp:DPPServiceProviderRole"  # −1.9.1
+    CONFORMITY_BODY = "eudpp:ConformityAssessmentBodyRole"  # −1.9.1
+    NOTIFIED_BODY = "eudpp:NotifiedBodyRole"  # −1.9.1
+    CREDENTIAL_AGENCY = "eudpp:CredentialAgencyRole"  # −1.9.1
+    ISSUING_AGENCY = "eudpp:IssuingAgencyRole"  # −1.9.1
 
 
 # =============================================================================

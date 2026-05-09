@@ -113,14 +113,33 @@ class SchemaValidator:
             return {}
 
     def _load_cirpass_schema(self) -> dict[str, Any]:
-        """Load CIRPASS DPP schema from bundled resources."""
+        """Load CIRPASS DPP schema from bundled resources.
+
+        Phase 4 of [docs/plans/CIRPASS_2_MIGRATION.md] prefers the
+        Phase-3-derived ``cirpass-reference-{version}.json`` schema
+        (the Pydantic-first projection of :class:`ReferencePassport`)
+        over the legacy hub-imported ``cirpass_dpp_schema.json`` when
+        a versioned bundle exists. Falls through to the legacy bundle
+        for back-compat with pre-Phase-4 callers and to the
+        :class:`CIRPASSSchemaLoader` for runtime-fetch scenarios.
+        """
+        # Phase 4 preferred: versioned derived schema.
+        try:
+            schema_file = resources.files("dppvalidator.schemas.data").joinpath(
+                f"cirpass-reference-{self.schema_version}.json"
+            )
+            return json.loads(schema_file.read_text(encoding="utf-8"))
+        except (FileNotFoundError, ModuleNotFoundError):
+            pass
+
+        # Legacy hub-loader path.
         try:
             from dppvalidator.schemas.cirpass_loader import CIRPASSSchemaLoader
 
             loader = CIRPASSSchemaLoader()
             return loader.load()
         except (ImportError, RuntimeError):
-            # Fall back to direct file loading
+            # Final fallback: legacy bundled schema.
             try:
                 schema_file = resources.files("dppvalidator.vocabularies.data.schemas").joinpath(
                     "cirpass_dpp_schema.json"

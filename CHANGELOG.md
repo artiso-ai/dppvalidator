@@ -5,6 +5,194 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-09 (Preview)
+
+This release adds **end-to-end CIRPASS-2 reference structure v1.3.0**
+support alongside UNTP DPP 0.6.x / 0.7.0 and ships the cross-family
+forward / reverse shims, the EUDPP v1.9.x ontology rebase, two pilot
+profiles (Textile v2 built-in, Tyres GPL plugin), and a six-code CLI
+exit surface. The migration plan is at
+[`docs/plans/CIRPASS_2_MIGRATION.md`](docs/plans/CIRPASS_2_MIGRATION.md);
+each phase has its own implementation log there.
+
+**Status: Preview / unstable.** The Pydantic v0.7 model layer has
+documented drift from the upstream JSON Schema (Phase 8.9 catalogue,
+27 tracked items) — see "Known limitations" below. Schema validation
+(Layer 1) is faithful 1:1 to upstream and remains the authoritative
+correctness check.
+
+### CIRPASS-2
+
+- **CIRPASS DPP reference structure v1.3.0** registered as a first-
+  class schema family (`SchemaFamily.CIRPASS`). Detection auto-routes
+  via `@context` and shape signatures; explicit override via
+  `dppvalidator validate --target {auto,untp,cirpass}`. Family
+  mismatch surfaces as `DET001` with exit code `EXIT_FAMILY_MISMATCH`
+  (3).
+- **Cross-family compat shims** at
+  `dppvalidator.compat.{untp_0_7_to_cirpass_1_3, cirpass_1_3_to_untp_0_7}`
+  with 5 `MAP00X` warning codes. Forward-shim coverage of the v0.7
+  PartyRoleEnum is exhaustive; reverse-shim coverage maps EUDPP role
+  IRIs onto the wider 20-value PartyRoleEnum (deliberate to preserve
+  CIRPASS information fidelity).
+- **EUDPP Core / ACTOR / SOC / LCA v1.9.x** ontologies vendored under
+  `src/dppvalidator/vocabularies/data/ontologies/`; 6 fresh
+  manifest entries, every IRI rebased onto the canonical
+  `https://w3id.org/eudpp#` fragment namespace per
+  [ADR 0002](docs/adr/0002-canonical-eudpp-iri.md).
+- **CIRPASS reference Pydantic models** at
+  `dppvalidator.models.cirpass.v1_3.*` (20 classes — Actor,
+  ActorRoleAssignment, ConnectorRelation, Material, LifeCycleAssessment,
+  SubstanceOfConcern, etc.) covering every required field per the
+  reference schema.
+- **CIRPASS rule corpus** at `validators/rules/cirpass_v1_3/` (4
+  prefixes — `ACT`, `REL`, `SOC`, `LCA`) with 11 rules covering every
+  axiom in the v1.9.x EUDPP module specs.
+- **CIRPASS JSON-LD exporter** at `exporters/cirpass_jsonld.py`
+  accepting both native CIRPASS passports and UNTP envelopes
+  (forward-shimmed). EUDPP exporter rebased onto v1.9.1 namespaces
+  (`EUDPP_CONTEXT_URL` deprecated via PEP 562; resolution kept
+  through 0.6.0).
+- **`migrate --to {untp-0.7,cirpass-1.3}`** generalises the migrate
+  command to the cross-family forward shim with a `--default-language`
+  option for LocalisedText wrapping.
+
+### UNTP
+
+- **DEFAULT_VERSIONS[UNTP] flipped from `0.6.1` → `0.7.0`** (Phase 9
+  task 9.1). v0.6.x remains supported via auto-detection and the
+  v0.6 → v0.7 upgrade shim (`compat/upgrade_0_6_to_0_7.py`).
+- **D1 BLOCKER fix** (Phase 9 task 9.7):
+  `BitstringStatusListEntry.statusListIndex` is now `int | None`
+  (was `str | None`); a `before` validator transparently coerces
+  numeric strings (including whitespace and leading zeros) for v0.6
+  fixture back-compat. Non-numeric strings and negative integers
+  are rejected. **Non-breaking** for any v0.6 fixture with
+  numeric-string `statusListIndex`.
+- **D2 BLOCKER fix** (Phase 9 task 9.8): `PartyRoleEnum`
+  Layer-1/Layer-2 contradiction resolved via a documented dual-tier
+  acceptance gradient. Pydantic accepts the wider 20-value set
+  (preserving v0.6 fixture parsing and CIRPASS reverse-shim
+  fidelity); JSON Schema accepts the strict 6 (`owner`, `producer`,
+  `manufacturer`, `processor`, `remanufacturer`, `recycler`). The
+  new advisory rule **PRT001** (severity `info`) surfaces the gap
+  when payloads use one of the 14 wider values, suggesting a
+  canonical schema-allowed counterpart. Pass
+  `ValidationEngine(strict_role_enum=True)` to upgrade PRT001 from
+  `info` to `error`. **Non-breaking** — no enum values removed.
+- **Three-tier alignment guard test**
+  (`tests/unit/test_v07_model_schema_alignment.py`, Phase 9 task
+  9.9): strict-tier asserts D1 + D2 closures; drift-watch tier
+  asserts only registered drift items appear (forces every future
+  PR widening drift to update the baseline atomically); compat tier
+  asserts v0.6 model + CIRPASS reverse-shim invariants.
+
+### Plugins
+
+- **Textile v2 profile** built-in (`--profile textile-v2`): 7 rules
+  (TXT001–TXT007) including TXT006 recycled-content disclosure and
+  TXT007 repair-info (both new in v2). The legacy `textile-v1`
+  profile remains available; both ship as `TEXTILE_PROFILES`
+  registry entries.
+- **Tyres GPL plugin** (`plugins/tyres/`, `dppvalidator-tyres==0.1.0`,
+  marked Pre-1.0 / Experimental): 4 GDSO declaration models (Birth
+  v0.9, Collection v0.1, Retread v0.1, Recycling v0.1) +
+  `TyreLifecycleHistory` aggregate enforcing UUID-chain /
+  chronological-order / single-Recycling invariants. 8 TYR-coded
+  validators auto-registered via entry-points.
+- **Plugin license isolation** enforced via
+  `tools/check_imports.py` — AST-walks the core source tree and
+  fails on any import from `plugins/*` (R8 mitigation; preserves
+  GPL/MIT separation).
+
+### Bug fixes
+
+- D1 (`statusListIndex` int): see UNTP section above.
+- D2 (`PartyRoleEnum` gradient): see UNTP section above.
+
+### Deprecations (activated in 0.5.0; removed in 0.6.0 / Phase 10)
+
+- **Bare-string `SCHEMA_REGISTRY[version]` lookup.** Now emits a
+  `DeprecationWarning` on every `__getitem__` access. Migrate to
+  `SCHEMA_REGISTRY_BY_FAMILY[(family, version)]` or
+  `SchemaRegistry().get_schema(version, family=...)`.
+- **`is_dpp_document()` alias** in `dppvalidator.validators.detection`.
+  Use `looks_like_dpp()` instead.
+- **`EUDPP_CONTEXT_URL`** legacy hub URL constant. Use
+  `EUDPP_CANONICAL_CONTEXT_URL` (the v1.9.1 W3ID fragment namespace)
+  instead. The legacy hub URL stays resolvable through Phase 10.
+
+### Cross-version compatibility
+
+- v0.6.0 / v0.6.1 fixtures parse, validate, and upgrade without
+  regression after every fix landed in this release. The v0.6
+  Pydantic models (`models/v0_6/`) are frozen per the cardinal
+  versioning rule; the upgrade shim transparently handles any
+  shape differences (including the statusListIndex string→int
+  coercion).
+- All CIRPASS v1.3.0 round-trips remain bit-stable through forward
+  and reverse shims; integration suites
+  (`test_round_trip_untp_cirpass.py`, `test_compat_roundtrip.py`,
+  `test_cross_family_isolation.py`, `test_version_matrix.py`) all
+  green.
+
+### Known limitations
+
+The Pydantic v0.7 model layer has documented drift from the upstream
+JSON Schema, catalogued as drift items D3–D27 in
+[Phase 8.9 of the migration plan](docs/plans/CIRPASS_2_MIGRATION.md).
+Schema validation (Layer 1) catches every contract violation; the
+drift is confined to the Python API ergonomics layer and will be
+fully reconciled in 0.6.0 (Phase 10 tasks 10.9–10.15). Specifically:
+
+- **HIGH (Phase 10.10 / 10.11):** required-vs-Optional drift on
+  `Address`, `BitstringStatusListEntry`, `Claim`, `Period`; reverse
+  drift on `BitstringStatusListEntry.id`; missing required fields on
+  `Link.linkName`, `Package.{description, dimensions, materialUsed}`.
+- **MEDIUM (Phase 10.9):** missing optional schema fields on `Party`,
+  `Link`, `Package`, `Period`, `RenderTemplate2024` — preserved via
+  Pydantic `extra="allow"` so round-trip is lossless; Phase 10
+  promotes them to first-class fields.
+- **LOW (Phase 10.13):** `Claim.classification`, `Link.{name, description, relationship}`, `Package.{packageType, weight}`,
+  `RenderTemplate2024.id` — model-only fields not in schema; Phase 10
+  catalogues each.
+- **FORMAT (Phase 10.12):** 12 schema sites with `format: uri` and
+  1 site with `format: byte` typed as plain `str`; Phase 10 promotes
+  to typed Pydantic annotations.
+- **CIRPASS (Phase 10.15):** field-level deep diff for the v1.3
+  model layer not yet performed; class counts match (20 vs 20).
+
+### Migration guide
+
+- **Bare-string `SCHEMA_REGISTRY` users:**
+
+  ```python
+  # Before (deprecated, emits warning):
+  from dppvalidator.schemas.registry import SCHEMA_REGISTRY
+
+  schema = SCHEMA_REGISTRY["0.7.0"]
+
+  # After:
+  from dppvalidator.schemas.registry import SCHEMA_REGISTRY_BY_FAMILY, SchemaFamily
+
+  schema = SCHEMA_REGISTRY_BY_FAMILY[(SchemaFamily.UNTP, "0.7.0")]
+  ```
+
+- **`is_dpp_document` callers:** replace with `looks_like_dpp`
+  (identical return value).
+
+- **Strict PartyRole enforcement:** opt in via
+  `ValidationEngine(strict_role_enum=True)` to upgrade PRT001 from
+  `info` to `error`. The 14 wider values (`importer`, `distributor`,
+  `retailer`, `logisticsProvider`, `operator`, `serviceProvider`,
+  `inspector`, `certifier`, `regulator`, `carrier`, `consignor`,
+  `consignee`, `exporter`, `brandOwner`) remain valid Python enum
+  members for back-compat.
+
+- **`statusListIndex`:** numeric-string values (`"5"`) continue to
+  parse via the new before-validator and round-trip as `int`. No
+  payload-side migration needed.
+
 ## [0.4.0] - 2026-05-08
 
 This release adds first-class support for **UNTP DPP 0.7.0** alongside

@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dppvalidator-tyres"
+version = "0.1.0"
+description = "GDSO-aligned tyres pilot plugin for dppvalidator (Pre-1.0 / Experimental)"
+readme = "README.md"
+requires-python = ">=3.10"
+# Phase 7 OA-1 of docs/plans/CIRPASS_2_MIGRATION.md decided on
+# GPL-3.0-or-later for the tyres plugin (the upstream GDSO
+# declarations are licensed permissively but the plugin's
+# rule-pack interpretation is published as copyleft to keep the
+# rule extensions in the open-source commons).
+license = "GPL-3.0-or-later"
+authors = [{ name = "artiso-ai" }]
+keywords = ["dpp", "tyres", "gdso", "validation", "plugin", "dppvalidator"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    # Tyres plugin sits on top of the dppvalidator core. The Phase 7
+    # entry into the migration plan added validator entry-points
+    # consuming the SemanticRule protocol — which has been stable
+    # since 0.4.0.
+    "dppvalidator>=0.4.0",
+    "pydantic>=2.0",
+]
+
+# Phase 7 task 7.7: validator entry-points. Each validator class
+# implements the SemanticRule protocol from
+# dppvalidator.validators.protocols. The plugin discovery mechanism
+# (src/dppvalidator/plugins/registry.py) auto-registers these on
+# engine init; no per-payload glue needed.
+[project.entry-points."dppvalidator.validators"]
+tyr001_dot_marking = "dppvalidator_tyres.validators:DOTMarkingRule"
+tyr002_birth_chain = "dppvalidator_tyres.validators:BirthChainCompletenessRule"
+tyr003_load_index = "dppvalidator_tyres.validators:LoadIndexRule"
+tyr004_speed_rating = "dppvalidator_tyres.validators:SpeedRatingRule"
+tyr005_section_width = "dppvalidator_tyres.validators:SectionWidthRule"
+tyr006_retread_provenance = "dppvalidator_tyres.validators:RetreadProvenanceRule"
+tyr007_collection_actor = "dppvalidator_tyres.validators:CollectionActorRule"
+tyr008_recycling_method = "dppvalidator_tyres.validators:RecyclingMethodRule"
+
+# Phase 7 task 7.7: exporter entry-points (CSV summary of the
+# tyre's lifecycle history — useful for fleet operators).
+[project.entry-points."dppvalidator.exporters"]
+tyres_lifecycle_csv = "dppvalidator_tyres.exporters:TyreLifecycleCSVExporter"
+
+[project.urls]
+Homepage = "https://github.com/artiso-ai/dppvalidator/tree/main/plugins/tyres"
+Documentation = "https://artiso-ai.github.io/dppvalidator/plugins/tyres/"
+"Bug Tracker" = "https://github.com/artiso-ai/dppvalidator/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dppvalidator_tyres"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/README.md", "/LICENSE", "/samples"]

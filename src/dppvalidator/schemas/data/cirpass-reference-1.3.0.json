@@ -1,0 +1,1301 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": true,
+      "description": "An economic operator, regulator, or other party.\n\nMaps to ``eudpp:Actor`` (ACTOR v1.9.1). Carries the actor's\nprimary identifier, a multilingual name, and optional contact /\naddress fields.\n\nWire shape (minimal):\n    ``{\"actorIdentifier\": {...}, \"actorName\": [...]}``",
+      "properties": {
+        "actorIdentifier": {
+          "$ref": "#/$defs/Identifier",
+          "description": "Primary actor identifier (LEI, EUID, EORI, …)."
+        },
+        "actorName": {
+          "description": "Actor's legal / trade name(s), one per language.",
+          "items": {
+            "$ref": "#/$defs/LocalisedText"
+          },
+          "minItems": 1,
+          "title": "Actorname",
+          "type": "array"
+        },
+        "registeredTradeName": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/LocalisedText"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Registered trade-name(s) where distinct from the legal name.",
+          "title": "Registeredtradename"
+        },
+        "registeredTrademark": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/LocalisedText"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Registered trademark(s) associated with the actor.",
+          "title": "Registeredtrademark"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "actorIdentifier",
+        "actorName"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorRole": {
+      "additionalProperties": true,
+      "description": "An actor playing a specific role on this DPP.\n\nWire shape:\n    ``{\"actor\": <Actor>, \"role\": \"eudpp:ManufacturerRole\"}``\n\nThe ``role`` field accepts the compact ``eudpp:`` IRI of any role\nclass — both the v1.9.1 super-categories\n(``EconomicOperatorRole``, ``CircularEconomyRole``, etc.) and the\nfiner-grained ESPR-derived roles\n(``ManufacturerRole``, ``RecyclerRole``, etc.) that\n:class:`EUDPPRoleClass` exposes for back-compat.",
+      "properties": {
+        "actor": {
+          "$ref": "#/$defs/Actor",
+          "description": "The actor playing the role."
+        },
+        "role": {
+          "description": "Compact ``eudpp:`` IRI of the role class. See :class:`dppvalidator.vocabularies.eudpp_actors.EUDPPRoleClass` for the canonical set.",
+          "title": "Role",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "actor",
+        "role"
+      ],
+      "title": "ActorRole",
+      "type": "object"
+    },
+    "ActorRoleAssignment": {
+      "additionalProperties": true,
+      "description": "First-class actor-plays-role-in-context relationship (ACTOR v1.9.1).\n\n+1.9.1: ACTOR v1.9.1 introduced ``eudpp:ActorRoleAssignment`` as a\nfirst-class entity (rather than a binary edge) so that role\nassignments can carry their own metadata — temporal scoping,\nauthority that conferred the role, supporting documentation, etc.\n\nWire shape:\n    ``{\"actor\": <Actor>, \"role\": \"eudpp:...\",\n       \"validFrom\": \"2026-01-01T00:00:00Z\",\n       \"validTo\": \"2031-12-31T23:59:59Z\"}``",
+      "properties": {
+        "actor": {
+          "$ref": "#/$defs/Actor",
+          "description": "The actor receiving the role."
+        },
+        "role": {
+          "description": "Compact ``eudpp:`` IRI of the role class assigned.",
+          "title": "Role",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        },
+        "validFrom": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 8601 UTC datetime from which the assignment is effective (``eudpp:assignmentValidFrom``).",
+          "title": "Validfrom"
+        },
+        "validTo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 8601 UTC datetime after which the assignment expires (``eudpp:assignmentValidTo``). Absent ⇒ open-ended.",
+          "title": "Validto"
+        }
+      },
+      "required": [
+        "actor",
+        "role"
+      ],
+      "title": "ActorRoleAssignment",
+      "type": "object"
+    },
+    "ClassificationCode": {
+      "additionalProperties": true,
+      "description": "A taxonomy classification (commodity code, HS code, etc.).\n\nWire shape:\n    ``{\"code\": \"61091000\", \"scheme\": \"https://www.wcoomd.org/.../HS\",\n       \"name\": [{\"value\": \"T-shirts...\", \"language\": \"en\"}]}``\n\nMaps to ``eudpp:ClassificationCode`` (P_DPP v1.9.1). The CIRPASS\nspec uses this for HS / TARIC / commodity codes; the ``scheme``\nURI tells consumers which taxonomy the code belongs to.",
+      "properties": {
+        "code": {
+          "description": "The classification code value.",
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/LocalisedText"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable description of the code, in one or more languages.",
+          "title": "Name"
+        },
+        "scheme": {
+          "description": "URI of the classification scheme (HS, TARIC, CPV, …).",
+          "title": "Scheme",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "code",
+        "scheme"
+      ],
+      "title": "ClassificationCode",
+      "type": "object"
+    },
+    "Composition": {
+      "additionalProperties": true,
+      "description": "The full material composition of a product.\n\nWire shape:\n    ``{\"materials\": [<Material>, ...]}``\n\nThe mass-fraction sum invariant is enforced at this level: across\nall entries with non-null ``massFraction``, the sum must be ≤ 1.0\n(slightly less than 1 is valid — non-mass-bearing constituents\ndon't carry a fraction).",
+      "properties": {
+        "materials": {
+          "description": "The materials that constitute the product.",
+          "items": {
+            "$ref": "#/$defs/Material"
+          },
+          "minItems": 1,
+          "title": "Materials",
+          "type": "array"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "materials"
+      ],
+      "title": "Composition",
+      "type": "object"
+    },
+    "Concentration": {
+      "additionalProperties": true,
+      "description": "The concentration of a substance of concern within a product / component.\n\nWire shape:\n    ``{\"value\": 0.0008, \"unit\": \"mass_fraction\",\n       \"lifecycleStage\": \"in_product\"}``\n\nMaps to ``eudpp:Concentration`` (SOC v1.9.1). The ``value`` is a\nDecimal in [0, 1] when ``unit`` is ``mass_fraction``; for other\nunits (e.g. ``mg_per_kg``) the bound is on the unit's conventional\nrange.",
+      "properties": {
+        "lifecycleStage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LifeCycleStage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Lifecycle stage at which this concentration applies."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        },
+        "unit": {
+          "description": "Unit of measurement (``mass_fraction``, ``mg_per_kg``, …).",
+          "title": "Unit",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "description": "Concentration value in the unit identified by ``unit``.",
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "title": "Concentration",
+      "type": "object"
+    },
+    "ConnectorRelation": {
+      "additionalProperties": true,
+      "description": "A typed cross-module relation between two entities.\n\nWire shape:\n    ``{\"relation\": \"eudpp:hasManufacturer\",\n       \"subject\": \"https://example.com/dpp/123\",\n       \"object\": \"https://example.com/actor/abc\"}``\n\nThe ``relation`` field is a compact ``eudpp:`` IRI from\n:class:`RelationType` (or any other ontology-defined object\nproperty). ``subject`` and ``object`` are URIs identifying the\nrelated entities.\n\nCardinality:\n\n- ``relation``: required (1).\n- ``subject``: required (1).\n- ``object``: required (1).\n- ``valid_from`` / ``valid_to``: optional ISO 8601 datetimes —\n  enable temporally-scoped relations (e.g. an actor that played\n  a role only during a manufacturing batch).",
+      "properties": {
+        "object": {
+          "description": "URI of the object entity (the relation's target).",
+          "minLength": 1,
+          "title": "Object",
+          "type": "string"
+        },
+        "relation": {
+          "description": "Compact ``eudpp:`` IRI of the relation predicate. See :class:`RelationType` for the canonical set; downstream taxonomies may use other IRIs.",
+          "title": "Relation",
+          "type": "string"
+        },
+        "subject": {
+          "description": "URI of the subject entity (the relation's source).",
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        },
+        "validFrom": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional ISO 8601 datetime: relation effective from.",
+          "title": "Validfrom"
+        },
+        "validTo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional ISO 8601 datetime: relation expires at.",
+          "title": "Validto"
+        }
+      },
+      "required": [
+        "relation",
+        "subject",
+        "object"
+      ],
+      "title": "ConnectorRelation",
+      "type": "object"
+    },
+    "EffectivePeriod": {
+      "additionalProperties": true,
+      "description": "The validity window during which a CIRPASS DPP applies.\n\nWire shape:\n    ``{\"start\": \"2026-01-01T00:00:00Z\", \"end\": \"2031-12-31T23:59:59Z\"}``\n\nBoth endpoints are ISO 8601 datetimes with UTC offset. ``start``\nis required; ``end`` is optional (a DPP with no end date is\neffective indefinitely until superseded). When both are present,\n``start <= end`` is enforced via a :func:`@model_validator`.\n\nMaps to UNTP 0.7's ``validFrom`` / ``validUntil`` envelope fields\nvia the Phase 5 compat shim.",
+      "properties": {
+        "end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "UTC datetime after which the DPP is no longer effective. Absent ⇒ effective indefinitely.",
+          "title": "End"
+        },
+        "start": {
+          "description": "UTC datetime from which the DPP is effective.",
+          "format": "date-time",
+          "title": "Start",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "start"
+      ],
+      "title": "EffectivePeriod",
+      "type": "object"
+    },
+    "HazardCategory": {
+      "description": "Hazard categories per ESPR Art 2(28) / Regulation (EC) No 1272/2008.\n\nSubstances of concern are classified per these hazard classes.",
+      "enum": [
+        "carcinogenicity_cat_1",
+        "carcinogenicity_cat_2",
+        "mutagenicity_cat_1",
+        "mutagenicity_cat_2",
+        "reproductive_toxicity_cat_1",
+        "reproductive_toxicity_cat_2",
+        "endocrine_disruption_human_cat_1",
+        "endocrine_disruption_human_cat_2",
+        "endocrine_disruption_env_cat_1",
+        "endocrine_disruption_env_cat_2",
+        "persistent_mobile_toxic",
+        "very_persistent_very_mobile",
+        "persistent_bioaccumulative_toxic",
+        "very_persistent_very_bioaccumulative",
+        "respiratory_sensitisation_cat_1",
+        "skin_sensitisation_cat_1",
+        "aquatic_chronic_cat_1",
+        "aquatic_chronic_cat_2",
+        "aquatic_chronic_cat_3",
+        "aquatic_chronic_cat_4",
+        "hazardous_to_ozone_layer",
+        "stot_repeated_exposure_cat_1",
+        "stot_repeated_exposure_cat_2",
+        "stot_single_exposure_cat_1",
+        "stot_single_exposure_cat_2",
+        "svhc_reach_art_57",
+        "persistent_organic_pollutant"
+      ],
+      "title": "HazardCategory",
+      "type": "string"
+    },
+    "HazardClassification": {
+      "additionalProperties": true,
+      "description": "A single hazard classification per CLP / Regulation (EC) 1272/2008.\n\nWire shape:\n    ``{\"category\": \"carcinogenicity\",\n       \"statement\": [{\"value\": \"May cause cancer.\", \"language\": \"en\"}]}``\n\nThe ``category`` field accepts any value from\n:class:`dppvalidator.vocabularies.eudpp_substances.HazardCategory`;\nnew categories added in a future SOC release land in that enum,\nnot here.",
+      "properties": {
+        "category": {
+          "$ref": "#/$defs/HazardCategory",
+          "description": "CLP / SVHC hazard category (carcinogenicity, mutagenicity, reproductive toxicity, PBT, vPvB, PMT, vPvM, …)."
+        },
+        "statement": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/LocalisedText"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional H-statement text(s) describing the hazard, one per language.",
+          "title": "Statement"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "category"
+      ],
+      "title": "HazardClassification",
+      "type": "object"
+    },
+    "Identifier": {
+      "additionalProperties": true,
+      "description": "A typed product or DPP identifier.\n\nWire shape:\n    ``{\"value\": \"01234567890128\", \"scheme\": \"https://gs1.org/voc/\", \"schemeName\": \"GS1 GTIN\"}``\n\n``value`` carries the identifier itself; ``scheme`` is the URI of\nthe issuing authority's identifier register; ``schemeName`` is a\nshort human label (e.g. ``GS1 GTIN``, ``ISO/IEC 15459``).\n\nThe scheme URI is what disambiguates collisions between identifier\nspaces (a 13-digit string can be a GTIN-13, an EAN-13, or\nsomething else entirely depending on the issuing authority).",
+      "properties": {
+        "scheme": {
+          "description": "URI of the identifier scheme (the issuing authority's register, e.g. ``https://gs1.org/voc/``).",
+          "title": "Scheme",
+          "type": "string"
+        },
+        "schemeName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable scheme name (``GS1 GTIN``, ``ISO/IEC 15459``).",
+          "title": "Schemename"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        },
+        "value": {
+          "description": "The identifier value.",
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "scheme"
+      ],
+      "title": "Identifier",
+      "type": "object"
+    },
+    "ImpactCategoryReference": {
+      "additionalProperties": true,
+      "description": "A reference to a PEF / EN 15804 impact category.\n\nWire shape:\n    ``{\"category\": \"eudpp:climateChange\",\n       \"name\": [{\"value\": \"Climate change\", \"language\": \"en\"}]}``\n\nThe ``category`` field is a compact ``eudpp:`` IRI from\n:class:`dppvalidator.vocabularies.eudpp_lca.LCIAImpactCategory`\n(the v1.9.4-Maki canonical set: 16 PEF/EN15804+A2 individuals).\nLegacy v2.0 ``lca:`` IRIs are tolerated here for back-compat with\nUNTP-sourced payloads — the Phase 5 mapping shim translates them.",
+      "properties": {
+        "category": {
+          "description": "Compact ``eudpp:`` IRI of the impact category (canonical v1.9.4-Maki). Legacy ``lca:`` IRIs accepted for back-compat.",
+          "title": "Category",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/LocalisedText"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable display name(s) of the impact category.",
+          "title": "Name"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "category"
+      ],
+      "title": "ImpactCategoryReference",
+      "type": "object"
+    },
+    "ImpactResult": {
+      "additionalProperties": true,
+      "description": "A single quantified environmental impact result.\n\nWire shape:\n    ``{\"impactCategory\": <ImpactCategoryReference>,\n       \"value\": 12.34, \"unit\": \"kg_CO2_eq\"}``\n\nPairs an impact-category reference with a numeric value + unit.\nThe ``unit`` field is a free-string for now (PEF 3.1 conventions\nuse shorthand like ``kg_CO2_eq``, ``CTUe``); UNECE Rec20 / QUDT\nnormalisation is enforced at the validator layer (Phase 4 LCS\nrule pack).",
+      "properties": {
+        "impactCategory": {
+          "$ref": "#/$defs/ImpactCategoryReference",
+          "description": "The PEF / EN 15804 impact category quantified."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        },
+        "unit": {
+          "description": "Unit of measurement (``kg_CO2_eq``, ``CTUe``, …). PEF 3.1 conventions; Phase 4 enforces UNECE Rec20 / QUDT alignment.",
+          "title": "Unit",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "description": "The numeric impact value.",
+          "title": "Value"
+        }
+      },
+      "required": [
+        "impactCategory",
+        "value",
+        "unit"
+      ],
+      "title": "ImpactResult",
+      "type": "object"
+    },
+    "IssuedAt": {
+      "additionalProperties": true,
+      "description": "Timestamp at which a CIRPASS DPP was issued.\n\nWire shape: ``{\"timestamp\": \"2026-01-15T09:30:00Z\"}``.\n\nMaps to UNTP 0.7's ``issuanceDate`` envelope field via the Phase 5\ncompat shim. Carries an explicit type-wrapper rather than a bare\ndatetime so that downstream LD payloads can attach\n``IssuedAt``-scoped metadata (e.g. issuing-software, signature) on\nthe same node.",
+      "properties": {
+        "timestamp": {
+          "description": "UTC datetime of issuance.",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "timestamp"
+      ],
+      "title": "IssuedAt",
+      "type": "object"
+    },
+    "LifeCycleAssessment": {
+      "additionalProperties": true,
+      "description": "A complete LCA / EPD attached to a product.\n\nMaps to ``eudpp:LCAStudy`` (LCA v1.9.4-Maki). Carries one or more\nimpact results plus optional methodology metadata. Phase 4 wires\nSHACL validation of the impact-result set against the bundled\nLCA shape graph.\n\nWire shape (minimal):\n    ``{\"results\": [<ImpactResult>, ...]}``\n\nCardinality:\n\n- ``results``: required (≥1).\n- ``methodology``: optional — short label (``PEF 3.1``,\n  ``EN 15804+A2``, …) or compact IRI of an\n  :class:`dppvalidator.vocabularies.eudpp_lca.LCAClass`\n  ``LCIAMethodology`` instance.\n- ``referencePeriod``: optional — when the LCA result was\n  computed (production batch, study window, etc.).",
+      "properties": {
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "LCA methodology label or compact IRI (``PEF 3.1``, ``eudpp:LCIAMethodology``, …).",
+          "title": "Methodology"
+        },
+        "referencePeriod": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EffectivePeriod"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The temporal scope of the LCA results."
+        },
+        "results": {
+          "description": "The quantified impact results.",
+          "items": {
+            "$ref": "#/$defs/ImpactResult"
+          },
+          "minItems": 1,
+          "title": "Results",
+          "type": "array"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "results"
+      ],
+      "title": "LifeCycleAssessment",
+      "type": "object"
+    },
+    "LifeCycleStage": {
+      "description": "Life cycle stages for substances of concern per ESPR Annex I(f).",
+      "enum": [
+        "production",
+        "in_product",
+        "use",
+        "end_of_life",
+        "waste",
+        "recycling"
+      ],
+      "title": "LifeCycleStage",
+      "type": "string"
+    },
+    "LocalisedText": {
+      "additionalProperties": true,
+      "description": "A text value tagged with a BCP-47 language identifier.\n\nWire shape: ``{\"value\": \"Cotton t-shirt\", \"language\": \"en\"}``.\n\nUsed wherever the CIRPASS reference structure expects a\nuser-facing label that must surface in multiple official\nlanguages — product name, description, classification labels,\netc. The set of fields requiring this wrapper is dictated by the\nv1.9.1 SHACL shape audit (Phase 1 task 1.6); fields without the\nmultilingual requirement use plain :class:`str`.\n\nAttributes:\n    value: The text content. Whitespace is trimmed by the base\n        model's ``str_strip_whitespace`` config.\n    language: BCP-47 tag (``en``, ``de``, ``zh-Hant``,\n        ``en-US``, etc.). Validated against the pragmatic-subset\n        grammar in :data:`_BCP47_RE`. Lower-case primary subtag,\n        initial-case script subtag, upper-case region subtag.",
+      "properties": {
+        "language": {
+          "description": "BCP-47 language tag (e.g. ``en``, ``de``, ``zh-Hant``).",
+          "title": "Language",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        },
+        "value": {
+          "description": "The text value in the language identified by ``language``.",
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "language"
+      ],
+      "title": "LocalisedText",
+      "type": "object"
+    },
+    "Material": {
+      "additionalProperties": true,
+      "description": "A constituent material of a product.\n\nWire shape:\n    ``{\"materialName\": [...], \"materialType\": \"CO\",\n       \"originCountry\": \"DE\", \"massFraction\": 0.62,\n       \"isRecycled\": true}``\n\nCardinality:\n\n- ``materialName``: required (≥1) — multilingual name of the\n  material.\n- ``materialType``: optional ISO 2076 fibre / material code\n  (``CO`` = Cotton, ``EL`` = Elastane, …). Bare-string per ISO\n  convention; not wrapped in :class:`LocalisedText`.\n- ``originCountry``: optional ISO-3166-1 alpha-2 country code.\n- ``massFraction``: optional Decimal in [0, 1]; sum of all\n  ``massFraction`` values across a product's materials should be\n  ≤ 1.0 (validated cross-component, not on a single Material).\n- ``isRecycled``: optional flag; True ⇒ material is reclaimed /\n  post-consumer.",
+      "properties": {
+        "isRecycled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "True if the material is reclaimed / post-consumer recycled.",
+          "title": "Isrecycled"
+        },
+        "massFraction": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mass fraction in [0, 1]; recycle/composition share.",
+          "title": "Massfraction"
+        },
+        "materialName": {
+          "description": "Material name(s), one per language.",
+          "items": {
+            "$ref": "#/$defs/LocalisedText"
+          },
+          "minItems": 1,
+          "title": "Materialname",
+          "type": "array"
+        },
+        "materialType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 2076 textile-fibre code or equivalent material code.",
+          "title": "Materialtype"
+        },
+        "originCountry": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO-3166-1 alpha-2 country code of material origin.",
+          "title": "Origincountry"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "materialName"
+      ],
+      "title": "Material",
+      "type": "object"
+    },
+    "Product": {
+      "additionalProperties": true,
+      "description": "A physical product placed on the EU market.\n\nMaps to ``eudpp:Product`` (P_DPP v1.9.1). Carries the product's\nprimary identifier, optional commodity classification, and\nmultilingual product names.\n\nWire shape (minimal):\n    ``{\"productIdentifier\": {...}, \"productName\": [{\"value\": \"...\", \"language\": \"en\"}]}``\n\nCardinality:\n\n- ``productIdentifier``: required (1).\n- ``productName``: required (≥1) — at least one language must be\n  provided. Multiple are encouraged for ESPR multilingual reach.\n- ``description``: optional (0..1 list of LocalisedText).\n- ``commodityCode``: optional (0..n list of ClassificationCode).\n- ``isComponentOf`` / ``isSparePartOf``: optional self-references\n  modelling the v1.9.1 transitive product hierarchy.",
+      "properties": {
+        "commodityCode": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ClassificationCode"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Commodity / taxonomy classifications for this product.",
+          "title": "Commoditycode"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/LocalisedText"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Product description(s), one entry per language.",
+          "title": "Description"
+        },
+        "isComponentOf": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "URIs of products this product is a component of (transitive).",
+          "title": "Iscomponentof"
+        },
+        "isSparePartOf": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "URIs of products this product is a spare part of.",
+          "title": "Issparepartof"
+        },
+        "productIdentifier": {
+          "$ref": "#/$defs/Identifier",
+          "description": "Primary product identifier (typically a GTIN or SPC URI)."
+        },
+        "productName": {
+          "description": "Product name(s), one entry per supported language.",
+          "items": {
+            "$ref": "#/$defs/LocalisedText"
+          },
+          "minItems": 1,
+          "title": "Productname",
+          "type": "array"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "productIdentifier",
+        "productName"
+      ],
+      "title": "Product",
+      "type": "object"
+    },
+    "SubstanceOfConcern": {
+      "additionalProperties": true,
+      "description": "A REACH / SVHC-tracked substance present in a product.\n\nMaps to ``eudpp:SubstanceOfConcern`` (SOC v1.9.1). Carries IUPAC /\nCAS / EC identifiers, hazard classifications, and one or more\nconcentration measurements.\n\nWire shape (minimal):\n    ``{\"nameIUPAC\": \"...\", \"concentrations\": [<Concentration>, ...]}``\n\nCardinality:\n\n- At least *one* of ``nameIUPAC`` / ``nameCAS`` / ``numberCAS`` /\n  ``numberEC`` must be present (substance must be identifiable).\n- ``concentrations``: required (≥1).\n- ``hazards``: optional (0..n).",
+      "properties": {
+        "concentrations": {
+          "description": "One or more concentration measurements for this substance.",
+          "items": {
+            "$ref": "#/$defs/Concentration"
+          },
+          "minItems": 1,
+          "title": "Concentrations",
+          "type": "array"
+        },
+        "hazards": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/HazardClassification"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional hazard classifications for this substance.",
+          "title": "Hazards"
+        },
+        "nameCAS": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "CAS-registered name.",
+          "title": "Namecas"
+        },
+        "nameIUPAC": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "IUPAC systematic name.",
+          "title": "Nameiupac"
+        },
+        "numberCAS": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "CAS Registry Number (e.g. ``71-43-2``).",
+          "title": "Numbercas"
+        },
+        "numberEC": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "EC Number (e.g. ``200-753-7``).",
+          "title": "Numberec"
+        },
+        "tradeName": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/LocalisedText"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Trade name(s) under which the substance is marketed.",
+          "title": "Tradename"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON-LD type(s) for this entity",
+          "title": "Type"
+        }
+      },
+      "required": [
+        "concentrations"
+      ],
+      "title": "SubstanceOfConcern",
+      "type": "object"
+    }
+  },
+  "$id": "https://artiso-ai.github.io/dppvalidator/schemas/cirpass-reference-1.3.0.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "description": "The CIRPASS DPP reference structure root.\n\nMaps to ``eudpp:DPP`` (P_DPP v1.9.1). Mirrors the v1.3.0 message\ntree-view shape: a Product at the root + sibling fields for the\nDPP-level metadata.\n\nWire shape (minimal):\n    ``{\"dppIdentifier\": {...}, \"product\": <Product>,\n       \"issuedAt\": <IssuedAt>}``\n\nCardinality:\n\n- ``dpp_identifier``: required (1) — uniquely identifies *this*\n  DPP (distinct from the product's identifier).\n- ``product``: required (1) — the Product the DPP describes.\n- ``issued_at``: required (1) — when the DPP was issued.\n- ``effective_period``: optional — explicit validity window.\n- ``related_actors``: optional list of (actor, role) pairs.\n- ``actor_role_assignments``: optional list of first-class\n  role-assignment relationships (v1.9.1 ACTOR addition).\n- ``composition``: optional — the product's material composition.\n- ``substances_of_concern``: optional (0..n).\n- ``lca``: optional — Life-Cycle Assessment results.\n- ``connector_relations``: optional (0..n) cross-module relations.\n- ``previous_dpp``: optional URI of the DPP this one supersedes\n  (maps to ``eudpp:linkToPreviousDPP``).",
+  "properties": {
+    "actorRoleAssignments": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ActorRoleAssignment"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "First-class actor-plays-role-in-context relationships (v1.9.1 ACTOR module). Use this when an assignment carries its own metadata (temporal scope, conferring authority, supporting documentation).",
+      "title": "Actorroleassignments"
+    },
+    "composition": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Composition"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Material composition of the product."
+    },
+    "connectorRelations": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ConnectorRelation"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Cross-module typed relations (CON v1.9.1 predicates).",
+      "title": "Connectorrelations"
+    },
+    "dppIdentifier": {
+      "$ref": "#/$defs/Identifier",
+      "description": "Unique identifier for this DPP instance (``eudpp:uniqueDPPID``)."
+    },
+    "effectivePeriod": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EffectivePeriod"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Validity window during which this DPP applies."
+    },
+    "issuedAt": {
+      "$ref": "#/$defs/IssuedAt",
+      "description": "When this DPP was issued."
+    },
+    "lca": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LifeCycleAssessment"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Life-Cycle Assessment / EPD results."
+    },
+    "previousDpp": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "URI of the DPP this one supersedes (``eudpp:linkToPreviousDPP``). Enables version chains.",
+      "title": "Previousdpp"
+    },
+    "product": {
+      "$ref": "#/$defs/Product",
+      "description": "The product this DPP describes."
+    },
+    "relatedActors": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ActorRole"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Actors associated with this DPP and their roles (manufacturer, importer, recycler, etc.).",
+      "title": "Relatedactors"
+    },
+    "substancesOfConcern": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/SubstanceOfConcern"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "REACH / SVHC-tracked substances present in the product.",
+      "title": "Substancesofconcern"
+    },
+    "type": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "JSON-LD type(s) for this entity",
+      "title": "Type"
+    }
+  },
+  "required": [
+    "dppIdentifier",
+    "product",
+    "issuedAt"
+  ],
+  "title": "ReferencePassport",
+  "type": "object",
+  "x-cirpass-version": "1.3.0",
+  "x-generated-from": "dppvalidator.models.cirpass.v1_3.ReferencePassport.model_json_schema(mode='validation')",
+  "x-generator": "tools/codegen/cirpass/derive_schema.py",
+  "x-phase": "Phase 4 of docs/plans/CIRPASS_2_MIGRATION.md (Pydantic-first derivation, validation-mode for input; tree-view cross-check pending)."
+}

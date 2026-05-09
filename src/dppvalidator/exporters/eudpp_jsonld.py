@@ -1,16 +1,18 @@
 """EU DPP-aligned JSON-LD export for Digital Product Passports.
 
-Provides optional EU DPP-aligned JSON-LD output that transforms UNTP models
-to the EU DPP Core Ontology vocabulary. The UNTP models remain unchanged;
-this export layer performs vocabulary mapping at export time.
+Provides optional EU DPP-aligned JSON-LD output that transforms UNTP
+models to the EU DPP Core Ontology vocabulary. The UNTP models remain
+unchanged; this export layer performs vocabulary mapping at export time.
 
-Source: EU DPP Core Ontology v1.7.1
-Namespace: http://dpp.taltech.ee/EUDPP#
+Source: EU DPP Core Ontology v1.9.1 (Phase 1 CIRPASS-2 target). Emits
+predicate IRIs under the canonical ``https://w3id.org/eudpp#`` W3ID
+prefix (rebased from per-publisher hosts in Phase 1 — see ADR 0002).
 """
 
 from __future__ import annotations
 
 import json
+import warnings
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -35,7 +37,44 @@ logger = get_logger(__name__)
 # =============================================================================
 
 
-EUDPP_CONTEXT_URL = "https://dpp.vocabulary-hub.eu/context/v1"
+# Canonical v1.9.1 namespace IRI for EU DPP terms — the W3ID-resolved
+# fragment namespace declared by every bundled v1.9.x TTL. New code
+# should reference this constant directly; the legacy
+# :data:`EUDPP_CONTEXT_URL` remains as a deprecation-warned alias
+# until Phase 10 of the migration plan.
+EUDPP_CANONICAL_CONTEXT_URL = EUDPPNamespace.EUDPP.value  # https://w3id.org/eudpp#
+
+# Legacy DPP Vocabulary Hub context URL. Phase 6 of the CIRPASS-2
+# migration deprecates this in favour of the canonical W3ID URL
+# above. Access goes through the module-level :func:`__getattr__`
+# below so callers (including ``from … import EUDPP_CONTEXT_URL``)
+# get a :class:`DeprecationWarning`. Removed in Phase 10.
+_EUDPP_CONTEXT_URL_LEGACY = "https://dpp.vocabulary-hub.eu/context/v1"
+
+
+def __getattr__(name: str) -> Any:
+    """PEP 562 module-level attribute hook for deprecated names.
+
+    Phase 6 task 6.2 of [docs/plans/CIRPASS_2_MIGRATION.md]. The
+    legacy ``EUDPP_CONTEXT_URL`` constant resolves through here to a
+    deprecation-warned value; consumers should switch to
+    :data:`EUDPP_CANONICAL_CONTEXT_URL` (the canonical v1.9.1 W3ID
+    fragment namespace).
+    """
+    if name == "EUDPP_CONTEXT_URL":
+        warnings.warn(
+            "exporters.eudpp_jsonld.EUDPP_CONTEXT_URL is deprecated; "
+            "use EUDPP_CANONICAL_CONTEXT_URL "
+            f"({EUDPP_CANONICAL_CONTEXT_URL!r}) — the canonical v1.9.1 "
+            "W3ID fragment namespace. The legacy hub URL "
+            f"({_EUDPP_CONTEXT_URL_LEGACY!r}) is kept resolvable "
+            "through Phase 10 for back-compat.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _EUDPP_CONTEXT_URL_LEGACY
+    msg = f"module {__name__!r} has no attribute {name!r}"
+    raise AttributeError(msg)
 
 
 def get_eudpp_jsonld_context() -> list[Any]:

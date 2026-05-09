@@ -1,0 +1,24 @@
+{
+  "_failure": "SubstanceOfConcern.numberCAS='abc-12-3' fails CAS regex (digits only).",
+  "dppIdentifier": {
+    "value": "https://example.com/dpp/X",
+    "scheme": "https://example.com/"
+  },
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890128",
+      "scheme": "https://gs1.org/voc/"
+    },
+    "productName": [{"value": "Bad SoC", "language": "en"}]
+  },
+  "issuedAt": {"timestamp": "2026-05-08T12:00:00+00:00"},
+  "substancesOfConcern": [
+    {
+      "nameIUPAC": "Test Substance",
+      "numberCAS": "abc-12-3",
+      "concentrations": [
+        {"value": 0.001, "unit": "mass_fraction"}
+      ]
+    }
+  ]
+}

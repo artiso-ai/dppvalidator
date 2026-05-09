@@ -407,13 +407,14 @@ def section_migrate(s: Smoke) -> None:
                 json.dumps(warnings_doc)[:200],
             )
 
-        # Refusal path: no --accept-warnings → exit 1, sidecar STILL written,
-        # main output NOT written.
+        # Refusal path: no --accept-warnings → EXIT_BLOCKING_WARNINGS (4)
+        # per docs/reference/cli/exit-codes.md (Phase 6 task 6.7);
+        # sidecar STILL written, main output NOT written.
         out2 = tmp / "blocked.json"
         r = s.cli(["migrate", str(v06), "-o", str(out2)])
         s.assert_(
-            "migrate without --accept-warnings refuses (exit 1)",
-            r.returncode == 1,
+            "migrate without --accept-warnings refuses (exit 4)",
+            r.returncode == 4,
             r.stderr or r.stdout,
         )
         s.assert_(

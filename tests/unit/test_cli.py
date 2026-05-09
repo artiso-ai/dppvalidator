@@ -2,7 +2,13 @@
 
 import json
 
-from dppvalidator.cli.main import EXIT_ERROR, EXIT_INVALID, EXIT_VALID, create_parser, main
+from dppvalidator.cli.main import (
+    EXIT_ERROR,
+    EXIT_INVALID,
+    EXIT_VALID,
+    create_parser,
+    main,
+)
 
 
 def _valid_dpp() -> dict:
@@ -98,9 +104,11 @@ class TestValidateCommand:
         assert result == EXIT_INVALID
 
     def test_validate_nonexistent_file(self):
-        """Test validating a nonexistent file."""
+        """Test validating a nonexistent file (Phase 6 IO exit code)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         result = main(["validate", "/nonexistent/path.json"])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
     def test_validate_with_format_json(self, tmp_path, capsys):
         """Test validate with JSON format output."""
@@ -258,12 +266,14 @@ class TestValidateCommandExtended:
         assert result in (EXIT_VALID, EXIT_INVALID)
 
     def test_validate_invalid_json(self, tmp_path):
-        """Test validate with invalid JSON file."""
+        """Test validate with invalid JSON file (Phase 6 IO/parse exit code)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         file_path = tmp_path / "invalid.json"
         file_path.write_text("not valid json")
 
         result = main(["validate", str(file_path)])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
     def test_validate_stdin(self, tmp_path, monkeypatch):  # noqa: ARG002
         """Test validate from stdin."""
@@ -304,10 +314,12 @@ class TestValidateCommandExtended:
         assert result == EXIT_VALID
 
     def test_validate_glob_no_match(self, tmp_path, capsys):
-        """Test validate with glob pattern that matches nothing."""
+        """Test validate with glob pattern that matches nothing (Phase 6 IO)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         result = main(["validate", str(tmp_path / "nonexistent_*.json")])
         captured = capsys.readouterr()
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
         assert "No files match" in captured.err
 
     def test_validate_mixed_valid_invalid(self, tmp_path):
@@ -372,17 +384,21 @@ class TestExportCommandExtended:
     """Extended tests for export command."""
 
     def test_export_nonexistent_file(self):
-        """Test export with nonexistent file."""
+        """Test export with nonexistent file (Phase 6 IO exit code)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         result = main(["export", "/nonexistent/file.json"])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
     def test_export_invalid_json(self, tmp_path):
-        """Test export with invalid JSON."""
+        """Test export with invalid JSON (Phase 6 IO/parse exit code)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         file_path = tmp_path / "invalid.json"
         file_path.write_text("not json")
 
         result = main(["export", str(file_path)])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
     def test_export_with_format_jsonld(self, tmp_path, capsys):
         """Test export with jsonld format."""
@@ -399,9 +415,11 @@ class TestCLIErrorHandling:
     """Tests for CLI error handling."""
 
     def test_main_verbose_error(self):
-        """Test verbose error output."""
+        """Test verbose error output (Phase 6 IO exit code for missing file)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         result = main(["--verbose", "validate", "/nonexistent/file.json"])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
     def test_main_quiet_mode(self, tmp_path):
         """Test quiet mode."""
@@ -455,9 +473,11 @@ class TestCLIMainFullCoverage:
     """Full coverage tests for CLI main module."""
 
     def test_validate_missing_file(self):
-        """Test validate command with missing file."""
+        """Test validate command with missing file (Phase 6 IO exit code)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         result = main(["validate", "/nonexistent/path.json"])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
     def test_completions_command(self):
         """Test completions command."""
@@ -499,16 +519,20 @@ class TestCLIMainFullCoverage:
         assert result == EXIT_ERROR
 
     def test_validate_invalid_json(self, tmp_path):
-        """Test validate command with invalid JSON file."""
+        """Test validate command with invalid JSON file (Phase 6 IO/parse code)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         file_path = tmp_path / "invalid.json"
         file_path.write_text("not valid json {")
         result = main(["validate", str(file_path)])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
     def test_export_missing_file(self, capsys):  # noqa: ARG002
-        """Test export command with missing file."""
+        """Test export command with missing file (Phase 6 IO exit code)."""
+        from dppvalidator.cli.main import EXIT_IO_ERROR
+
         result = main(["export", "/nonexistent/path.json"])
-        assert result == EXIT_ERROR
+        assert result == EXIT_IO_ERROR
 
 
 class TestValidateCommandCoverage:

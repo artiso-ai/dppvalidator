@@ -53,9 +53,11 @@ class TestSchemaRegistry:
     """Tests for SchemaRegistry."""
 
     def test_default_version(self):
-        """Test default version is 0.6.1."""
+        """Test default version matches the registry's DEFAULT_SCHEMA_VERSION."""
+        from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
+
         registry = SchemaRegistry()
-        assert registry.default_version == "0.6.1"
+        assert registry.default_version == DEFAULT_SCHEMA_VERSION
 
     def test_available_versions(self):
         """Test listing available versions."""

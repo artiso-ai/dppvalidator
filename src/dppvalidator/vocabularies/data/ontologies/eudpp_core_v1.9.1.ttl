@@ -1,0 +1,39 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ns0: <http://purl.org/vocab/vann#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://w3id.org/eudpp/>
+  a owl:Ontology ;
+  owl:imports <https://w3id.org/eudpp/ACTOR>, <https://w3id.org/eudpp/CON>, <https://w3id.org/eudpp/P_DPP>, <https://w3id.org/eudpp/SOC> ;
+  dcterms:contributor "Hele-Mai Haav"@en, "Riina Maigre"@en ;
+  dcterms:created "2025-02-27"@en ;
+  dcterms:creator "Tarmo Robal"@en ;
+  dcterms:description """The CORE is the integration ontology that imports all the specific ontology modules and the connector (bridge) ontology of these.
+
+--
+THIS DOCUMENT IS PROVIDED WITH NO WARRANTIES WHATSOEVER. 
+All liability for any damages arising from use or misuse of this vocabulary is with the user."""@en ;
+  dcterms:issued "2026-02-28"@en ;
+  dcterms:licence <http://www.apache.org/licenses/LICENSE-2.0>, """This ontology is licensed under the Apache License, Version 2.0. 
+In case of dispute over Apache 2.0 applicability, or in case considering the ontology as a document, this ontology document is to be considered licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)."""@en ;
+  dcterms:title "CORE  of the EU DPP core ontology proposed by the CIRPASS-2 project."@en ;
+  ns0:preferredNamespacePrefix "eudpp" ;
+  rdfs:comment "The CORE of the EU DPP core ontology proposal of the CIRPASS-2 European project."@en ;
+  rdfs:label "EU DPP CORE"@en ;
+  owl:versionInfo "1.9.1" .
+
+dcterms:contributor a owl:AnnotationProperty .
+dcterms:created a owl:AnnotationProperty .
+dcterms:creator a owl:AnnotationProperty .
+dcterms:description a owl:AnnotationProperty .
+dcterms:identifier a owl:AnnotationProperty .
+dcterms:issued a owl:AnnotationProperty .
+dcterms:licence a owl:AnnotationProperty .
+dcterms:references a owl:AnnotationProperty .
+dcterms:source a owl:AnnotationProperty .
+dcterms:title a owl:AnnotationProperty .
+ns0:preferredNamespacePrefix a owl:AnnotationProperty .
+<https://w3id.org/eudpp#isMandatory> a owl:AnnotationProperty .
+xsd:date a rdfs:Datatype .

@@ -148,8 +148,22 @@ class TestDeepValidator:
     """Tests for DeepValidator."""
 
     def test_default_link_paths(self) -> None:
-        """Default link paths are set."""
+        """Default link paths are set per the active schema version.
+
+        Phase 9 task 9.1 flipped DEFAULT_SCHEMA_VERSION to 0.7.0; the
+        DeepValidator selects the v0.7 path list from
+        ``LINK_PATHS_BY_VERSION`` accordingly. ``DEFAULT_LINK_PATHS``
+        is now the v0.6 fallback (used only for unregistered versions).
+        """
+        from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
+        from dppvalidator.validators.deep import LINK_PATHS_BY_VERSION
+
         validator = DeepValidator()
+        assert validator.follow_links == LINK_PATHS_BY_VERSION[DEFAULT_SCHEMA_VERSION]
+
+    def test_default_link_paths_v06_explicit(self) -> None:
+        """Pinning v0.6.1 selects the legacy DEFAULT_LINK_PATHS list."""
+        validator = DeepValidator(schema_version="0.6.1")
         assert validator.follow_links == DEFAULT_LINK_PATHS
 
     def test_custom_link_paths(self) -> None:

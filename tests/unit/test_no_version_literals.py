@@ -2,18 +2,28 @@
 
 This test enforces the contract documented in
 ``docs/plans/UNTP_0.7.0_MIGRATION.md`` §Phase 1 / §7.1 (rule 1) and
-``.claude/rules/untp-versioning.md`` (cardinal rule 1):
+``.claude/rules/untp-versioning.md`` (cardinal rule 1), extended in
+Phase 1 of ``docs/plans/CIRPASS_2_MIGRATION.md`` to cover CIRPASS
+message and EUDPP module versions:
 
-> No bare UNTP/CIRPASS version literals. A string like ``"0.6.1"`` or
-> ``"0.7.0"`` may only appear in ``schemas/registry.py``,
-> ``exporters/contexts.py``, and ``schemas/cirpass_loader.py``. Everywhere
-> else: look it up via ``SchemaRegistry``, ``ContextManager``, or
+> No bare UNTP / CIRPASS / EUDPP-module version literals. A string like
+> ``"0.6.1"``, ``"0.7.0"``, ``"1.3.0"``, or ``"1.9.1"`` may only appear
+> in ``schemas/registry.py``, ``exporters/contexts.py``, and
+> ``schemas/cirpass_loader.py``. Everywhere else: look it up via
+> ``SchemaRegistry``, ``ContextManager``, or
 > ``dppvalidator.compat.active_version()``.
 
+The regex matches any ``"\\d+\\.\\d+\\.\\d+"`` triple-dotted SemVer
+literal, so the CIRPASS-2 migration's new versions are caught
+automatically by the existing pattern. Pre-release suffixes such as
+``"1.9.4-Maki"`` are intentionally not matched — those literals appear
+only in registry rows where the four-part shape is unambiguous.
+
 When this test fails, the right fix is almost always to import
-``DEFAULT_SCHEMA_VERSION`` from ``dppvalidator.schemas.registry`` and use it
-as the constructor default / dataclass default / argparse default — not to
-add the new file to ``ALLOWED``.
+``DEFAULT_SCHEMA_VERSION`` (or ``DEFAULT_VERSIONS[…]`` post-Phase 2)
+from ``dppvalidator.schemas.registry`` and use it as the constructor
+default / dataclass default / argparse default — not to add the new
+file to ``ALLOWED``.
 """
 
 from __future__ import annotations
@@ -53,6 +63,12 @@ _ALLOWED_FILES = frozenset(
         Path("src/dppvalidator/validators/model.py"),
         Path("src/dppvalidator/validators/deep.py"),
         Path("src/dppvalidator/validators/rules/__init__.py"),
+        # Added the
+        # CIRPASS-family rule dispatch table — analogous to the UNTP
+        # ``ALL_RULES_BY_VERSION`` dispatch in the parent ``rules``
+        # package. Single dispatch table; literal CIRPASS version
+        # keys are intentional.
+        Path("src/dppvalidator/validators/rules/cirpass_v1_3/__init__.py"),
     }
 )
 

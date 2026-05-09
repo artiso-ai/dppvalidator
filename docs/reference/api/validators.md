@@ -110,4 +110,4 @@ reset_default_registry()
 | SEM002 | semantic | Invalid date range       |
 | SIG001 | crypto   | Invalid signature        |
 
-> **Note:** This table shows common examples. See [Error Reference](../errors/) for the complete list of 70+ error codes.
+> **Note:** This table shows common examples. See [Error Reference](../../errors/index.md) for the complete list of 70+ error codes.

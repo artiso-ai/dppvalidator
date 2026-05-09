@@ -1,0 +1,15 @@
+{
+  "_failure": "Product.productName must have ≥1 entry — at least one language is required.",
+  "dppIdentifier": {
+    "value": "https://example.com/dpp/X",
+    "scheme": "https://example.com/"
+  },
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890128",
+      "scheme": "https://gs1.org/voc/"
+    },
+    "productName": []
+  },
+  "issuedAt": {"timestamp": "2026-05-08T12:00:00+00:00"}
+}

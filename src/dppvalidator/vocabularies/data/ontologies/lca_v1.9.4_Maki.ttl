@@ -1,0 +1,1652 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ns0: <http://purl.org/vocab/vann/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ns1: <https://w3id.org/eudpp#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://w3id.org/eudpp/LCA>
+  a owl:Ontology ;
+  owl:versionIRI <https://w3id.org/eudpp/LCA/1.9.7> ;
+  dcterms:contributor "Marc-Andree Wolf"@en ;
+  dcterms:creator "CIRPASS-2 Consortium"@en ;
+  dcterms:description """
+LCA (Life Cycle Assessment) module of an EU DPP (Digital Product Passport) core ontology proposal of the CIRPASS-2 European project.
+
+SCOPE
+This module is derived from the ILCD+EPD v1.3 data format (https://indatawg.github.io/ILCD-EPD-Data-Format/) and covers environmental-performance metadata that a DPP needs to carry. It supports both (a) general LCA studies of any product, expressed via eudpp:LCAStudy, and (b) Environmental Product Declarations (EPDs) conforming to EN 15804+A2 with EF 3.1 characterisation, expressed via eudpp:EPDStudy (a subclass of LCAStudy). The scope is deliberately lean: only metadata required for unambiguous identification of the study, its compliance status (where applicable), and its headline LCIA results (eudpp:LCIAResult: characterised impact results) and aggregated inventory-indicator results (eudpp:InventoryIndicatorResult: per-indicator aggregates per EN 15804+A2 Table 5) per life-cycle module and per scenario are modelled. Note that eudpp:InventoryIndicatorResult represents the AGGREGATED inventory-indicator value as printed in EN 15804+A2 EPD tables (e.g. total kg of HWD across A1-A3); it is NOT the raw flow-level life-cycle inventory (LCI) of a process. Full ILCD+EPD elements that are not needed for DPP use cases (exchanges/elementary flows, scenario quantities, variability/safety-margins sub-blocks, normalisation/weighting, characterisation-factor tables, etc.) are intentionally omitted in this release. Some fields from ILCD+EPD that describe the declared product rather than the LCA study (product identifiers, content declaration, service-life sub-structure) are handled by sibling modules of the CIRPASS-2 DPP core ontology (P_DPP, SOC) and are not redefined here.
+
+NAMESPACE
+All terms in this module live under the family-wide EUDPP namespace https://w3id.org/eudpp# (matching ACTOR, P_DPP, SOC, CONNECTOR). The ontology IRI itself is https://w3id.org/eudpp/LCA. There is no per-module term prefix.
+
+PROVENANCE OF TERMS
+Every class, property and named individual in this ontology carries an eudpp:ilcdSource annotation with one of: "ILCD base" (originates from the ILCD 1.1 base data format), "ILCD+EPD extension" (originates from the ILCD+EPD v1.3 extension, i.e. the epd, epd2, epd24 namespaces of InData), "LCA ontology extension" (introduced by this module without direct ILCD/ILCD+EPD counterpart), or "LCA ontology metadata" (annotation properties used internally by this module). This allows downstream systems to distinguish which parts of the ontology are generic LCA metadata and which are EPD-specific.
+
+DEPENDENCIES
+This module imports the ACTOR module of the CIRPASS-2 EU DPP Core Ontology (https://w3id.org/eudpp/ACTOR) for its eudpp:Actor and eudpp:Facility classes. It also references, but does not import, the Ontology of Units of Measure (OM-2; http://www.ontology-of-units-of-measure.org/resource/om-2/) for units. Cross-module object properties whose domain is in this module and whose range is in another EUDPP module (Actor, Facility, Product, DPP) are NOT defined here; per the EU DPP Core Ontology design principles, they are defined in the CONNECTOR module. The full list of Connector entries that this module expects is given in the per-class comments below.
+
+HARD-CODED INDICATOR SETS
+Two indicator sets are declared as named individuals: (i) 37 EN 15804+A2 EF 3.1 indicators (13 core impact + 6 impact with-caveats + 18 resource-use, waste and output-flow inventory indicators), used by EN 15804+A2 EPDStudy instances; and (ii) 16 EF 3.1 / PEF impact categories, used by general LCAStudy instances following the EU Environmental Footprint method. The two sets overlap in concept but differ in operational form (EN 15804+A2 splits Climate change into four sub-indicators and selects a different "with caveats" subset; EF 3.1 keeps the 16 PEF categories at one level of aggregation). Additional LCIA methodologies and results can be added by instantiating eudpp:LCIAOrInventoryMethod and eudpp:LCAResult (or its subclasses eudpp:LCIAResult and eudpp:InventoryIndicatorResult) without modifying this ontology.
+
+REFERENCE
+For more information, see Maigre, R., Haav, H.-M., Robal, T., Wolf, M.-A., and Danash, F. (2025). Ontology Requirements Specification for an EU DPP Core Ontology Proposal (1.1). CIRPASS-2 Consortium. https://doi.org/10.5281/zenodo.15270342
+    """@en ;
+  dcterms:issued "2026-04-27"^^xsd:date ;
+  dcterms:license <https://www.apache.org/licenses/LICENSE-2.0>, "This ontology is licensed under the Apache License, Version 2.0. In case of dispute over Apache 2.0 applicability, or in case considering the ontology as a document, this ontology document is to be considered licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)."@en ;
+  dcterms:title "LCA module of the CIRPASS-2 EU DPP Core Ontology"@en ;
+  ns0:preferredNamespacePrefix "eudpp" ;
+  ns0:preferredNamespaceUri "https://w3id.org/eudpp#" ;
+  rdfs:comment "The LCA module of the EU DPP core ontology, version 1.9.7."@en ;
+  rdfs:label "EU DPP LCA"@en ;
+  rdfs:seeAlso <https://indatawg.github.io/ILCD-EPD-Data-Format/>, <https://standards.cen.eu/dyn/www/f?p=204:110:0::::FSP_PROJECT:65243> ;
+  owl:priorVersion <https://w3id.org/eudpp/LCA/1.9.6> ;
+  owl:versionInfo "1.9.7" .
+
+dcterms:accessRights a owl:AnnotationProperty .
+dcterms:bibliographicCitation a owl:AnnotationProperty .
+dcterms:contributor a owl:AnnotationProperty .
+dcterms:creator a owl:AnnotationProperty .
+dcterms:description a owl:AnnotationProperty .
+dcterms:issued a owl:AnnotationProperty .
+dcterms:license a owl:AnnotationProperty .
+dcterms:modified a owl:AnnotationProperty .
+dcterms:title a owl:AnnotationProperty .
+ns0:preferredNamespacePrefix a owl:AnnotationProperty .
+ns0:preferredNamespaceUri a owl:AnnotationProperty .
+owl:priorVersion a owl:AnnotationProperty .
+skos:altLabel a owl:AnnotationProperty .
+<https://w3id.org/eudpp#ilcdSource>
+  a owl:AnnotationProperty ;
+  rdfs:comment "Provenance annotation identifying whether a class, property or named individual of this ontology originates from the ILCD base data format (\"ILCD base\"), from the ILCD+EPD v1.3 extension i.e. the epd / epd2 / epd24 namespaces of InData (\"ILCD+EPD extension\"), is introduced by this LCA module without direct ILCD counterpart (\"LCA ontology extension\"), or is internal annotation metadata of this module (\"LCA ontology metadata\"). Annotation property; does not affect reasoning."@en ;
+  rdfs:label "ILCD source"@en ;
+  ns1:ilcdSource "LCA ontology metadata" .
+
+ns1:unitAsString
+  a owl:AnnotationProperty ;
+  rdfs:comment """Human-readable label of the unit in which the associated EN 15804 indicator value is expressed, e.g. "kg CO2-eq", "MJ, net calorific value", "m3". Annotation property (not for automated unit arithmetic).
+
+Pattern for resolving to a machine-readable OM-2 Unit individual (two-step lookup):
+STEP 1 - Retrieve the set of Unit individuals in the Ontology of Units of Measure (OM-2, base IRI http://www.ontology-of-units-of-measure.org/resource/om-2/). Each Unit individual carries (i) an rdfs:label (the unit's long English name, e.g. "kilogram"), (ii) an om:symbol datatype property (the standard symbol, e.g. "kg"), and typically (iii) an om:alternativeSymbol or om:alternativeLabel with variants.
+STEP 2 - Match the string stored in eudpp:unitAsString against OM-2 via rdfs:label, om:symbol, or om:alternativeSymbol as appropriate. Compound EN 15804 units such as "kg CO2-eq" or "mol H+-eq" are not directly represented as single OM-2 Unit individuals; they should be decomposed (mass in kg, normalized via a characterisation vector) or mapped to an application-specific extension of OM-2. For simple indicators (e.g. FW in m3, SM in kg, HWD in kg, MJ), direct lookup against OM-2 Unit individuals with matching om:symbol works.
+
+Authoritative OM-2 release: om-2.0.rdf, see https://github.com/HajoRijgersberg/OM. Note that the OM-2 property names given here (rdfs:label, om:symbol, om:alternativeSymbol) are stable across the OM 2.0 release. Downstream implementers should verify the exact OM-2 property IRIs against the OM-2 release they use."""@en ;
+  rdfs:label "unit as string"@en ;
+  ns1:ilcdSource "LCA ontology metadata" .
+
+xsd:date a rdfs:Datatype .
+xsd:gYear a rdfs:Datatype .
+ns1:areaOfProtection
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAImpactCategory ;
+  rdfs:range ns1:AreaOfProtection ;
+  rdfs:comment "Area-of-protection addressed by an LCIAImpactCategory (1..n cardinality: a single impact category can address several Areas of Protection — for example, ozone depletion affects both Natural Environment and Human Health). Domain moved in v1.9.7 from LCIAOrInventoryMethod to LCIAImpactCategory: ontologically AoP is a property of the impact category, not of the calculator that addresses it; different methods for the same impact category share the same AoPs. This deviates from the ILCD serialisation pattern (which puts areaOfProtection on LCIAMethodDataSet) for ontological correctness; the ILCD value can still be derived by following impactCategory then areaOfProtection."@en ;
+  rdfs:label "area of protection"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:complianceStatus
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:ComplianceDeclaration ;
+  rdfs:range ns1:ComplianceStatus ;
+  rdfs:comment "Level of compliance declared by a ComplianceDeclaration (fully compliant, partially compliant, or not compliant)."@en ;
+  rdfs:label "compliance status"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:declaresManufacturerRecord
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:ManufacturerRecord ;
+  rdfs:comment "Link from an LCAStudy (or its subclass EPDStudy) to a ManufacturerRecord. An LCA or EPD study frequently covers a product range or sector average drawing primary data from several manufacturers; this property associates the study with each contributing manufacturer record. Distinct from the Connector property eudpp:hasManufacturer (Product -> Actor), which identifies the single manufacturer of a specific DPP-bearing product instance. Corresponds to ILCD+EPD element epd24:manufacturers/epd24:manufacturer. Domain widened in v1.9.7 from EPDStudy to LCAStudy so that any LCA study can declare its contributing manufacturers."@en ;
+  rdfs:label "declares manufacturer record"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:en15804Group
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:EN15804Indicator ;
+  rdfs:range ns1:EN15804IndicatorGroup ;
+  rdfs:comment "Link from an EN15804Indicator individual to the indicator group it belongs to (core impact, with-caveats, resource use, waste, valorisation, exported energy). Object property; range is eudpp:EN15804IndicatorGroup."@en ;
+  rdfs:label "EN 15804 indicator group"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:forIndicator
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range ns1:LCIAIndicator ;
+  rdfs:comment "Link from an LCIAOrInventoryMethod to the LCIAIndicator individual that it computes (typically an EN15804Indicator individual; for non-EN-15804 LCA studies, any LCIAIndicator individual). This is the key identity of an ILCD+EPD LCIA Method Data Set. Cardinality is at most 1 per method instance (enforced via owl:Restriction on LCIAOrInventoryMethod). Range generalised in v1.9.7 from EN15804Indicator to LCIAIndicator so non-EN-15804 indicators can be referenced."@en ;
+  rdfs:label "for indicator"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:forLCIAOrInventoryMethod
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAResult ;
+  rdfs:range ns1:LCIAOrInventoryMethod ;
+  rdfs:comment "Link from an LCAResult (LCIAResult or InventoryIndicatorResult) to the LCIAOrInventoryMethod used to compute it. Corresponds to ILCD+EPD element LCIAResult/referenceToLCIAMethodDataSet. Renamed in v1.9.7 from v1.9.6's forLCIAMethod to align with the renamed method class."@en ;
+  rdfs:label "for LCIA or Inventory method"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:forModule
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAModuleValue ;
+  rdfs:range ns1:LifeCycleModule ;
+  rdfs:comment "Link from an LCIAModuleValue to the EN 15804+A2 life-cycle module it refers to. Corresponds to ILCD+EPD attribute @epd:module on epd:amount."@en ;
+  rdfs:label "for life-cycle module"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:hasComplianceDeclaration
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:ComplianceDeclaration ;
+  rdfs:comment "Link from an LCAStudy (or its subclass EPDStudy) to a ComplianceDeclaration. Compliance can be declared against any standard relevant to the study type (ISO 14040/14044, ISO 14025, ISO 14067, ISO 21930, EN 15804+A2, PEFCR-specific rules, etc.). Corresponds to ILCD+EPD element complianceDeclarations/compliance. Domain widened in v1.9.7 from EPDStudy to LCAStudy."@en ;
+  rdfs:label "has compliance declaration"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:hasExternalDocumentation
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:Source ;
+  rdfs:comment "Link from an LCAStudy to a background document (e.g. an LCA project report, safety data sheet, or explanatory material). Corresponds to ILCD+EPD element referenceToExternalDocumentation on dataSetInformation."@en ;
+  rdfs:label "has external documentation"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:hasImpactModel
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range ns1:ImpactModel ;
+  rdfs:comment "Link from an LCIAOrInventoryMethod to its characterisation-model block (where applicable; inventory-only methods may not have one). Corresponds to ILCD+EPD element impactModel on LCIAMethodDataSet."@en ;
+  rdfs:label "has impact model"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:hasInventoryIndicatorResult
+  a owl:ObjectProperty ;
+  rdfs:subPropertyOf ns1:hasLCAResult ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:InventoryIndicatorResult ;
+  rdfs:comment "Link from an LCAStudy (or its subclass EPDStudy) to one of its aggregated inventory-indicator results. Sub-property of eudpp:hasLCAResult; range narrowed to eudpp:InventoryIndicatorResult. Corresponds to ILCD+EPD element LCIAResults/LCIAResult when the indicator is an EN 15804+A2 inventory indicator (resource use, waste, output flows). Renamed in v1.9.7 from v1.9.6's hasInventoryResult (the previous name was ambiguous with raw life-cycle inventory; this property addresses aggregated indicator-level inventory results)."@en ;
+  rdfs:label "has inventory indicator result"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:hasLCAResult
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:LCAResult ;
+  rdfs:comment "Link from an LCAStudy (or its subclass EPDStudy) to one of its LCA results. Range is the abstract eudpp:LCAResult; sub-properties eudpp:hasLCIAResult and eudpp:hasInventoryResult narrow the result to the corresponding sibling subclass. Querying for eudpp:hasLCAResult retrieves both kinds of results in one go."@en ;
+  rdfs:label "has LCA result"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:hasLCIAResult
+  a owl:ObjectProperty ;
+  rdfs:subPropertyOf ns1:hasLCAResult ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:LCIAResult ;
+  rdfs:comment "Link from an LCAStudy (or its subclass EPDStudy) to one of its characterised impact results. Sub-property of eudpp:hasLCAResult; range narrowed to eudpp:LCIAResult. Corresponds to ILCD+EPD element LCIAResults/LCIAResult when the indicator is an EN 15804+A2 impact indicator."@en ;
+  rdfs:label "has LCIA result"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:hasModuleValue
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAResult ;
+  rdfs:range ns1:LCIAModuleValue ;
+  rdfs:comment "Link from an LCAResult (LCIAResult or InventoryIndicatorResult) to one of its per-module (and optionally per-scenario) numerical values. Corresponds to ILCD+EPD element LCIAResult/other/epd:amount."@en ;
+  rdfs:label "has module value"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:hasReview
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:Review ;
+  rdfs:comment "Link from an LCAStudy to a critical-review / verification record. Corresponds to ILCD+EPD element validation/review."@en ;
+  rdfs:label "has review"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:hasUnit
+  a owl:ObjectProperty ;
+  rdfs:range <http://www.ontology-of-units-of-measure.org/resource/om-2/Unit> ;
+  rdfs:comment "Link from an LCIAModuleValue (or LCIAOrInventoryMethod) to the unit (OM-2 Unit individual) in which the value is expressed. Corresponds to ILCD+EPD element referenceToUnitGroupDataSet. Range is the externally-defined om-2:Unit class. Replaces v1.9.4's xsd:string-typed eudpp:hasUnit."@en ;
+  rdfs:label "has unit"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:impactCategory
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range ns1:LCIAImpactCategory ;
+  rdfs:comment "Impact category addressed by the LCIAOrInventoryMethod. Corresponds to ILCD+EPD element impactCategory on LCIAMethodDataSet."@en ;
+  rdfs:label "impact category"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:licenseType
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:LicenseType ;
+  rdfs:comment "License applicable to the LCA / EPD study. Corresponds to ILCD+EPD element publicationAndOwnership/licenseType."@en ;
+  rdfs:label "license type"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:methodology
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range ns1:LCIAMethodology ;
+  rdfs:comment "Link from an LCIAOrInventoryMethod to one or several LCIAMethodology individuals it belongs to (e.g. eudpp:methodology_EF3_1). Cardinality 1..n: a single method can be classified into more than one methodology (for example, when two methodologies share the same characterisation factors for one indicator). Replaces the free-text methodology name from v1.9.4 in order to allow structured queries."@en ;
+  rdfs:label "methodology"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:referenceToBackgroundDatabase
+  a owl:ObjectProperty ;
+  rdfs:subPropertyOf ns1:referenceToDataSource ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:BackgroundDatabase ;
+  rdfs:comment "Link from an LCAStudy to a background LCI database used for the modelling (1..n). Sub-property of eudpp:referenceToDataSource: a background database is a kind of data source, but instances using this more specific property let consumers filter for database-typed sources. NEW in v1.9.7."@en ;
+  rdfs:label "reference to background database"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToCompleteReviewReport
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:Review ;
+  rdfs:range ns1:ReviewReport ;
+  rdfs:comment "Link from a Review to the full review report. Corresponds to ILCD+EPD element review/referenceToCompleteReviewReport."@en ;
+  rdfs:label "reference to complete review report"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToComplianceSystem
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:ComplianceDeclaration ;
+  rdfs:range ns1:ComplianceSystem ;
+  rdfs:comment "Link from a ComplianceDeclaration to the standard or programme it references (EN 15804+A2, ISO 14025, ISO 21930, etc.). Corresponds to ILCD+EPD element compliance/referenceToComplianceSystem."@en ;
+  rdfs:label "reference to compliance system"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToDataSource
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:Source ;
+  rdfs:comment "Link from an LCAStudy to the background database(s) or literature source(s) used for modelling. Corresponds to ILCD+EPD element referenceToDataSource (e.g. ecoinvent, GaBi/Sphera, Okobaudat)."@en ;
+  rdfs:label "reference to data source"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToExternalDocumentation_LCIAOrInventoryMethod
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range ns1:Source ;
+  rdfs:comment "Link from an LCIAOrInventoryMethod to the external documentation describing the method. Corresponds to ILCD+EPD element referenceToExternalDocumentation on LCIAMethodDataSet/dataSetInformation. Separate from the property eudpp:hasExternalDocumentation which has domain eudpp:LCAStudy. Renamed in v1.9.7 from v1.9.6's referenceToExternalDocumentation_LCIAMethod."@en ;
+  rdfs:label "reference to external documentation (on LCIA or Inventory method)"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToIncludedMethods
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range ns1:LCIAOrInventoryMethod ;
+  rdfs:comment "Link from a methodology-level LCIAOrInventoryMethod (a collection of methods sharing a methodology such as \"EF 3.1\") to each of the individual-indicator method instances it aggregates. ILCD+EPD LCIA Method Data Sets can represent either a single LCIA or inventory method (one indicator) or a methodology (a collection/list of methods); this property is used only in the latter case. Corresponds to ILCD+EPD element referenceToIncludedMethods."@en ;
+  rdfs:label "reference to included methods"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToLCIAMethodReport
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range ns1:LCIAMethodReport ;
+  rdfs:comment "Link from an LCIAOrInventoryMethod to the formal LCIA method report (e.g. the EF 3.1 method description). Specialisation of the more generic eudpp:referenceToExternalDocumentation_LCIAOrInventoryMethod when the documentation is specifically a method-report-typed Source. NEW in v1.9.7."@en ;
+  rdfs:label "reference to LCIA method report"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToModelSource
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:ImpactModel ;
+  rdfs:range ns1:Source ;
+  rdfs:comment "Link from an ImpactModel to the bibliographic source(s) describing the characterisation model. Corresponds to ILCD+EPD element referenceToModelSource. Range is eudpp:Source; tighter semantic linking to eudpp:LCIAMethodReport is intended to be enforced via SHACL in a later release."@en ;
+  rdfs:label "reference to model source"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:referenceToOriginalEPD
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:EPDStudy ;
+  rdfs:range ns1:EPDDocument ;
+  rdfs:comment "Link from the machine-readable EPDStudy to the published EPD document (typically PDF). Corresponds to ILCD+EPD element epd2:referenceToOriginalEPD."@en ;
+  rdfs:label "reference to original EPD"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:referenceToPCR
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:EPDStudy ;
+  rdfs:range ns1:PCR ;
+  rdfs:comment "Link from an EPDStudy to the Product Category Rules document(s) it follows (1..n). Corresponds to ILCD+EPD element referenceToPCR. NEW in v1.9.7."@en ;
+  rdfs:label "reference to PCR"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:referenceToPEFCR
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range ns1:PEFCR ;
+  rdfs:comment "Link from an LCAStudy to a Product Environmental Footprint Category Rules document (1..n). Parallel to referenceToPCR but for PEF studies. NEW in v1.9.7."@en ;
+  rdfs:label "reference to PEFCR"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:typeOfReview
+  a owl:ObjectProperty ;
+  rdfs:domain ns1:Review ;
+  rdfs:range ns1:TypeOfReview ;
+  rdfs:comment "The kind of review performed (independent external, accredited third party, etc.). Corresponds to ILCD+EPD attribute review/@type."@en ;
+  rdfs:label "type of review"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:accessRestrictions
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range rdf:langString ;
+  rdfs:comment "Human-readable description of access and use restrictions for the LCA / EPD study (equivalent to dcterms:accessRights). Corresponds to ILCD+EPD element accessRestrictions."@en ;
+  rdfs:label "access restrictions"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:amount
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCIAModuleValue ;
+  rdfs:range xsd:double ;
+  rdfs:comment "Numerical value of an LCIAModuleValue, in the unit given by the associated LCIAMethod. Corresponds to ILCD+EPD text content of epd:amount inside LCIAResult/other."@en ;
+  rdfs:label "amount"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:baseName
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range rdf:langString ;
+  rdfs:comment "General descriptive name of the product or system represented by the study. Multilingual. Corresponds to ILCD+EPD element processInformation/dataSetInformation/name/baseName."@en ;
+  rdfs:label "base name"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:dataSetVersion
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Version number of this LCA / EPD study instance, independent of the ontology version. Format: major.minor.sub-minor (e.g. \"02.00.011\"). Corresponds to ILCD+EPD element publicationAndOwnership/dataSetVersion."@en ;
+  rdfs:label "data set version"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:epdFormatVersion
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:EPDStudy ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Version tag of the ILCD+EPD format used (e.g. \"1.3\"). Corresponds to ILCD+EPD attribute @epd2:epd-version on processDataSet. Renamed in v1.9.7 from v1.9.6's epdExtensionVersion (clearer wording — and parallel to eudpp:ilcdFormatVersion on LCAStudy)."@en ;
+  rdfs:label "EPD format version"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:expiryDate
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:EPDStudy ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Date on which the EPD's validity expires. EN 15804+A2 EPDs are typically valid for five years from publication. Corresponds to ILCD+EPD element epd2:expirationDateOfEPD on time/other. Domain restricted in v1.9.7 from LCAStudy to EPDStudy: a generic LCA study does not have a regulated expiry; only EPDs do."@en ;
+  rdfs:label "expiry date"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:forScenario
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCIAModuleValue ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Identifier of the scenario this LCIAModuleValue applies to (free-text label matching the EPD's scenario declaration). Corresponds to ILCD+EPD attribute @epd:scenario on epd:amount. No separate Scenario class is defined in this release; scenario descriptions, when needed, can be carried on the EPD document. A future release may introduce a Scenario class with rdfs:label for stronger validation."@en ;
+  rdfs:label "for scenario"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:hasCopyright
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True if a copyright applies to the LCA / EPD study, false otherwise. Corresponds to ILCD+EPD element publicationAndOwnership/copyright. Modelled as xsd:boolean per the ILCD+EPD schema definition (two-valued)."@en ;
+  rdfs:label "has copyright"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ilcdFormatVersion
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range xsd:string ;
+  rdfs:comment "ILCD schema version used by the source serialisation of this study (e.g. '1.1'). Corresponds to ILCD+EPD attribute @version on processDataSet."@en ;
+  rdfs:label "ILCD format version"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:impactIndicatorDescription
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable description of the indicator's meaning (what it measures, how to interpret). Corresponds to ILCD+EPD element impactIndicator on LCIAMethodDataSet."@en ;
+  rdfs:label "impact indicator description"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:isDeclared
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCIAModuleValue ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True if this module value is declared in the study (has a numerical amount), false if the module is explicitly marked as not declared (ND / MND) for this indicator/scenario. Absence of the LCIAModuleValue triple altogether means the module was not in scope of the study (MNA - module not applicable)."@en ;
+  rdfs:label "is declared"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:lciaOrInventoryMethodVersion
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCIAOrInventoryMethod ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Version of the specific LCIA or Inventory method instance (where applicable). Captures method-instance-level versioning, distinct from methodology-level versioning (eudpp:methodologyVersion on LCIAMethodology). Replaces v1.9.6's efVersion in v1.9.7: EF version is already covered indirectly via the compliance declaration's reference to the appropriate compliance system, while a generic per-method version field is needed."@en ;
+  rdfs:label "LCIA or Inventory method version"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:methodologyVersion
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCIAMethodology ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Version identifier of an LCIAMethodology individual (e.g. \"3.1\" for EF 3.1, \"2002\" for CML 2002)."@en ;
+  rdfs:label "methodology version"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:modelName
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:ImpactModel ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Name of the characterisation model used (e.g. \"IPCC AR6\" for GWP). Corresponds to ILCD+EPD element modelName on impactModel."@en ;
+  rdfs:label "model name"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:modelVersion
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:ImpactModel ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Version of the characterisation model used (e.g. \"IPCC AR6 2021\" vs \"IPCC AR5 2013\", which give different GWP100 values)."@en ;
+  rdfs:label "model version"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:referenceYear
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range xsd:gYear ;
+  rdfs:comment "Start year of the time period for which the study is valid. Corresponds to ILCD+EPD element time/referenceYear on processDataSet."@en ;
+  rdfs:label "reference year"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:registrationNumber
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:EPDStudy ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Identifying number issued by the EPD programme operator (typically visible on the EPD document). Distinct from the dataset UUID. Corresponds to ILCD+EPD element publicationAndOwnership/registrationNumber."@en ;
+  rdfs:label "registration number"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:reviewDate
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:Review ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Date on which the review was completed. Important for DPP consumers to assess whether the review is still current."@en ;
+  rdfs:label "review date"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:uuid
+  a owl:DatatypeProperty ;
+  rdfs:domain ns1:LCAStudy ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The Universally Unique Identifier of this LCA / EPD study, as mandated by ILCD+EPD as the primary persistent identifier. Once a study is created and a UUID is generated, the UUID stays the same forever; any change increments eudpp:dataSetVersion. String formatted as an RFC 4122 UUID (36 characters, hyphenated)."@en ;
+  rdfs:label "UUID"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+<http://www.ontology-of-units-of-measure.org/resource/om-2/Unit>
+  a owl:Class ;
+  rdfs:comment "Externally defined class imported by reference from OM-2 (Ontology of Units of Measure). Used as the range of eudpp:hasUnit. OM-2 is not imported via owl:imports to avoid transitive closure of a large external ontology; implementers needing unit-based reasoning should load OM-2 separately alongside this ontology."@en ;
+  rdfs:isDefinedBy <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+
+ns1:AreaOfProtection
+  a owl:Class ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:oneOf (
+     ns1:aopHumanHealth
+     ns1:aopManMadeEnvironment
+     ns1:aopNaturalEnvironment
+     ns1:aopNaturalResources
+     ns1:aopOther
+   )
+  ] ;
+  rdfs:comment "Damage area addressed by an LCIA method (only used for damage/end-point methods). Enumeration matching ILCD AreaOfProtectionValues."@en ;
+  rdfs:label "Area of Protection"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:BackgroundDatabase
+  a owl:Class ;
+  rdfs:subClassOf ns1:Source ;
+  rdfs:comment "Source representing a background LCI database used for the LCA modelling (e.g. ecoinvent, GaBi/Sphera, Okobaudat)."@en ;
+  rdfs:label "Background Database"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ComplianceDeclaration
+  a owl:Class ;
+  rdfs:comment "A statement that the LCA or EPD study complies with a given compliance system (typically ISO 14040/14044, ISO 14025, ISO 14067, ISO 21930, EN 15804+A2, or a PEFCR). Corresponds to ILCD+EPD element complianceDeclarations/compliance. The level of compliance (fully, partially, not compliant) is recorded via eudpp:complianceStatus."@en ;
+  rdfs:label "Compliance Declaration"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ComplianceStatus
+  a owl:Class ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:oneOf (
+     ns1:fullyCompliant
+     ns1:notCompliant
+     ns1:partiallyCompliant
+   )
+  ] ;
+  rdfs:comment "Level of compliance declared by a ComplianceDeclaration relative to its compliance system. Enumeration of 3 named individuals (fullyCompliant, partiallyCompliant, notCompliant)."@en ;
+  rdfs:label "Compliance Status"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:ComplianceSystem
+  a owl:Class ;
+  rdfs:subClassOf ns1:Source ;
+  rdfs:comment "A standard or programme against which an LCA or EPD study is declared compliant, such as ISO 14040/14044, ISO 14025, ISO 14067, ISO 21930, EN 15804+A2, PEFCR programmes, or a specific programme operator's scheme."@en ;
+  rdfs:label "Compliance System"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:EN15804ImpactIndicator
+  a owl:Class ;
+  rdfs:subClassOf ns1:EN15804Indicator ;
+  rdfs:comment "An EN 15804+A2 characterised impact indicator (core set of 13 or the 6 additional \"with caveats\" indicators). Characterised via the EF 3.1 characterisation models. Results computed for this indicator are eudpp:LCIAResult instances."@en ;
+  rdfs:label "EN 15804 Impact Indicator"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:EN15804Indicator
+  a owl:Class ;
+  rdfs:subClassOf ns1:LCIAIndicator ;
+  rdfs:comment "An indicator defined by EN 15804+A2 (core impact, impact with caveats, resource use, waste output, or output-flow indicator). Subclass of the abstract eudpp:LCIAIndicator parent. Named individuals of this class (and its subclasses) are used as the indicator that an eudpp:LCIAOrInventoryMethod calculates values for. Note: an EN15804Indicator individual is the indicator definition; a result computed for that indicator is an eudpp:LCAResult instance (LCIAResult or InventoryIndicatorResult sibling)."@en ;
+  rdfs:label "EN 15804 Indicator"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:EN15804IndicatorGroup
+  a owl:Class ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:oneOf (
+     ns1:group_coreImpact
+     ns1:group_exportedEnergy
+     ns1:group_resourceUse
+     ns1:group_valorisation
+     ns1:group_waste
+     ns1:group_withCaveats
+   )
+  ] ;
+  rdfs:comment "Grouping of the EN 15804+A2 indicators as printed in the standard's tables: core impact (Table 3), impact indicators with caveats (Table 4), resource use (Table 5 resource use), waste categories (Table 5 waste), output flows valorisation (Table 5 output flows), exported energy (Table 5 output flows). Enumeration of 6 named individuals."@en ;
+  rdfs:label "EN 15804 Indicator Group"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:EN15804InventoryIndicator
+  a owl:Class ;
+  rdfs:subClassOf ns1:EN15804Indicator ;
+  rdfs:comment "An EN 15804+A2 inventory-level indicator (resource use, waste disposed, or output flow for valorisation / exported energy). Not characterised; value is an aggregated inventory quantity. Results computed for this indicator are eudpp:InventoryIndicatorResult instances."@en ;
+  rdfs:label "EN 15804 Inventory Indicator"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:EPDDocument
+  a owl:Class ;
+  rdfs:subClassOf ns1:Source ;
+  rdfs:comment "Source representing the published PDF or HTML EPD document itself (as distinct from the ILCD+EPD machine-readable EPDStudy)."@en ;
+  rdfs:label "EPD Document"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:EPDStudy
+  a owl:Class ;
+  rdfs:subClassOf ns1:LCAStudy ;
+  rdfs:comment "An LCA study that conforms to EN 15804+A2 with EF 3.1 characterisation, i.e. an Environmental Product Declaration. Inherits all study-level metadata from eudpp:LCAStudy (compliance declarations, manufacturer records, reviews, LCA results, etc.) and adds EPD-specific properties: ILCD+EPD format version (eudpp:epdFormatVersion), registration number, expiry date, reference to the published EPD document (eudpp:EPDDocument via referenceToOriginalEPD), reference to the applicable Product Category Rules (eudpp:PCR via referenceToPCR). EN 15804+A2 module values per LCAResult are used to populate per-life-cycle-module values. Replaces v1.9.4's mixed structure and v1.9.5's eudpp:EPDDataSet."@en ;
+  rdfs:label "EPD Study"@en, "EPD-Studie"@de ;
+  rdfs:seeAlso <https://indatawg.github.io/ILCD-EPD-Data-Format/doc/> ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:EnvironmentalFootprintScore
+  a owl:Class ;
+  rdfs:subClassOf ns1:LCIAIndicator ;
+  rdfs:comment "An aggregated single-score indicator computed as the normalised and weighted sum of a set of impact-category results. Direct subclass of eudpp:LCIAIndicator (sibling of eudpp:EN15804Indicator and eudpp:LCIAImpactIndicator), distinct from those because the single score is a derived aggregate and not itself an impact category. Holds one named individual eudpp:ind_EF_singleScore representing the EU Environmental Footprint single score (PEF score). The applied normalisation factors and weighting set are not modelled here as properties; they are determined by the active EF / PEF methodology version, which is resolvable via the study's eudpp:hasComplianceDeclaration link to a eudpp:ComplianceSystem source. Results computed for an EnvironmentalFootprintScore individual are eudpp:LCIAResult instances. NEW class introduced in v1.9.7."@en ;
+  rdfs:label "Environmental Footprint Score"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:ImpactModel
+  a owl:Class ;
+  rdfs:comment "The characterisation model underlying an LCIA method (e.g. IPCC AR6 2021 for GWP). Corresponds to ILCD+EPD element impactModel of an LCIA Method Data Set. Carries a model name (eudpp:modelName), optional version (eudpp:modelVersion), and optional bibliographic source (eudpp:referenceToModelSource)."@en ;
+  rdfs:label "Impact Model"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:InventoryIndicatorResult
+  a owl:Class ;
+  rdfs:subClassOf ns1:LCAResult ;
+  rdfs:comment "Aggregated inventory-indicator result computed for an EN 15804+A2 inventory indicator (Table 5: resource use, waste categories, output flows). Sibling of eudpp:LCIAResult. Structurally identical to LCIAResult (per-module, per-scenario numerical values via eudpp:LCIAModuleValue). Important disambiguation: this class represents the AGGREGATED inventory-indicator value (e.g. total kg of HWD across A1-A3 for one product), as printed in EN 15804+A2 EPD tables and computed by an LCIAOrInventoryMethod instance. It is NOT the raw flow-level life-cycle inventory (LCI) result of a process (which would be a list of elementary-flow exchanges with amounts and units, and is out of scope for this DPP-oriented LCA module). Renamed in v1.9.7 from v1.9.6's eudpp:InventoryResult to make this distinction explicit. Distinguishing impact-result and inventory-indicator-result as siblings under a common eudpp:LCAResult parent reflects the conceptual distinction in EN 15804+A2 between Tables 3/4 (impact) and Table 5 (inventory) and supports separate downstream rendering in standard EPD tables."@en ;
+  rdfs:label "Inventory Indicator Result"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:LCAResult
+  a owl:Class ;
+  rdfs:comment "Abstract umbrella class for any LCA computation output of a study. Has two siblings as concrete subclasses: eudpp:LCIAResult (characterised impact result) and eudpp:InventoryIndicatorResult (aggregated inventory-indicator result). Both are produced from the same life-cycle inventory but via different calculation paths: LCIAResult applies characterisation factors of an LCIA method, InventoryIndicatorResult is a sum/aggregation over the inventory without characterisation. Both are computed by an eudpp:LCIAOrInventoryMethod (the unified method class). Connected to LCAStudy via eudpp:hasLCAResult; sub-properties eudpp:hasLCIAResult and eudpp:hasInventoryIndicatorResult narrow the result type."@en ;
+  rdfs:label "LCA Result"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:LCAStudy
+  a owl:Class ;
+  rdfs:comment "A life-cycle assessment study of a product, conducted per ISO 14040/14044, producing one or more LCA results (eudpp:LCAResult, with subclasses eudpp:LCIAResult for characterised impact results and eudpp:InventoryIndicatorResult for aggregated inventory-indicator results). The general study container, applicable to any product whether or not the study follows EN 15804+A2. Construction-products EPDs use the subclass eudpp:EPDStudy. Carries study-level metadata (UUID, dataset version, name, reference year, license, copyright, ILCD format version, compliance declarations, manufacturer records, reviews, references to data sources / background databases / PEFCR, etc.). Cross-module link from a product to this class is provided by the Connector property eudpp:hasLCAStudy."@en ;
+  rdfs:label "LCA Study"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:LCIAImpactCategory
+  a owl:Class ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:oneOf (
+     ns1:acidification
+     ns1:climateChange
+     ns1:eutrophication
+     ns1:freshwaterEcotoxicity
+     ns1:humanToxicity
+     ns1:ionisingRadiationEcosystems
+     ns1:ionisingRadiationHumanHealth
+     ns1:landUseSoilQuality
+     ns1:marineEcotoxicity
+     ns1:ozoneDepletion
+     ns1:photochemicalOzoneFormation
+     ns1:resourceUseFossil
+     ns1:resourceUseMineralsMetals
+     ns1:respiratoryInorganics
+     ns1:terrestrialEcotoxicity
+     ns1:waterUseDeprivation
+   )
+  ] ;
+  rdfs:comment "A mid-point impact category that an LCIAMethod addresses. Enumeration matching ILCD LCIAImpactCategoryValues."@en ;
+  rdfs:label "LCIA Impact Category"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:LCIAImpactIndicator
+  a owl:Class ;
+  rdfs:subClassOf ns1:LCIAIndicator ;
+  rdfs:comment "A characterised impact indicator outside the EN 15804+A2 selection — direct subclass of eudpp:LCIAIndicator, sibling of eudpp:EN15804Indicator. Holds the 16 official EF 3.1 / PEF impact category indicators as named individuals (Andreasi Bassi et al., JRC, 2023). These are the impact indicators used by general LCA studies (eudpp:LCAStudy) following the EU Environmental Footprint method, distinct from the EN 15804+A2 set used by EPDStudy. The two sets overlap conceptually — both have e.g. a \"Climate change\" indicator with kg CO2-eq — but differ operationally: EN 15804+A2 splits Climate change into four sub-indicators (total, fossil, biogenic, luluc) and selects 6 \"with caveats\" indicators with EN-specific reporting rules; EF 3.1 keeps Climate change as one indicator and presents 16 categories at one aggregation level. An LCIAOrInventoryMethod can reference indicators from either set via eudpp:forIndicator. Results computed for an LCIAImpactIndicator are eudpp:LCIAResult instances. Results expressed in dimensionless / Pt for land use are recorded with their numerical value in eudpp:amount."@en ;
+  rdfs:label "LCIA Impact Indicator"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:LCIAIndicator
+  a owl:Class ;
+  rdfs:comment "Abstract umbrella class for an indicator definition (impact or inventory category) that an eudpp:LCIAOrInventoryMethod calculates values for. Parent of eudpp:EN15804Indicator (which holds the EN 15804+A2 indicator definitions). For non-EN-15804 LCA studies (e.g. PEF, ISO 14067 carbon footprint), additional indicator individuals can be added as direct instances of LCIAIndicator or via further subclasses without modifying this ontology. Note: an indicator individual is the indicator DEFINITION (e.g. \"FW – Net use of fresh water, in m3\"); a numerical value computed for that indicator on a specific study is an eudpp:LCAResult instance (LCIAResult or InventoryIndicatorResult). NEW in v1.9.7."@en ;
+  rdfs:label "LCIA Indicator"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:LCIAMethodReport
+  a owl:Class ;
+  rdfs:subClassOf ns1:Source ;
+  rdfs:comment "Source that documents a life-cycle impact assessment (LCIA) method (e.g. the EF 3.1 method description)."@en ;
+  rdfs:label "LCIA Method Report"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:LCIAMethodology
+  a owl:Class ;
+  rdfs:comment "A named, versioned LCIA methodology (a coherent set of LCIA methods sharing principles and a set of characterisation factors), to which one or more LCIAMethod instances belong. The enumeration below is seeded with six commonly-used methodologies in EPD practice and is intentionally NOT closed via owl:oneOf: new methodology individuals can be added by instantiating LCIAMethodology without modifying this ontology. Each individual SHOULD carry a skos:altLabel giving a short code (e.g. \"EF 3.1\") and eudpp:methodologyVersion giving the version identifier."@en ;
+  rdfs:label "LCIA Methodology"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:LCIAModuleValue
+  a owl:Class ;
+  rdfs:comment "One numerical LCA-result value (impact or inventory-indicator) for a specific EN 15804+A2 life-cycle module (A1-A3, A4, ..., D) and optionally a specific scenario. Carries eudpp:amount (the numeric value), eudpp:forModule, optionally eudpp:forScenario, and eudpp:isDeclared (boolean: true if the module is declared with this value; false if the module is explicitly not declared for this indicator). Used by both eudpp:LCIAResult and eudpp:InventoryIndicatorResult instances. Corresponds to ILCD+EPD element epd:amount inside LCIAResult/other."@en ;
+  rdfs:label "LCIA Module Value"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:LCIAOrInventoryMethod
+  a owl:Class ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ns1:forIndicator ;
+    owl:maxCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:comment "A life-cycle method that produces values for one indicator from an inventory of elementary flows. Covers two cases: (a) characterised LCIA methods (which apply characterisation factors to compute a midpoint impact result), and (b) inventory aggregation methods (which sum / aggregate inventory flows to produce an inventory-indicator result, e.g. the EN 15804+A2 inventory indicators FW, HWD, PERE etc. defined as inventory-level by the standard's calculation rules). Corresponds to ILCD+EPD LCIA Method Data Set, which is used in practice for both kinds. Each instance identifies exactly one indicator (the ILCD+EPD pattern uses one LCIAMethodDataSet per indicator); this constraint is formalised as owl:maxCardinality 1 on eudpp:forIndicator. A methodology (in the ILCD sense of a set of methods sharing principles and characterisation factors) is represented by the object property eudpp:methodology, which can map a single method to one or several methodology individuals (1..n cardinality). ILCD+EPD LCIA Method Data Sets can also represent a methodology (a collection of methods); in that aggregator role, the LCIAOrInventoryMethod instance does not set forIndicator but uses eudpp:referenceToIncludedMethods to point to the per-indicator method instances. Renamed in v1.9.7 from v1.9.6's eudpp:LCIAMethod (the old name was misleading; in EPD/LCA software practice the same \"method\" object computes either characterised impacts or inventory aggregates)."@en ;
+  rdfs:label "LCIA or Inventory Method"@en ;
+  rdfs:seeAlso <https://indatawg.github.io/ILCD-EPD-Data-Format/gitBranches/release/v1.3/schemadoc/ILCD_LCIAMethodDataSet.html> ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:LCIAResult
+  a owl:Class ;
+  rdfs:subClassOf ns1:LCAResult ;
+  rdfs:comment "Characterised life-cycle impact assessment result of applying one LCIAOrInventoryMethod to the inventory of an LCA or EPD study. Carries per-life-cycle-module and per-scenario numerical values (via eudpp:LCIAModuleValue). Sibling of eudpp:InventoryIndicatorResult. Corresponds to ILCD+EPD element LCIAResults/LCIAResult when the indicator is a characterised impact indicator."@en ;
+  rdfs:label "LCIA Result"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:LicenseType
+  a owl:Class ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:oneOf (
+     ns1:freeOfChargeAll
+     ns1:freeOfChargeMembers
+     ns1:freeOfChargeSome
+     ns1:licenseFee
+     ns1:licenseOther
+   )
+  ] ;
+  rdfs:comment "License applicable to access and use of the LCA / EPD study. Enumeration matching ILCD LicenseTypeValues."@en ;
+  rdfs:label "License Type"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:LifeCycleModule
+  a owl:Class ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:oneOf (
+     ns1:moduleA1
+     ns1:moduleA1A3
+     ns1:moduleA2
+     ns1:moduleA3
+     ns1:moduleA4
+     ns1:moduleA5
+     ns1:moduleB1
+     ns1:moduleB2
+     ns1:moduleB3
+     ns1:moduleB4
+     ns1:moduleB5
+     ns1:moduleB6
+     ns1:moduleB7
+     ns1:moduleC1
+     ns1:moduleC2
+     ns1:moduleC3
+     ns1:moduleC4
+     ns1:moduleD
+   )
+  ] ;
+  rdfs:comment "A modelled life-cycle module per EN 15804+A2 (product stage A1-A3, construction A4-A5, use stage B1-B7, end-of-life C1-C4, benefits/loads D). Enumeration of 18 named individuals. Note that moduleA1A3 (aggregated product stage) is an alternative reporting form of A1+A2+A3; an EPD that reports A1-A3 should not additionally report A1, A2, A3 separately for the same indicator/scenario."@en ;
+  rdfs:label "Life Cycle Module"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:ManufacturerRecord
+  a owl:Class ;
+  rdfs:comment "A container that pairs one manufacturing Actor (via the Connector property identifiesManufacturer) with one or more manufacturing Facilities (via the Connector property hasManufacturingSite) for the product covered by an LCAStudy or its EPDStudy subclass. Corresponds to ILCD+EPD element epd24:manufacturer inside epd24:manufacturers. The ACTOR module does not model an actor-facility relationship natively, so this wrapper class is retained."@en ;
+  rdfs:label "Manufacturer Record"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:PCR
+  a owl:Class ;
+  rdfs:subClassOf ns1:Source ;
+  rdfs:comment "Source that is a Product Category Rules document (EN 15804+A2 Table 2 Line 1). Used in EN 15804+A2 EPDStudy via eudpp:referenceToPCR."@en ;
+  rdfs:label "Product Category Rules (PCR)"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:PEFCR
+  a owl:Class ;
+  rdfs:subClassOf ns1:Source ;
+  rdfs:comment "Source that is a Product Environmental Footprint Category Rules document, the European Commission Environmental Footprint methodology's product-category-specific rules. Parallel role to PCR but for PEF studies (rather than EN 15804+A2 EPD studies). Used by an LCAStudy via eudpp:referenceToPEFCR. NEW in v1.9.7."@en ;
+  rdfs:label "Product Environmental Footprint Category Rules (PEFCR)"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:Review
+  a owl:Class ;
+  rdfs:comment "A verification / critical review performed on an LCA study or EPD study. Corresponds to ILCD+EPD element validation/review."@en ;
+  rdfs:label "Review"@en ;
+  rdfs:seeAlso <https://indatawg.github.io/ILCD-EPD-Data-Format/doc/> ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ReviewReport
+  a owl:Class ;
+  rdfs:subClassOf ns1:Source ;
+  rdfs:comment "Source holding the complete critical-review / verification report referenced from a Review."@en ;
+  rdfs:label "Review Report"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:Source
+  a owl:Class ;
+  rdfs:comment "A bibliographic or documentary source referenced from an LCA study, EPD study or LCIA Method. Abstract superclass; concrete source instances typically use one of the more specific subclasses (PCR, LCIAMethodReport, BackgroundDatabase, ComplianceSystem, ReviewReport, EPDDocument). Corresponds to ILCD+EPD Source Data Set."@en ;
+  rdfs:label "Source"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:TypeOfReview
+  a owl:Class ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:oneOf (
+     ns1:accreditedThirdPartyReview
+     ns1:dependentInternalReview
+     ns1:independentExternalReview
+     ns1:independentInternalReview
+     ns1:independentReviewPanel
+     ns1:notReviewed
+   )
+  ] ;
+  rdfs:comment "Kind of critical-review/verification performed on a dataset. Enumeration matching ILCD TypeOfReviewValues."@en ;
+  rdfs:label "Type of Review"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:accreditedThirdPartyReview
+  a owl:NamedIndividual, ns1:TypeOfReview ;
+  rdfs:comment "Reviewer independent of the organisations involved and accredited by an independent accreditation body. Highest level acceptable for EN 15804+A2 compliance."@en ;
+  rdfs:label "Accredited third party review"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:acidification
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Acidification"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:aopHumanHealth
+  a owl:NamedIndividual, ns1:AreaOfProtection ;
+  rdfs:label "Human health"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:aopManMadeEnvironment
+  a owl:NamedIndividual, ns1:AreaOfProtection ;
+  rdfs:label "Man-made environment"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:aopNaturalEnvironment
+  a owl:NamedIndividual, ns1:AreaOfProtection ;
+  rdfs:label "Natural environment"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:aopNaturalResources
+  a owl:NamedIndividual, ns1:AreaOfProtection ;
+  rdfs:label "Natural resources"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:aopOther
+  a owl:NamedIndividual, ns1:AreaOfProtection ;
+  rdfs:label "Other"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:climateChange
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Climate change"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:dependentInternalReview
+  a owl:NamedIndividual, ns1:TypeOfReview ;
+  rdfs:comment "Reviewer involved in data collection or modelling, or representing the process/product system. Not acceptable for EN 15804+A2 compliance."@en ;
+  rdfs:label "Dependent internal review"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:eutrophication
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Eutrophication"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:freeOfChargeAll
+  a owl:NamedIndividual, ns1:LicenseType ;
+  rdfs:comment "The study can be freely accessed and used by all user types and for all uses, including commercial."@en ;
+  rdfs:label "Free of charge for all users and uses"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:freeOfChargeMembers
+  a owl:NamedIndividual, ns1:LicenseType ;
+  rdfs:comment "The study is accessible free of charge only to members of the dataset owner's organisation."@en ;
+  rdfs:label "Free of charge for members only"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:freeOfChargeSome
+  a owl:NamedIndividual, ns1:LicenseType ;
+  rdfs:comment "The study can be accessed free of charge for certain user types or uses."@en ;
+  rdfs:label "Free of charge for some user types or use types"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:freshwaterEcotoxicity
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Freshwater ecotoxicity"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:fullyCompliant
+  a owl:NamedIndividual, ns1:ComplianceStatus ;
+  rdfs:comment "The EPD study is declared fully compliant with the referenced compliance system."@en ;
+  rdfs:label "Fully compliant"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:group_coreImpact
+  a owl:NamedIndividual, ns1:EN15804IndicatorGroup ;
+  rdfs:comment "Core set of 13 characterised impact indicators mandatory for EN 15804+A2 EPDs (Table 3)."@en ;
+  rdfs:label "core impact"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:group_exportedEnergy
+  a owl:NamedIndividual, ns1:EN15804IndicatorGroup ;
+  rdfs:comment "Exported-energy inventory indicators of EN 15804+A2 (electrical energy, thermal energy)."@en ;
+  rdfs:label "exported energy"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:group_resourceUse
+  a owl:NamedIndividual, ns1:EN15804IndicatorGroup ;
+  rdfs:comment "Resource-use inventory indicators of EN 15804+A2 (primary energy, secondary materials, secondary fuels, water)."@en ;
+  rdfs:label "resource use"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:group_valorisation
+  a owl:NamedIndividual, ns1:EN15804IndicatorGroup ;
+  rdfs:comment "Valorisation-output inventory indicators of EN 15804+A2 (components for re-use, materials for recycling, materials for energy recovery)."@en ;
+  rdfs:label "valorisation"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:group_waste
+  a owl:NamedIndividual, ns1:EN15804IndicatorGroup ;
+  rdfs:comment "Waste-output inventory indicators of EN 15804+A2 (hazardous, non-hazardous, radioactive waste disposed)."@en ;
+  rdfs:label "waste"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:group_withCaveats
+  a owl:NamedIndividual, ns1:EN15804IndicatorGroup ;
+  rdfs:comment "Additional 6 characterised impact indicators of EN 15804+A2 that must be reported with the standard caveat statement (Table 4)."@en ;
+  rdfs:label "impact with caveats"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:humanToxicity
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Human toxicity"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ind_ADPE
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Abiotic depletion potential for non-fossil resources (minerals and metals), in kg Sb-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "ADPE - Abiotic Depletion Potential (elements, minerals and metals)"@en ;
+  skos:altLabel "ADPE"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg Sb-eq"@en .
+
+ns1:ind_ADPF
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Abiotic depletion potential for fossil resources, in MJ (net calorific value). Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "ADPF - Abiotic Depletion Potential (fossil resources)"@en ;
+  skos:altLabel "ADPF"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_AP
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Acidification accumulated exceedance, in mol H+-equivalent. Core EN 15804+A2 impact indicator (note: unit change versus EN 15804+A1, which used kg SO2-eq)."@en ;
+  rdfs:label "AP - Acidification (accumulated exceedance)"@en ;
+  skos:altLabel "AP"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "mol H+-eq"@en .
+
+ns1:ind_CRU
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_valorisation ;
+  rdfs:comment "Components for re-use, in kg. EN 15804+A2 inventory indicator (output flow - valorisation)."@en ;
+  rdfs:label "CRU - Components for re-use"@en ;
+  skos:altLabel "CRU"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg"@en .
+
+ns1:ind_EEE
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_exportedEnergy ;
+  rdfs:comment "Exported electrical energy, in MJ per energy carrier. EN 15804+A2 inventory indicator (output flow - exported energy)."@en ;
+  rdfs:label "EEE - Exported electrical energy"@en ;
+  skos:altLabel "EEE"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ per energy carrier"@en .
+
+ns1:ind_EET
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_exportedEnergy ;
+  rdfs:comment "Exported thermal energy, in MJ per energy carrier. EN 15804+A2 inventory indicator (output flow - exported energy)."@en ;
+  rdfs:label "EET - Exported thermal energy"@en ;
+  skos:altLabel "EET"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ per energy carrier"@en .
+
+ns1:ind_EF_acidification
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Accumulated exceedance, in mol H+-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Acidification"@en ;
+  skos:altLabel "Acidification"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "mol H+-eq"@en .
+
+ns1:ind_EF_climateChange
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Radiative forcing as global warming potential, GWP100, expressed in kg CO2-equivalent. Aggregate of climate-change effects from fossil, biogenic and land-use-and-land-use-change sources. EF 3.1 / PEF impact category. Colloquially known as the carbon footprint of the product. JRC characterisation factors per EUR 31414 EN (2023)."@en ;
+  rdfs:label "Climate change"@en ;
+  skos:altLabel "Carbon footprint"@en, "Climate change"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "kg CO2-eq"@en .
+
+ns1:ind_EF_ecotoxicityFreshwater
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Comparative toxic unit for ecosystems (freshwater), in CTUe. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Ecotoxicity, freshwater"@en ;
+  skos:altLabel "Ecotoxicity, freshwater"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "CTUe"@en .
+
+ns1:ind_EF_eutrophicationFreshwater
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Fraction of nutrients reaching the freshwater end compartment, in kg P-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Eutrophication, freshwater"@en ;
+  skos:altLabel "Eutrophication, freshwater"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "kg P-eq"@en .
+
+ns1:ind_EF_eutrophicationMarine
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Fraction of nutrients reaching the marine end compartment, in kg N-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Eutrophication, marine"@en ;
+  skos:altLabel "Eutrophication, marine"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "kg N-eq"@en .
+
+ns1:ind_EF_eutrophicationTerrestrial
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Accumulated exceedance for terrestrial compartments, in mol N-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Eutrophication, terrestrial"@en ;
+  skos:altLabel "Eutrophication, terrestrial"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "mol N-eq"@en .
+
+ns1:ind_EF_humanToxicityCancer
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Human toxicity, cancer effects, in CTUh (comparative toxic unit for humans). EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Human toxicity, cancer"@en ;
+  skos:altLabel "Human toxicity, cancer"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "CTUh"@en .
+
+ns1:ind_EF_humanToxicityNonCancer
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Human toxicity, non-cancer effects, in CTUh. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Human toxicity, non-cancer"@en ;
+  skos:altLabel "Human toxicity, non-cancer"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "CTUh"@en .
+
+ns1:ind_EF_ionisingRadiationHumanHealth
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Human exposure efficiency to ionising radiation, relative to U-235, in kBq U235-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Ionising radiation, human health"@en ;
+  skos:altLabel "Ionising radiation, human health"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "kBq U235-eq"@en .
+
+ns1:ind_EF_landUse
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Soil quality index, dimensionless (Pt), aggregating biotic production, erosion resistance, mechanical filtration and groundwater replenishment. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Land use"@en ;
+  skos:altLabel "Land use"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "dimensionless (Pt)"@en .
+
+ns1:ind_EF_ozoneDepletion
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Ozone depletion potential (ODP), in kg CFC-11-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Ozone depletion"@en ;
+  skos:altLabel "Ozone depletion"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "kg CFC-11-eq"@en .
+
+ns1:ind_EF_particulateMatter
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Impact on human health from fine particulate matter, in disease incidence. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Particulate matter"@en ;
+  skos:altLabel "Particulate matter"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "disease incidence"@en .
+
+ns1:ind_EF_photochemicalOzoneFormation
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Tropospheric ozone concentration increase, photochemical ozone formation potential, in kg NMVOC-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Photochemical ozone formation, human health"@en ;
+  skos:altLabel "Photochemical ozone formation, human health"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "kg NMVOC-eq"@en .
+
+ns1:ind_EF_resourceUseFossils
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Abiotic resource depletion of fossil fuels (ADP-fossil), in MJ. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Resource use, fossils"@en ;
+  skos:altLabel "Resource use, fossils"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "MJ"@en .
+
+ns1:ind_EF_resourceUseMineralsMetals
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Abiotic resource depletion (ADP) of mineral and metal resources, in kg Sb-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Resource use, minerals and metals"@en ;
+  skos:altLabel "Resource use, minerals and metals"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "kg Sb-eq"@en .
+
+ns1:ind_EF_singleScore
+  a owl:NamedIndividual, ns1:EnvironmentalFootprintScore ;
+  rdfs:comment "EU Environmental Footprint single score (also referred to as PEF score), computed as a normalised and weighted aggregate of the 16 EF impact-category results. Expressed in dimensionless points (Pt). The applied normalisation factors and weighting set are determined by the methodology version (e.g. EF 3.1 per JRC EUR 31414 EN), which is resolvable from the study via eudpp:hasComplianceDeclaration on its referenced eudpp:ComplianceSystem source."@en ;
+  rdfs:label "Environmental Footprint single score"@en ;
+  skos:altLabel "EF single score"@en, "Environmental footprint"@en, "PEF score"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "dimensionless (Pt)"@en .
+
+ns1:ind_EF_waterUse
+  a owl:NamedIndividual, ns1:LCIAImpactIndicator ;
+  rdfs:comment "Weighted user deprivation potential, in m3 world-equivalent. EF 3.1 / PEF impact category."@en ;
+  rdfs:label "Water use"@en ;
+  skos:altLabel "Water use"@en ;
+  ns1:ilcdSource "LCA ontology extension" ;
+  ns1:unitAsString "m3 world-eq"@en .
+
+ns1:ind_EPfreshwater
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Fraction of nutrients reaching freshwater end compartment, in kg P-equivalent. Core EN 15804+A2 impact indicator. ERRATUM: the published text of EN 15804:2012+A2:2019 states the unit as 'kg PO4-eq' for this indicator, but the characterisation factors used by the EF 3.1 implementation operate on phosphorus (P), so the correct unit when reporting results against EF 3.1 characterisation factors is 'kg P-eq'. This ontology adopts the corrected unit. See JRC / EPD programme clarifications for details."@en ;
+  rdfs:label "EP-freshwater - Eutrophication (freshwater)"@en ;
+  skos:altLabel "EP-freshwater"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg P-eq"@en .
+
+ns1:ind_EPmarine
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Fraction of nutrients reaching marine end compartment, in kg N-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "EP-marine - Eutrophication (marine)"@en ;
+  skos:altLabel "EP-marine"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg N-eq"@en .
+
+ns1:ind_EPterrestrial
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Eutrophication accumulated exceedance for terrestrial compartments, in mol N-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "EP-terrestrial - Eutrophication (accumulated exceedance, terrestrial)"@en ;
+  skos:altLabel "EP-terrestrial"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "mol N-eq"@en .
+
+ns1:ind_ETPfw
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_withCaveats ;
+  rdfs:comment "Ecotoxicity freshwater, in CTUe (comparative toxic units for ecosystems). EN 15804+A2 indicator with caveat."@en ;
+  rdfs:label "ETP-fw - Potential comparative Toxic Unit for ecosystems (freshwater)"@en ;
+  skos:altLabel "ETP-fw"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "CTUe"@en .
+
+ns1:ind_FW
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Net use of fresh water, in m3. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "FW - Net use of fresh water"@en ;
+  skos:altLabel "FW"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "m3"@en .
+
+ns1:ind_GWPbiogenic
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Global Warming Potential for biogenic GHG emissions and removals, in kg CO2-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "GWP-biogenic - Global Warming Potential (biogenic)"@en ;
+  skos:altLabel "GWP-biogenic"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg CO2-eq"@en .
+
+ns1:ind_GWPfossil
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Global Warming Potential for fossil-fuel-related GHG emissions, in kg CO2-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "GWP-fossil - Global Warming Potential (fossil)"@en ;
+  skos:altLabel "GWP-fossil"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg CO2-eq"@en .
+
+ns1:ind_GWPluluc
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Global Warming Potential from land use and land-use-change emissions and removals, in kg CO2-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "GWP-luluc - Global Warming Potential (land use and land use change)"@en ;
+  skos:altLabel "GWP-luluc"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg CO2-eq"@en .
+
+ns1:ind_GWPtotal
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Global Warming Potential including all GHG emissions and removals, expressed in kg CO2-equivalent. Core EN 15804+A2 impact indicator. Colloquially known as the carbon footprint of the product."@en ;
+  rdfs:label "GWP-total - Global Warming Potential (total)"@en ;
+  skos:altLabel "Carbon footprint"@en, "GWP-total"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg CO2-eq"@en .
+
+ns1:ind_HTPc
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_withCaveats ;
+  rdfs:comment "Human toxicity, cancer effects, in CTUh. EN 15804+A2 indicator with caveat."@en ;
+  rdfs:label "HTP-c - Potential comparative Toxic Unit for humans (cancer)"@en ;
+  skos:altLabel "HTP-c"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "CTUh"@en .
+
+ns1:ind_HTPnc
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_withCaveats ;
+  rdfs:comment "Human toxicity, non-cancer effects, in CTUh. EN 15804+A2 indicator with caveat."@en ;
+  rdfs:label "HTP-nc - Potential comparative Toxic Unit for humans (non-cancer)"@en ;
+  skos:altLabel "HTP-nc"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "CTUh"@en .
+
+ns1:ind_HWD
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_waste ;
+  rdfs:comment "Hazardous waste disposed, in kg. EN 15804+A2 inventory indicator (output flow - waste)."@en ;
+  rdfs:label "HWD - Hazardous waste disposed"@en ;
+  skos:altLabel "HWD"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg"@en .
+
+ns1:ind_IRP
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_withCaveats ;
+  rdfs:comment "Ionising radiation, potential human exposure efficiency relative to U235, in kBq U235-eq. EN 15804+A2 indicator with caveat."@en ;
+  rdfs:label "IRP - Potential Human exposure efficiency relative to U235"@en ;
+  skos:altLabel "IRP"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kBq U235-eq"@en .
+
+ns1:ind_MER
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_valorisation ;
+  rdfs:comment "Materials for energy recovery, in kg. EN 15804+A2 inventory indicator (output flow - valorisation)."@en ;
+  rdfs:label "MER - Materials for energy recovery"@en ;
+  skos:altLabel "MER"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg"@en .
+
+ns1:ind_MFR
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_valorisation ;
+  rdfs:comment "Materials for recycling, in kg. EN 15804+A2 inventory indicator (output flow - valorisation)."@en ;
+  rdfs:label "MFR - Materials for recycling"@en ;
+  skos:altLabel "MFR"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg"@en .
+
+ns1:ind_NHWD
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_waste ;
+  rdfs:comment "Non-hazardous waste disposed, in kg. EN 15804+A2 inventory indicator (output flow - waste)."@en ;
+  rdfs:label "NHWD - Non-hazardous waste disposed"@en ;
+  skos:altLabel "NHWD"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg"@en .
+
+ns1:ind_NRSF
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Use of non-renewable secondary fuels, in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "NRSF - Use of non-renewable secondary fuels"@en ;
+  skos:altLabel "NRSF"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_ODP
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Ozone depletion potential, in kg CFC-11-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "ODP - Depletion potential of the stratospheric ozone layer"@en ;
+  skos:altLabel "ODP"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg CFC-11-eq"@en .
+
+ns1:ind_PENRE
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Use of non-renewable primary energy excluding non-renewable primary energy resources used as raw materials, in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "PENRE - Use of non-renewable primary energy (excl. raw material)"@en ;
+  skos:altLabel "PENRE"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_PENRM
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Use of non-renewable primary energy resources used as raw materials, in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "PENRM - Use of non-renewable primary energy resources used as raw materials"@en ;
+  skos:altLabel "PENRM"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_PENRT
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Total use of non-renewable primary energy resources (PENRE + PENRM), in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "PENRT - Total use of non-renewable primary energy resources"@en ;
+  skos:altLabel "PENRT"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_PERE
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Use of renewable primary energy excluding renewable primary energy resources used as raw materials, in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "PERE - Use of renewable primary energy (excl. raw material)"@en ;
+  skos:altLabel "PERE"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_PERM
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Use of renewable primary energy resources used as raw materials, in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "PERM - Use of renewable primary energy resources used as raw materials"@en ;
+  skos:altLabel "PERM"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_PERT
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Total use of renewable primary energy resources (PERE + PERM), in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "PERT - Total use of renewable primary energy resources"@en ;
+  skos:altLabel "PERT"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_PM
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_withCaveats ;
+  rdfs:comment "Particulate-matter-related incidence of disease, in disease incidence. EN 15804+A2 indicator with caveat: to be reported with the standard caveat statement per EN 15804+A2 Table 4."@en ;
+  rdfs:label "PM - Potential incidence of disease due to PM emissions"@en ;
+  skos:altLabel "PM"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "disease incidence"@en .
+
+ns1:ind_POCP
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Photochemical ozone creation potential, in kg NMVOC-equivalent. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "POCP - Formation potential of tropospheric ozone"@en ;
+  skos:altLabel "POCP"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg NMVOC-eq"@en .
+
+ns1:ind_RSF
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Use of renewable secondary fuels, in MJ net calorific value. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "RSF - Use of renewable secondary fuels"@en ;
+  skos:altLabel "RSF"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "MJ, net calorific value"@en .
+
+ns1:ind_RWD
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_waste ;
+  rdfs:comment "Radioactive waste disposed, in kg. EN 15804+A2 inventory indicator (output flow - waste)."@en ;
+  rdfs:label "RWD - Radioactive waste disposed"@en ;
+  skos:altLabel "RWD"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg"@en .
+
+ns1:ind_SM
+  a owl:NamedIndividual, ns1:EN15804InventoryIndicator ;
+  ns1:en15804Group ns1:group_resourceUse ;
+  rdfs:comment "Use of secondary material, in kg. EN 15804+A2 inventory indicator (resource use)."@en ;
+  rdfs:label "SM - Use of secondary material"@en ;
+  skos:altLabel "SM"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "kg"@en .
+
+ns1:ind_SQP
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_withCaveats ;
+  rdfs:comment "Soil quality (land use) index, dimensionless (Pt). EN 15804+A2 indicator with caveat."@en ;
+  rdfs:label "SQP - Potential Soil Quality Index"@en ;
+  skos:altLabel "SQP"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "dimensionless (Pt)"@en .
+
+ns1:ind_WDP
+  a owl:NamedIndividual, ns1:EN15804ImpactIndicator ;
+  ns1:en15804Group ns1:group_coreImpact ;
+  rdfs:comment "Deprivation-weighted water consumption, in m3 world-equivalent deprived. Core EN 15804+A2 impact indicator."@en ;
+  rdfs:label "WDP - Water (user) deprivation potential"@en ;
+  skos:altLabel "WDP"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" ;
+  ns1:unitAsString "m3 world-eq deprived"@en .
+
+ns1:independentExternalReview
+  a owl:NamedIndividual, ns1:TypeOfReview ;
+  rdfs:comment "Reviewer independent of the organisations involved. Acceptable for EN 15804+A2 compliance."@en ;
+  rdfs:label "Independent external review"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:independentInternalReview
+  a owl:NamedIndividual, ns1:TypeOfReview ;
+  rdfs:comment "Reviewer not involved in the work but belonging to the same organisation or legally linked organisation. Acceptable only for generic data per InData."@en ;
+  rdfs:label "Independent internal review"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:independentReviewPanel
+  a owl:NamedIndividual, ns1:TypeOfReview ;
+  rdfs:comment "Panel of at least three independent internal or external reviewers, chaired by an independent external reviewer."@en ;
+  rdfs:label "Independent review panel"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ionisingRadiationEcosystems
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:comment "Ionising radiation on ecosystems. Note: EN 15804+A2 does not mandate an ecosystems-level ionising-radiation indicator (only IRP for human health). This impact category is retained for ILCD completeness; no EN 15804+A2 indicator individual maps to it."@en ;
+  rdfs:label "Ionising radiation, ecosystems"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ionisingRadiationHumanHealth
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Ionising radiation, human health"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:landUseSoilQuality
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Land use / soil quality"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:licenseFee
+  a owl:NamedIndividual, ns1:LicenseType ;
+  rdfs:comment "The study is accessible for a license fee."@en ;
+  rdfs:label "License fee"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:licenseOther
+  a owl:NamedIndividual, ns1:LicenseType ;
+  rdfs:comment "Other licensing conditions apply; see accessRestrictions for details."@en ;
+  rdfs:label "Other"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:marineEcotoxicity
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Marine ecotoxicity"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:methodology_CML2002
+  a owl:NamedIndividual, ns1:LCIAMethodology ;
+  ns1:methodologyVersion "2002" ;
+  rdfs:comment "CML-IA (Institute of Environmental Sciences, Leiden University) baseline 2002 methodology. Used by EN 15804+A1 (predecessor of +A2)."@en ;
+  rdfs:label "CML 2002"@en ;
+  skos:altLabel "CML 2002"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:methodology_EF3_0
+  a owl:NamedIndividual, ns1:LCIAMethodology ;
+  ns1:methodologyVersion "3.0" ;
+  rdfs:comment "European Commission Environmental Footprint method, version 3.0. Predecessor of EF 3.1; some characterisation factors differ."@en ;
+  rdfs:label "Environmental Footprint 3.0"@en ;
+  skos:altLabel "EF 3.0"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:methodology_EF3_1
+  a owl:NamedIndividual, ns1:LCIAMethodology ;
+  ns1:methodologyVersion "3.1" ;
+  rdfs:comment "European Commission Environmental Footprint method, version 3.1. Mandated by EN 15804+A2 as the characterisation basis for the 13 core and 6 with-caveat impact indicators."@en ;
+  rdfs:label "Environmental Footprint 3.1"@en ;
+  skos:altLabel "EF 3.1"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:methodology_EN15804InventoryRules
+  a owl:NamedIndividual, ns1:LCIAMethodology ;
+  ns1:methodologyVersion "A2:2019" ;
+  rdfs:comment "Inventory calculation rules defined by EN 15804+A2 itself for the 18 resource-use / waste / output-flow inventory indicators (PERE, PERM, ... EEE, EET). This \"methodology\" is inventory-level rather than characterised; it is distinguished here from EF 3.1 because the inventory indicators do not use EF characterisation factors."@en ;
+  rdfs:label "EN 15804+A2 inventory calculation rules"@en ;
+  skos:altLabel "EN 15804+A2 inventory"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:methodology_IPCC_AR6
+  a owl:NamedIndividual, ns1:LCIAMethodology ;
+  ns1:methodologyVersion "AR6 2021" ;
+  rdfs:comment "IPCC Sixth Assessment Report (2021) global-warming-potential characterisation factors, 100-year time horizon."@en ;
+  rdfs:label "IPCC AR6 (GWP)"@en ;
+  skos:altLabel "IPCC AR6"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:methodology_ReCiPe2016
+  a owl:NamedIndividual, ns1:LCIAMethodology ;
+  ns1:methodologyVersion "2016" ;
+  rdfs:comment "ReCiPe methodology version 2016 (midpoint and endpoint). Not used by EN 15804+A2 but frequently used for non-construction-products LCAs."@en ;
+  rdfs:label "ReCiPe 2016"@en ;
+  skos:altLabel "ReCiPe 2016"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:moduleA1
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "A1 - Raw material extraction and supply"@en ;
+  skos:altLabel "A1"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleA1A3
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "A1-A3 - Product stage (aggregated)"@en ;
+  skos:altLabel "A1-A3"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleA2
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "A2 - Transport to manufacturer"@en ;
+  skos:altLabel "A2"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleA3
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "A3 - Manufacturing"@en ;
+  skos:altLabel "A3"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleA4
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "A4 - Transport to building site"@en ;
+  skos:altLabel "A4"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleA5
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "A5 - Construction / installation"@en ;
+  skos:altLabel "A5"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleB1
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "B1 - Use"@en ;
+  skos:altLabel "B1"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleB2
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "B2 - Maintenance"@en ;
+  skos:altLabel "B2"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleB3
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "B3 - Repair"@en ;
+  skos:altLabel "B3"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleB4
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "B4 - Replacement"@en ;
+  skos:altLabel "B4"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleB5
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "B5 - Refurbishment"@en ;
+  skos:altLabel "B5"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleB6
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "B6 - Operational energy use"@en ;
+  skos:altLabel "B6"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleB7
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "B7 - Operational water use"@en ;
+  skos:altLabel "B7"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleC1
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "C1 - Deconstruction / demolition"@en ;
+  skos:altLabel "C1"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleC2
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "C2 - Transport to waste processing"@en ;
+  skos:altLabel "C2"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleC3
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "C3 - Waste processing"@en ;
+  skos:altLabel "C3"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleC4
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "C4 - Disposal"@en ;
+  skos:altLabel "C4"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:moduleD
+  a owl:NamedIndividual, ns1:LifeCycleModule ;
+  rdfs:label "D - Benefits and loads beyond the system boundary"@en ;
+  skos:altLabel "D"@en ;
+  ns1:ilcdSource "ILCD+EPD extension" .
+
+ns1:notCompliant
+  a owl:NamedIndividual, ns1:ComplianceStatus ;
+  rdfs:comment "The EPD study is declared not compliant with the referenced compliance system."@en ;
+  rdfs:label "Not compliant"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:notReviewed
+  a owl:NamedIndividual, ns1:TypeOfReview ;
+  rdfs:comment "The dataset has not been reviewed."@en ;
+  rdfs:label "Not reviewed"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:ozoneDepletion
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Ozone depletion"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:partiallyCompliant
+  a owl:NamedIndividual, ns1:ComplianceStatus ;
+  rdfs:comment "The EPD study is declared partially compliant with the referenced compliance system; deviations should be documented on the associated review or in accessRestrictions."@en ;
+  rdfs:label "Partially compliant"@en ;
+  ns1:ilcdSource "LCA ontology extension" .
+
+ns1:photochemicalOzoneFormation
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Photochemical ozone formation"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:resourceUseFossil
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Resource use, fossil"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:resourceUseMineralsMetals
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Resource use, minerals and metals"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:respiratoryInorganics
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Respiratory inorganics / particulate matter"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:terrestrialEcotoxicity
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Terrestrial ecotoxicity"@en ;
+  ns1:ilcdSource "ILCD base" .
+
+ns1:waterUseDeprivation
+  a owl:NamedIndividual, ns1:LCIAImpactCategory ;
+  rdfs:label "Water use / water deprivation"@en ;
+  ns1:ilcdSource "ILCD base" .
+

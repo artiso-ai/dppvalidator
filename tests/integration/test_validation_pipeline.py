@@ -176,8 +176,12 @@ class TestMultiLayerValidation:
     """Tests for validation layer interaction."""
 
     def test_model_only_validation(self):
-        """Model-only validation validates structure without semantic rules."""
-        engine = ValidationEngine(layers=["model"])
+        """Model-only validation validates structure without semantic rules.
+
+        Pinned to v0.6.1 — minimal ``{id, issuer}`` payload is below
+        v0.7.0's required-field bar (Phase 9 task 9.1).
+        """
+        engine = ValidationEngine(schema_version="0.6.1", layers=["model"])
         data = {
             "id": "https://example.com/dpp",
             "issuer": {"id": "https://example.com/issuer", "name": "Test"},
@@ -216,8 +220,14 @@ class TestMultiLayerValidation:
         assert len(result.errors) >= 1
 
     def test_max_errors_limits_output(self):
-        """Max errors setting limits error count."""
-        engine = ValidationEngine(layers=["model"])
+        """Max errors setting limits error count.
+
+        Pinned to v0.6.1 to keep the expected error count stable
+        across the v0.6 → v0.7 default flip (Phase 9 task 9.1);
+        v0.7 has more required fields and would emit > 2 errors
+        before the cap kicks in for this junk payload.
+        """
+        engine = ValidationEngine(schema_version="0.6.1", layers=["model"])
         # Data that would generate many errors
         data = {"a": 1, "b": 2, "c": 3}
 
@@ -228,11 +238,14 @@ class TestMultiLayerValidation:
 
 
 class TestValidationInputFormats:
-    """Tests for different input formats."""
+    """Tests for different input formats. Pinned to v0.6.1 because the
+    minimal ``{id, issuer}`` shape used here is too lean for v0.7.0's
+    stricter required-field set (Phase 9 task 9.1 flipped the default
+    to 0.7.0)."""
 
     @pytest.fixture
     def engine(self) -> ValidationEngine:
-        return ValidationEngine(layers=["model"])
+        return ValidationEngine(schema_version="0.6.1", layers=["model"])
 
     def test_validate_dict_input(self, engine):
         """Validates dict input directly."""
@@ -297,11 +310,12 @@ class TestValidationInputFormats:
 
 
 class TestAsyncValidation:
-    """Tests for async validation methods."""
+    """Tests for async validation methods. Pinned to v0.6.1 — see
+    note on ``TestValidationInputFormats`` above (Phase 9 task 9.1)."""
 
     @pytest.fixture
     def engine(self) -> ValidationEngine:
-        return ValidationEngine(layers=["model"])
+        return ValidationEngine(schema_version="0.6.1", layers=["model"])
 
     def test_validate_async_exists(self, engine):
         """Async validation method exists and is callable."""

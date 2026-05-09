@@ -55,9 +55,11 @@ class TestSchemaValidatorDefaults:
         assert validator.schema_type == "untp"
 
     def test_default_schema_version(self):
-        """Test default schema version."""
+        """Test default schema version matches the registry default."""
+        from dppvalidator.schemas.registry import DEFAULT_SCHEMA_VERSION
+
         validator = SchemaValidator()
-        assert validator.schema_version == "0.6.1"
+        assert validator.schema_version == DEFAULT_SCHEMA_VERSION
 
     def test_explicit_untp_mode(self):
         """Test explicit UNTP mode."""

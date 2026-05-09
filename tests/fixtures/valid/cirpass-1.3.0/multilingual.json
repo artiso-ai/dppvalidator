@@ -1,0 +1,40 @@
+{
+  "dppIdentifier": {
+    "value": "https://example.com/dpp/MULTI-001",
+    "scheme": "https://example.com/dpp-register/"
+  },
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890135",
+      "scheme": "https://gs1.org/voc/",
+      "schemeName": "GS1 GTIN"
+    },
+    "productName": [
+      {"value": "Cotton T-shirt", "language": "en"},
+      {"value": "Baumwoll-T-Shirt", "language": "de"},
+      {"value": "T-shirt en coton", "language": "fr"},
+      {"value": "Camiseta de algodón", "language": "es"},
+      {"value": "純棉T恤", "language": "zh-Hant"}
+    ],
+    "description": [
+      {"value": "Sustainably-sourced organic cotton t-shirt.", "language": "en"},
+      {"value": "Nachhaltig hergestelltes Bio-Baumwoll-T-Shirt.", "language": "de"}
+    ],
+    "commodityCode": [
+      {
+        "code": "61091000",
+        "scheme": "https://www.wcoomd.org/en/topics/nomenclature/instrument-and-tools/hs-nomenclature-2022-edition.aspx",
+        "name": [
+          {"value": "T-shirts, singlets and other vests, of cotton, knitted", "language": "en"}
+        ]
+      }
+    ]
+  },
+  "issuedAt": {
+    "timestamp": "2026-05-08T09:30:00+00:00"
+  },
+  "effectivePeriod": {
+    "start": "2026-05-08T00:00:00+00:00",
+    "end": "2031-05-08T23:59:59+00:00"
+  }
+}

@@ -298,3 +298,64 @@ def test_construct_minimal_v07_dpp_programmatically() -> None:
         ),
     )
     assert dpp.credential_subject.name == "Widget"
+
+
+# ----------------------------------------------------------------------------
+# Phase 9 task 9.7 — D1 BLOCKER fix: BitstringStatusListEntry.statusListIndex
+# must be an integer (schema declares `type: integer, minimum: 0`). v0.6
+# fixtures + the v0.6 → v0.7 upgrade shim emit numeric strings; the
+# before-validator coerces them transparently.
+# ----------------------------------------------------------------------------
+
+
+class TestStatusListIndexCoercion:
+    """Phase 9 D1 BLOCKER fix verification (cross-version back-compat)."""
+
+    @pytest.fixture
+    def kwargs(self) -> dict:
+        return {
+            "id": "https://example.com/sl/x",
+            "type": "BitstringStatusListEntry",
+            "statusPurpose": "revocation",
+            "statusListCredential": "https://example.com/sl",
+        }
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            (5, 5),
+            ("5", 5),  # numeric string — v0.6 fixture shape
+            ("42", 42),
+            (" 42 ", 42),  # whitespace tolerance
+            ("07", 7),  # leading zero
+            (0, 0),
+            (None, None),
+        ],
+    )
+    def test_accepts_int_and_numeric_string(
+        self, kwargs: dict, value: object, expected: object
+    ) -> None:
+        e = v0_7.BitstringStatusListEntry(**kwargs, statusListIndex=value)
+        assert e.status_list_index == expected
+        if expected is not None:
+            assert isinstance(e.status_list_index, int)
+
+    @pytest.mark.parametrize(
+        "bad_value",
+        [
+            "abc",  # non-numeric
+            "1.5",  # not an integer
+            "12a",  # mixed
+            -1,  # below minimum
+        ],
+    )
+    def test_rejects_invalid_values(self, kwargs: dict, bad_value: object) -> None:
+        with pytest.raises(ValidationError):
+            v0_7.BitstringStatusListEntry(**kwargs, statusListIndex=bad_value)
+
+    def test_round_trip_emits_int_not_string(self, kwargs: dict) -> None:
+        """Round-trip via model_dump — integer survives, no stringification."""
+        e = v0_7.BitstringStatusListEntry(**kwargs, statusListIndex="123")
+        dumped = e.model_dump(by_alias=True, exclude_none=True)
+        assert dumped["statusListIndex"] == 123
+        assert isinstance(dumped["statusListIndex"], int)

@@ -463,7 +463,7 @@ class TestDocument:
             title="User Manual",
             language="en",
         )
-        assert doc._class_uri == "eudpp:Document"
+        assert doc._class_uri == "eudpp:DocumentFormattedProperty"
         assert doc.content_type == "application/pdf"
         assert doc.web_link == "https://example.com/manual.pdf"
         assert doc.title == "User Manual"
@@ -472,7 +472,7 @@ class TestDocument:
     def test_create_document_minimal(self):
         """Test creating a document with minimal fields."""
         doc = Document()
-        assert doc._class_uri == "eudpp:Document"
+        assert doc._class_uri == "eudpp:DocumentFormattedProperty"
         assert doc.content_type is None
         assert doc.web_link is None
 
@@ -621,11 +621,11 @@ class TestPhase1ClassHierarchy:
 
     def test_document_in_hierarchy(self):
         """Test Document is in class hierarchy."""
-        assert "eudpp:Document" in EUDPP_CLASS_HIERARCHY
+        assert "eudpp:DocumentFormattedProperty" in EUDPP_CLASS_HIERARCHY
 
     def test_digital_instruction_subclass_of_document(self):
         """Test DigitalInstruction is subclass of Document."""
-        subclasses = get_class_hierarchy("eudpp:Document")
+        subclasses = get_class_hierarchy("eudpp:DocumentFormattedProperty")
         assert "eudpp:DigitalInstruction" in subclasses
 
     def test_dpp_in_hierarchy(self):

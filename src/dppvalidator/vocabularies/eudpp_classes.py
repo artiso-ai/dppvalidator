@@ -1,11 +1,16 @@
 """EU DPP Core Ontology class definitions.
 
-Provides dataclass representations of the EU DPP Core Ontology class hierarchy,
-based on the official CIRPASS-2 ontology v1.7.1.
+Provides dataclass representations of the EU DPP Core Ontology class
+hierarchy. Class enums use the compact ``eudpp:Foo`` form; the canonical
+prefix expands to ``https://w3id.org/eudpp/`` per
+:class:`dppvalidator.vocabularies.ontology.EUDPPNamespace`.
 
-Source: EU DPP Core Ontology v1.7.1 (Product and DPP module)
-Namespace: http://dpp.taltech.ee/EUDPP#
-DOI: 10.5281/zenodo.15270342
+Source: EU DPP Core Ontology v1.9.1 (P_DPP module, 2026-03-04 — Phase 1
+target). Until the v1.9.1 TTL is vendored (Phase 1 task 1.1), this module
+ships the v1.7.1 class set; only the namespace IRI was rebased onto the
+canonical W3ID prefix per ADR 0002.
+
+DOI (legacy v1.7.1 publication): 10.5281/zenodo.15270342
 """
 
 from __future__ import annotations
@@ -17,14 +22,28 @@ from typing import ClassVar
 
 
 class EUDPPClass(str, Enum):
-    """EU DPP Core Ontology class URIs."""
+    """EU DPP Core Ontology class URIs.
+
+    Phase 1 task 1.7 (CIRPASS-2 migration): regenerated against P_DPP
+    v1.9.1. Use ``tools/codegen/cirpass/regenerate_enums.py`` to
+    re-run the generator; review the diff before paste-replacing.
+
+    Diff vs v1.7.1 (annotated below):
+
+    * ``Document`` renamed to ``DocumentFormattedProperty``  (P_DPP
+      changelog: "#Document renamed to #DocumentFormattedProperty").
+    * ``CONCENTRATION_OF_SOC`` / ``THRESHOLD_OF_SOC`` Python identifiers
+      normalised to ``CONCENTRATION_OF_SUBSTANCE_OF_CONCERN`` /
+      ``THRESHOLD_OF_SUBSTANCE_OF_CONCERN`` to match the codegen's
+      deterministic UPPER_SNAKE conversion. The IRIs are unchanged.
+    """
 
     # Core classes
     DPP = "eudpp:DPP"
     PRODUCT = "eudpp:Product"
     PROPERTY = "eudpp:Property"
     QUANTITATIVE_PROPERTY = "eudpp:QuantitativeProperty"
-    DOCUMENT = "eudpp:Document"
+    DOCUMENT_FORMATTED_PROPERTY = "eudpp:DocumentFormattedProperty"  # +1.9.1 (was eudpp:Document)
     CLASSIFICATION_CODE = "eudpp:ClassificationCode"
 
     # Environmental footprint hierarchy
@@ -75,9 +94,9 @@ class EUDPPClass(str, Enum):
     VOLUME = "eudpp:Volume"
     WEIGHT = "eudpp:Weight"
 
-    # Substances of concern
-    CONCENTRATION_OF_SOC = "eudpp:ConcentrationOfSubstanceOfConcern"
-    THRESHOLD_OF_SOC = "eudpp:ThresholdOfSubstanceOfConcern"
+    # Substances of concern (Python names normalised to match codegen)
+    CONCENTRATION_OF_SUBSTANCE_OF_CONCERN = "eudpp:ConcentrationOfSubstanceOfConcern"
+    THRESHOLD_OF_SUBSTANCE_OF_CONCERN = "eudpp:ThresholdOfSubstanceOfConcern"
 
     # Instructions
     DIGITAL_INSTRUCTION = "eudpp:DigitalInstruction"
@@ -408,7 +427,8 @@ class Document:
     Source: product_dpp_v1.7.1.ttl
     """
 
-    _class_uri: ClassVar[str] = EUDPPClass.DOCUMENT.value
+    # Phase 1 task 1.7: was ``EUDPPClass.DOCUMENT.value`` against v1.7.1.
+    _class_uri: ClassVar[str] = EUDPPClass.DOCUMENT_FORMATTED_PROPERTY.value
 
     content_type: str | None = None
     web_link: str | None = None
@@ -498,8 +518,9 @@ EUDPP_CLASS_HIERARCHY: dict[str, list[str]] = {
     # Core entity types
     "eudpp:DPP": [],
     "eudpp:Product": [],
-    # Document subtypes
-    "eudpp:Document": [
+    # Document subtypes (Phase 1 task 1.7: renamed Document →
+    # DocumentFormattedProperty in P_DPP v1.9.1).
+    "eudpp:DocumentFormattedProperty": [
         "eudpp:DigitalInstruction",
     ],
     # Classification

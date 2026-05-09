@@ -60,7 +60,7 @@ class TestEUDPPDatatypeProperty:
     def test_identification_properties_exist(self):
         """Test identification property URIs exist."""
         assert EUDPPDatatypeProperty.UNIQUE_DPP_ID.value == "eudpp:uniqueDPPID"
-        assert EUDPPDatatypeProperty.UNIQUE_PRODUCT_ID.value == "eudpp:uniqueProductID"
+        assert EUDPPDatatypeProperty.UNIQUE_PRODUCT_ID.value == "eudpp:uniqueProductIdentifier"
         assert EUDPPDatatypeProperty.GTIN.value == "eudpp:GTIN"
         assert EUDPPDatatypeProperty.COMMODITY_CODE.value == "eudpp:commodityCode"
 

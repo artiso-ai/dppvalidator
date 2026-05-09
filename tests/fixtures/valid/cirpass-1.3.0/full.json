@@ -1,0 +1,135 @@
+{
+  "dppIdentifier": {
+    "value": "https://example.com/dpp/FULL-001",
+    "scheme": "https://example.com/dpp-register/",
+    "schemeName": "Example DPP Register"
+  },
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890142",
+      "scheme": "https://gs1.org/voc/",
+      "schemeName": "GS1 GTIN"
+    },
+    "productName": [
+      {"value": "Recycled Cotton Hoodie", "language": "en"},
+      {"value": "Hoodie aus recycelter Baumwolle", "language": "de"}
+    ],
+    "description": [
+      {"value": "70% recycled cotton, 30% organic cotton.", "language": "en"}
+    ],
+    "commodityCode": [
+      {
+        "code": "61102090",
+        "scheme": "https://www.wcoomd.org/en/topics/nomenclature/instrument-and-tools/hs-nomenclature-2022-edition.aspx"
+      }
+    ]
+  },
+  "issuedAt": {
+    "timestamp": "2026-05-08T10:00:00+00:00"
+  },
+  "effectivePeriod": {
+    "start": "2026-05-08T00:00:00+00:00",
+    "end": "2031-05-08T23:59:59+00:00"
+  },
+  "relatedActors": [
+    {
+      "actor": {
+        "actorIdentifier": {
+          "value": "529900T8BM49AURSDO55",
+          "scheme": "https://www.gleif.org/lei/",
+          "schemeName": "GLEIF LEI"
+        },
+        "actorName": [
+          {"value": "Example Apparel GmbH", "language": "de"},
+          {"value": "Example Apparel Ltd.", "language": "en"}
+        ]
+      },
+      "role": "eudpp:ManufacturerRole"
+    },
+    {
+      "actor": {
+        "actorIdentifier": {
+          "value": "987654321987654",
+          "scheme": "https://example.com/recycler-register/"
+        },
+        "actorName": [
+          {"value": "Recycle Co.", "language": "en"}
+        ]
+      },
+      "role": "eudpp:RecyclerRole"
+    }
+  ],
+  "composition": {
+    "materials": [
+      {
+        "materialName": [{"value": "Recycled Cotton", "language": "en"}],
+        "materialType": "CO",
+        "originCountry": "DE",
+        "massFraction": 0.7,
+        "isRecycled": true
+      },
+      {
+        "materialName": [{"value": "Organic Cotton", "language": "en"}],
+        "materialType": "CO",
+        "originCountry": "TR",
+        "massFraction": 0.3,
+        "isRecycled": false
+      }
+    ]
+  },
+  "substancesOfConcern": [
+    {
+      "nameIUPAC": "Bisphenol A",
+      "numberCAS": "80-05-7",
+      "numberEC": "201-245-8",
+      "tradeName": [{"value": "BPA", "language": "en"}],
+      "concentrations": [
+        {
+          "value": 0.0008,
+          "unit": "mass_fraction",
+          "lifecycleStage": "in_product"
+        }
+      ],
+      "hazards": [
+        {
+          "category": "endocrine_disruption_human_cat_1",
+          "statement": [
+            {"value": "Known endocrine disruptor (CLP category 1).", "language": "en"}
+          ]
+        }
+      ]
+    }
+  ],
+  "lca": {
+    "results": [
+      {
+        "impactCategory": {
+          "category": "eudpp:climateChange",
+          "name": [{"value": "Climate change", "language": "en"}]
+        },
+        "value": 12.34,
+        "unit": "kg_CO2_eq"
+      },
+      {
+        "impactCategory": {
+          "category": "eudpp:waterUseDeprivation",
+          "name": [{"value": "Water use", "language": "en"}]
+        },
+        "value": 287.5,
+        "unit": "m3_water_eq_deprived"
+      }
+    ],
+    "methodology": "PEF 3.1",
+    "referencePeriod": {
+      "start": "2025-01-01T00:00:00+00:00",
+      "end": "2025-12-31T23:59:59+00:00"
+    }
+  },
+  "connectorRelations": [
+    {
+      "relation": "eudpp:hasManufacturer",
+      "subject": "https://example.com/dpp/FULL-001",
+      "object": "https://example.com/actor/example-apparel"
+    }
+  ]
+}

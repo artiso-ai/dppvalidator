@@ -1,0 +1,11 @@
+{
+  "_failure": "Missing required dppIdentifier — ReferencePassport.dpp_identifier is required.",
+  "product": {
+    "productIdentifier": {
+      "value": "01234567890128",
+      "scheme": "https://gs1.org/voc/"
+    },
+    "productName": [{"value": "Test", "language": "en"}]
+  },
+  "issuedAt": {"timestamp": "2026-05-08T12:00:00+00:00"}
+}

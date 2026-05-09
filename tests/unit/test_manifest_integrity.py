@@ -122,6 +122,63 @@ class TestManifestStructure:
                 f"path is not under src/dppvalidator/: {path!r}"
             )
 
+    def test_optional_phase1_fields_have_known_shapes(self) -> None:
+        """Phase 1 task 1.2 added optional fields; validate when present.
+
+        New optional fields:
+        - ``family``: ``"untp" | "cirpass" | "eudpp-ontology"``.
+        - ``module``: short module name (uppercase letters / underscores
+          only, e.g. ``P_DPP``, ``SOC``, ``LCA``, ``ACTOR``, ``CON``).
+        - ``vocabulary_hub_guid``: ``OntologyVersion_<uuid>`` /
+          ``JsonSchemaVersion_<uuid>`` / ``JsonSchemaSpecVersion_<uuid>``,
+          or a ``TODO_*`` placeholder during the Phase 0 transition.
+        - ``superseded_by``: a manifest key ``<kind>@<version>`` matching
+          another row in the same manifest.
+        """
+        import re
+
+        manifest = _load_manifest()
+        legal_families = {"untp", "cirpass", "eudpp-ontology"}
+        guid_pattern = re.compile(
+            r"^(OntologyVersion|JsonSchemaVersion|JsonSchemaSpecVersion|TODO)_[A-Za-z0-9_-]+$"
+        )
+        module_pattern = re.compile(r"^[A-Z][A-Z0-9_]*$")
+        all_keys = {f"{entry['kind']}@{entry['version']}" for entry in manifest["artefacts"]}
+
+        for entry in manifest["artefacts"]:
+            label = f"{entry.get('kind')}@{entry.get('version')}"
+
+            family = entry.get("family")
+            if family is not None:
+                assert family in legal_families, (
+                    f"manifest row {label!r} has unknown family {family!r}; "
+                    f"expected one of {sorted(legal_families)}"
+                )
+
+            module = entry.get("module")
+            if module is not None:
+                assert module_pattern.match(module), (
+                    f"manifest row {label!r} has malformed module {module!r}; "
+                    f"expected uppercase letters / digits / underscores"
+                )
+
+            guid = entry.get("vocabulary_hub_guid")
+            if guid is not None:
+                assert guid_pattern.match(guid), (
+                    f"manifest row {label!r} has malformed "
+                    f"vocabulary_hub_guid {guid!r}; expected one of "
+                    f"OntologyVersion_/JsonSchemaVersion_/"
+                    f"JsonSchemaSpecVersion_/TODO_ prefix + UUID"
+                )
+
+            superseded_by = entry.get("superseded_by")
+            if superseded_by is not None:
+                assert superseded_by in all_keys, (
+                    f"manifest row {label!r} declares superseded_by="
+                    f"{superseded_by!r}, which is not a key in the same "
+                    f"manifest (expected ``<kind>@<version>``)"
+                )
+
 
 # ---------------------------------------------------------------------------
 # Each manifest entry resolves to an existing file with matching hash

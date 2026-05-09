@@ -20,9 +20,40 @@ from dppvalidator.cli.commands import (
 from dppvalidator.cli.console import Console
 from dppvalidator.logging import configure_logging
 
+# =============================================================================
+# CLI exit codes (Phase 6 task 6.7 of docs/plans/CIRPASS_2_MIGRATION.md)
+# =============================================================================
+#
+# The exit-code table is documented at docs/reference/cli/exit-codes.md.
+# Codes 0-2 are pre-Phase-6 and unchanged for back-compat. Codes 3-5
+# are new in Phase 6 and surfaced through ``--target`` / ``--strict``.
+#
+# Cardinal contract: every CLI command may exit with one of these
+# codes; values are stable across releases. Plugins / wrappers may
+# pattern-match on the integer.
+
 EXIT_VALID = 0
+"""Validation passed without errors."""
+
 EXIT_INVALID = 1
+"""Validation produced one or more errors."""
+
 EXIT_ERROR = 2
+"""IO / parse / unhandled engine failure."""
+
+EXIT_FAMILY_MISMATCH = 3
+"""``--target`` (or ``--to``) explicitly contradicts the payload's
+detected family. Surfaces ``DET001``."""
+
+EXIT_BLOCKING_WARNINGS = 4
+"""``--strict`` was set and the run produced one or more
+warning-level diagnostics (upgrade ``UPG`` warnings or mapping
+``MAP`` warnings) that blocked the operation."""
+
+EXIT_IO_ERROR = 5
+"""IO / file-not-found / encoding errors that the wrapper can
+distinguish from logical validation failures."""
+
 
 # Command handler type: (args, console) -> exit_code
 CommandHandler = Callable[[argparse.Namespace, Console], int]

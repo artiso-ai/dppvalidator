@@ -88,8 +88,13 @@ class TestValidationEngineProperty:
     )
     @settings(max_examples=20)
     def test_engine_valid_minimal_passport(self, data):
-        """Test engine with valid minimal passport data."""
-        engine = ValidationEngine(layers=["model"])
+        """Test engine with valid minimal passport data.
+
+        Pinned to v0.6.1 because the strategy generates only ``{id, issuer}``
+        which is too lean for v0.7.0's stricter required-field set
+        (Phase 9 task 9.1 flipped the default to 0.7.0).
+        """
+        engine = ValidationEngine(schema_version="0.6.1", layers=["model"])
         result = engine.validate(data)
         # Should be valid with minimal required fields
         assert isinstance(result, ValidationResult)

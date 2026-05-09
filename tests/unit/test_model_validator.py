@@ -7,8 +7,9 @@ class TestModelValidator:
     """Tests for ModelValidator."""
 
     def test_validate_valid_data(self):
-        """Test validating valid data."""
-        validator = ModelValidator()
+        """Test validating valid data (pinned to v0.6.1; the lean
+        ``{id, issuer}`` shape is below v0.7.0's required-field bar)."""
+        validator = ModelValidator(schema_version="0.6.1")
         data = {"id": "https://example.com/dpp", "issuer": {"id": "https://a.com", "name": "A"}}
         result = validator.validate(data)
         assert result.valid is True

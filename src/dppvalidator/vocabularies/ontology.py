@@ -1,11 +1,16 @@
 """EU DPP Core Ontology alignment and namespace mapping.
 
-Provides term mappings between UNTP vocabulary and the official EU DPP Core
-Ontology from CIRPASS-2.
+Provides term mappings between UNTP / CIRPASS vocabularies and the official
+EU DPP Core Ontology (CIRPASS-2 EUDPP).
 
-Source: EU DPP Core Ontology v1.7.1 (Product and DPP module)
-Namespace: http://dpp.taltech.ee/EUDPP#
-DOI: 10.5281/zenodo.15270342
+Source: EU DPP Core Ontology v1.9.1 (CORE / P_DPP / SOC / ACTOR / CON, 2026-03-04),
+v1.9.4-Maki (LCA, 2026-04-27).
+
+Canonical namespace prefix: ``https://w3id.org/eudpp/`` (see
+``docs/adr/0002-canonical-eudpp-iri.md``). Phase 1 rebased the per-publisher
+IRIs (``dpp.taltech.ee``, ``dpp.cea.fr``) onto this canonical W3ID prefix.
+
+DOI (legacy v1.7.1 publication): 10.5281/zenodo.15270342
 """
 
 from __future__ import annotations
@@ -21,15 +26,37 @@ if TYPE_CHECKING:
 class EUDPPNamespace(str, Enum):
     """EU DPP Core Ontology and related namespaces.
 
-    Based on official CIRPASS-2 ontology v1.7.1.
+    Phase 1 finding (verified against the bundled v1.9.1 TTLs): every
+    EUDPP class/property IRI lives in the *single* fragment namespace
+    ``https://w3id.org/eudpp#``. The "modules" (P_DPP / SOC / ACTOR /
+    CON / LCA) are separate ontology *documents* (used in
+    ``owl:imports``) that share this one term namespace — they are not
+    independent class-IRI prefixes. Per-publisher IRIs
+    (``dpp.taltech.ee``, ``dpp.cea.fr``) are no longer emitted; the
+    legacy compatibility shim lives in ``exporters/contexts.py`` and is
+    removed in Phase 10.
+
+    For *document* IRIs (used by ``MANIFEST.json::canonical_iri`` to
+    record provenance), see the per-row ``canonical_iri`` field — those
+    use the path form ``https://w3id.org/eudpp/<MODULE>``. They are
+    intentionally not registered as enum members because they are not
+    namespace prefixes.
+
+    See ``docs/adr/0002-canonical-eudpp-iri.md`` for the rebase rationale.
     """
 
-    # Official EU DPP Core Ontology namespace (TalTech)
-    EUDPP = "http://dpp.taltech.ee/EUDPP#"
+    # ---- Canonical EUDPP term namespace (CIRPASS-2 v1.9.1) ---------------
+    # Single flat namespace shared by every module. Compact ``eudpp:Foo``
+    # expands to ``https://w3id.org/eudpp#Foo``. The previous Phase 1
+    # design exposed per-module enum members (P_DPP/SOC/ACTOR/CON/LCA);
+    # those were dropped after the v1.9.1 TTLs were vendored and shown
+    # to share this single fragment namespace. Code that needs to refer
+    # to a module *document* IRI (``https://w3id.org/eudpp/<MODULE>``)
+    # reads it from ``MANIFEST.json::canonical_iri`` rather than from
+    # this enum.
+    EUDPP = "https://w3id.org/eudpp#"
 
-    # LCA module namespace (CEA France) - different origin
-    LCA = "http://dpp.cea.fr/EUDPP/LCA#"
-
+    # ---- Adjacent vocabularies (unchanged across the rebase) -------------
     # SI Digital Framework (measurement units)
     SI = "https://si-digital-framework.org/SI#"
 
@@ -39,7 +66,7 @@ class EUDPPNamespace(str, Enum):
     # W3C SHACL namespace
     SH = "http://www.w3.org/ns/shacl#"
 
-    # EU DPP Vocabulary Hub
+    # EU DPP Vocabulary Hub (the listing/UI host, not a namespace)
     DPP_HUB = "https://dpp.vocabulary-hub.eu/"
 
     # W3C Verifiable Credentials v2
@@ -53,10 +80,6 @@ class EUDPPNamespace(str, Enum):
 
     # GS1 vocabulary
     GS1 = "https://gs1.org/voc/"
-
-
-# Backward compatibility alias
-CIRPASSNamespace = EUDPPNamespace
 
 
 class DPPStatus(str, Enum):
@@ -81,28 +104,32 @@ class DPPGranularity(str, Enum):
     PRODUCT = "product"  # Single unit (official term, not 'item')
 
 
-# Sentinel that signals "this term has no equivalent in the given UNTP version"
-# (e.g. v0.6's ``gtin`` field is gone in v0.7 — encoded as ``Product.id`` plus
-# ``idScheme`` on a GS1 scheme). Using a sentinel rather than ``None`` keeps
-# the dataclass slots type-clean (``str``) and makes "intentionally absent"
-# explicit when reading the table.
+# Sentinel that signals "this term has no equivalent in the given UNTP /
+# CIRPASS version" (e.g. v0.6's ``gtin`` field is gone in v0.7 — encoded
+# as ``Product.id`` plus ``idScheme`` on a GS1 scheme). Using a sentinel
+# rather than ``None`` keeps the dataclass slots type-clean (``str``) and
+# makes "intentionally absent" explicit when reading the table.
 TERM_REMOVED: str = "<removed-in-this-version>"
 
 
 @dataclass(frozen=True, slots=True)
 class TermMapping:
-    """Mapping between UNTP term(s) and a CIRPASS / EU DPP ontology URI.
+    """Mapping between UNTP / CIRPASS term(s) and an EU DPP ontology URI.
 
-    Phase 3c of docs/plans/UNTP_0.7.0_MIGRATION.md added per-version columns
-    so a single mapping row can carry both UNTP v0.6.x and v0.7.x term
-    names without duplicating the ESPR reference and description.
+    Phase 3c (UNTP 0.7 migration) added ``untp_v0_6`` / ``untp_v0_7``
+    columns. Phase 1 of the CIRPASS-2 migration adds ``cirpass_v1_3`` —
+    the spelling the term takes in the CIRPASS DPP reference structure
+    v1.3.0 message. Defaults preserve the canonical (``untp_term``)
+    spelling so unchanged rows don't need to repeat themselves.
 
     Attributes:
         untp_term: The "canonical" UNTP term — historically the v0.6 field
             name, kept as the row's primary key so backward-compat callers
             and existing tests continue to work without modification.
         cirpass_uri: EU DPP Core Ontology URI in compact form
-            (e.g. ``eudpp:Product``).
+            (e.g. ``eudpp:Product``). The compact prefix expands to the
+            canonical ``https://w3id.org/eudpp/`` IRI per
+            :class:`EUDPPNamespace`.
         description: Human-readable summary of the mapping.
         espr_reference: ESPR / SR5423 / ISO citation for traceability.
         untp_v0_6: The term spelling used by UNTP 0.6.x. Defaults to
@@ -111,6 +138,11 @@ class TermMapping:
             :attr:`untp_term` (i.e. unchanged across versions). Set
             explicitly for renames, or to :data:`TERM_REMOVED` for fields
             that no longer exist in v0.7 (e.g. ``gtin``).
+        cirpass_v1_3: The spelling the term takes in the CIRPASS DPP
+            reference structure v1.3.0 message. Defaults to
+            :attr:`untp_term`. Populated row-by-row in Phase 1 task 1.6
+            once the bundled v1.9.1 TTLs land; until then, every row is
+            assumed unchanged from the canonical UNTP spelling.
     """
 
     untp_term: str
@@ -119,24 +151,34 @@ class TermMapping:
     espr_reference: str | None = None
     untp_v0_6: str | None = None
     untp_v0_7: str | None = None
+    cirpass_v1_3: str | None = None
 
-    def term_for(self, version: str) -> str | None:
-        """Return the UNTP term for a given version, or ``None`` if removed.
+    def term_for(self, version: str, *, family: str = "untp") -> str | None:
+        """Return the term for a given (family, version) pair, or ``None`` if removed.
 
         Resolution rules (in order):
 
-        1. If a per-version column is set explicitly, use it.
-        2. Otherwise fall back to :attr:`untp_term` (the canonical v0.6 spelling).
+        1. If a per-family / per-version column is set explicitly, use it.
+        2. Otherwise fall back to :attr:`untp_term` (canonical spelling).
         3. If the per-version column is :data:`TERM_REMOVED`, return ``None``
-           — the field has no equivalent in this UNTP version.
+           — the field has no equivalent in that version.
 
-        Unknown version strings (anything that's not a 0.6.x / 0.7.x prefix)
-        fall back to :attr:`untp_term` so the table is forward-compatible.
+        Args:
+            version: SemVer-shaped string (matched against major.minor
+                prefixes for the supported families — UNTP 0.6 / 0.7,
+                CIRPASS 1.3).
+            family: ``"untp"`` (default, preserves pre-Phase-1 behaviour)
+                or ``"cirpass"``.
+
+        Unknown ``(family, version)`` pairs fall back to :attr:`untp_term`
+        so the table stays forward-compatible.
         """
         explicit: str | None
-        if version.startswith("0.6"):
+        if family == "cirpass" and version.startswith("1.3"):
+            explicit = self.cirpass_v1_3
+        elif family == "untp" and version.startswith("0.6"):
             explicit = self.untp_v0_6
-        elif version.startswith("0.7"):
+        elif family == "untp" and version.startswith("0.7"):
             explicit = self.untp_v0_7
         else:
             explicit = None
@@ -145,14 +187,18 @@ class TermMapping:
         return None if chosen == TERM_REMOVED else chosen
 
 
-# Term mappings from UNTP to EU DPP Core Ontology
-# Based on official CIRPASS-2 ontology v1.7.1
+# Term mappings from UNTP / CIRPASS to EU DPP Core Ontology
+# Based on official CIRPASS-2 ontology (canonical prefix
+# ``https://w3id.org/eudpp/``).
 #
 # Mapping rows are written so the row's primary ``untp_term`` is the v0.6
 # spelling — this keeps the OntologyMapper's existing semantics. Rows that
 # rename in v0.7 carry an explicit ``untp_v0_7`` column. Rows that remove
-# in v0.7 use :data:`TERM_REMOVED`. See Phase 3c of
-# docs/plans/UNTP_0.7.0_MIGRATION.md.
+# in v0.7 use :data:`TERM_REMOVED`. The ``cirpass_v1_3`` column is the
+# CIRPASS reference-structure v1.3.0 spelling; populated row-by-row in
+# Phase 1 task 1.6 once the v1.9.1 TTLs are vendored.
+#
+# See docs/plans/CIRPASS_2_MIGRATION.md §Phase 1 for the audit.
 TERM_MAPPINGS: tuple[TermMapping, ...] = (
     # Core DPP and Product classes (unchanged across versions).
     TermMapping(
@@ -175,9 +221,11 @@ TERM_MAPPINGS: tuple[TermMapping, ...] = (
         espr_reference="ESPR Art 9(1)",
     ),
     # ``serialNumber`` (v0.6) → ``itemNumber`` (v0.7); same EU DPP target.
+    # Phase 1 task 1.6: P_DPP v1.9.1 renamed ``uniqueProductID`` →
+    # ``uniqueProductIdentifier`` (per the module's own changelog).
     TermMapping(
         untp_term="serialNumber",
-        cirpass_uri="eudpp:uniqueProductID",
+        cirpass_uri="eudpp:uniqueProductIdentifier",
         description="Unique product identifier (item-level)",
         espr_reference="ESPR Art 2(30)",
         untp_v0_7="itemNumber",
@@ -235,10 +283,16 @@ TERM_MAPPINGS: tuple[TermMapping, ...] = (
         espr_reference="ESPR Annex III (g)",
         untp_v0_7="relatedParty",
     ),
+    # Phase 1 task 1.6: P_DPP v1.9.1 removed ``#facilityID`` ("Now
+    # described through ACTOR module"). The conceptually equivalent
+    # target is the ``Facility`` class declared in ACTOR; UNTP's
+    # ``producedAtFacility`` value is a Facility identifier — at
+    # export time the EUDPP serialization re-keys it as a Facility
+    # instance reference rather than as a bare ID predicate.
     TermMapping(
         untp_term="producedAtFacility",
-        cirpass_uri="eudpp:facilityID",
-        description="Unique facility identifier",
+        cirpass_uri="eudpp:Facility",
+        description="Production facility (modelled as Facility class in ACTOR module)",
         espr_reference="ESPR Art 2(33)",
     ),
     # Substances of concern
@@ -318,6 +372,15 @@ TERM_MAPPINGS: tuple[TermMapping, ...] = (
     # singular noun). Both spellings need to map to the same EU DPP
     # predicate — we add a row whose canonical ``untp_term`` is the v0.6
     # name and whose v0.7 column carries the new spelling.
+    #
+    # Phase 1 task 1.6 audit caveat: the v1.7.1-era EU DPP target
+    # ``eudpp:hasMaterialProvenance`` is *not* present in CIRPASS-2
+    # v1.9.1 — material provenance is now expressed through the SOC +
+    # LCA module class hierarchy rather than a single predicate. The
+    # mapping row is retained so the v0.6↔v0.7 *UNTP* rename keeps
+    # round-tripping; the EUDPP IRI is annotated in
+    # ``_TRANSITIONAL_REMOVED_IN_V1_9`` below as a known-unresolvable
+    # target so the v1.9 ontology-resolution gate doesn't fail on it.
     TermMapping(
         untp_term="materialsProvenance",
         cirpass_uri="eudpp:hasMaterialProvenance",
@@ -328,6 +391,10 @@ TERM_MAPPINGS: tuple[TermMapping, ...] = (
     # ``conformityClaim`` (v0.6) collapses with the three scorecard
     # classes into ``performanceClaim`` (v0.7). For ontology-mapping
     # purposes both target the EU DPP performance/claim predicate.
+    #
+    # Phase 1 task 1.6 audit caveat: ``eudpp:hasPerformanceClaim`` is
+    # not present in CIRPASS-2 v1.9.1 — see
+    # ``_TRANSITIONAL_REMOVED_IN_V1_9``.
     TermMapping(
         untp_term="conformityClaim",
         cirpass_uri="eudpp:hasPerformanceClaim",
@@ -338,14 +405,33 @@ TERM_MAPPINGS: tuple[TermMapping, ...] = (
 )
 
 
-class OntologyMapper:
-    """Maps UNTP terms to CIRPASS / EU DPP ontology URIs.
+# ---- Phase 1 task 1.6 audit annotation -------------------------------
+# v1.7.1-era EU DPP-side targets that have no equivalent in v1.9.1.
+# Their ``TermMapping`` rows are retained so the UNTP-side renames they
+# also encode keep working; consumers that need the EUDPP IRI should
+# treat these as "no mapping" and the v1.9 ontology-resolution test
+# (``tests/unit/test_eudpp_term_mapping.py``) skips them. When CIRPASS-2
+# publishes a successor predicate (or a follow-on minor that resurrects
+# one of these), update the row's ``cirpass_uri`` and remove its entry
+# here. See ``docs/concepts/eudpp-1.9-changelog.md`` for the rationale.
+TRANSITIONAL_EUDPP_REMOVED_IN_V1_9: frozenset[str] = frozenset(
+    {
+        "eudpp:hasMaterialProvenance",
+        "eudpp:hasPerformanceClaim",
+    }
+)
 
-    Phase 3c added per-version awareness: callers that pass a UNTP
-    ``schema_version`` get the right column out of :data:`TERM_MAPPINGS`.
-    Callers that don't (the pre-Phase-3c API) keep the v0.6 behaviour —
-    the ``untp_term`` column remains the canonical key, so existing
-    forward and reverse lookups work unchanged.
+
+class OntologyMapper:
+    """Maps UNTP / CIRPASS terms to EU DPP ontology URIs.
+
+    Phase 3c added per-version awareness for UNTP. Phase 1 of the
+    CIRPASS-2 migration extends this to per-family awareness: callers
+    that pass a ``(family, version)`` pair get the right column out of
+    :data:`TERM_MAPPINGS`. Callers that don't (the pre-Phase-3c API)
+    keep the v0.6 behaviour — the ``untp_term`` column remains the
+    canonical key, so existing forward and reverse lookups work
+    unchanged.
     """
 
     def __init__(self) -> None:
@@ -356,19 +442,19 @@ class OntologyMapper:
         self._untp_to_cirpass: dict[str, TermMapping] = {m.untp_term: m for m in TERM_MAPPINGS}
         self._cirpass_to_untp: dict[str, TermMapping] = {m.cirpass_uri: m for m in TERM_MAPPINGS}
 
-        # Per-version forward index — populated lazily when needed via
-        # :meth:`_index_for_version`. Keys are e.g. ``"itemNumber"`` for
-        # v0.7 lookups.
-        self._index_cache: dict[str, dict[str, TermMapping]] = {}
+        # Per-(family, version) forward index — populated lazily when
+        # needed via :meth:`_index_for_version`. Keys are e.g.
+        # ``"itemNumber"`` for v0.7 lookups.
+        self._index_cache: dict[tuple[str, str], dict[str, TermMapping]] = {}
 
         # Secondary index of every non-canonical, non-removed term spelling
         # across all per-version columns (e.g. ``itemNumber`` for v0.7).
         # This lets ``get_mapping`` and the no-version
         # ``find_mapping_for_term`` resolve renamed-only terms without
-        # branching on a specific UNTP version literal.
+        # branching on a specific UNTP/CIRPASS version literal.
         secondary: dict[str, TermMapping] = {}
         for mapping in TERM_MAPPINGS:
-            for alt in (mapping.untp_v0_6, mapping.untp_v0_7):
+            for alt in (mapping.untp_v0_6, mapping.untp_v0_7, mapping.cirpass_v1_3):
                 if alt is None or alt == TERM_REMOVED:
                     continue
                 if alt == mapping.untp_term:
@@ -413,11 +499,12 @@ class OntologyMapper:
         return mapping.term_for(version)
 
     def get_mapping(self, term: str) -> TermMapping | None:
-        """Get full mapping for a term (UNTP or CIRPASS).
+        """Get full mapping for a term (UNTP, CIRPASS spelling, or EU DPP URI).
 
         Recognises the canonical (v0.6) spelling, every per-version
-        spelling registered in :data:`TERM_MAPPINGS`, and the EU DPP URI
-        as keys. Returns ``None`` if no row matches.
+        spelling registered in :data:`TERM_MAPPINGS` (UNTP v0.6, v0.7;
+        CIRPASS v1.3), and the EU DPP URI as keys. Returns ``None`` if
+        no row matches.
         """
         return (
             self._untp_to_cirpass.get(term)
@@ -434,35 +521,45 @@ class OntologyMapper:
         """Iterate over all term mappings."""
         yield from TERM_MAPPINGS
 
-    def find_mapping_for_term(self, term: str, version: str | None = None) -> TermMapping | None:
+    def find_mapping_for_term(
+        self,
+        term: str,
+        version: str | None = None,
+        *,
+        family: str = "untp",
+    ) -> TermMapping | None:
         """Look up a mapping by the version-specific spelling of a term.
 
         Phase 3c helper: callers that observe a v0.7 field name on the wire
         (e.g. ``itemNumber`` or ``materialProvenance``) can resolve it to
-        the same :class:`TermMapping` row as the v0.6 spelling. When
-        ``version`` is ``None`` the canonical-key index is consulted first
-        and the secondary index of all per-version spellings is used as
-        a fallback.
+        the same :class:`TermMapping` row as the v0.6 spelling. Phase 1 of
+        the CIRPASS-2 migration extends this to ``family="cirpass"`` so
+        CIRPASS v1.3 spellings also resolve.
+
+        When ``version`` is ``None`` the canonical-key index is consulted
+        first and the secondary index of all per-version spellings is
+        used as a fallback (the ``family`` argument is ignored in this
+        case — the secondary index unions all families).
         """
         if version is None:
             return self._untp_to_cirpass.get(term) or self._secondary_index.get(term)
-        return self._index_for_version(version).get(term)
+        return self._index_for_version(version, family=family).get(term)
 
-    def _index_for_version(self, version: str) -> dict[str, TermMapping]:
-        """Build (and cache) the version-keyed forward index."""
-        cached = self._index_cache.get(version)
+    def _index_for_version(self, version: str, *, family: str = "untp") -> dict[str, TermMapping]:
+        """Build (and cache) the (family, version)-keyed forward index."""
+        cached = self._index_cache.get((family, version))
         if cached is not None:
             return cached
         index: dict[str, TermMapping] = {}
         for mapping in TERM_MAPPINGS:
-            term = mapping.term_for(version)
+            term = mapping.term_for(version, family=family)
             if term is None:
                 continue
             # Last write wins on collision — rows ordered later in
             # TERM_MAPPINGS take precedence, which matches Python dict
             # initialisation semantics elsewhere in this module.
             index[term] = mapping
-        self._index_cache[version] = index
+        self._index_cache[(family, version)] = index
         return index
 
     @property
@@ -470,9 +567,9 @@ class OntologyMapper:
         """List of all mapped UNTP terms (v0.6 canonical spellings)."""
         return list(self._untp_to_cirpass.keys())
 
-    def mapped_terms_for(self, version: str) -> list[str]:
-        """List of UNTP terms for a specific version (Phase 3c)."""
-        return list(self._index_for_version(version).keys())
+    def mapped_terms_for(self, version: str, *, family: str = "untp") -> list[str]:
+        """List of terms for a specific (family, version) pair (Phase 3c / Phase 1)."""
+        return list(self._index_for_version(version, family=family).keys())
 
     @property
     def mapping_count(self) -> int:
@@ -483,12 +580,22 @@ class OntologyMapper:
 def get_eudpp_context() -> dict[str, str]:
     """Get JSON-LD context with EU DPP Core Ontology namespace prefixes.
 
+    Phase 1 (CIRPASS-2): the ``eudpp`` prefix resolves to the canonical
+    fragment namespace ``https://w3id.org/eudpp#`` (the single flat
+    term namespace shared by every module per the v1.9.1 TTLs). The
+    ``lca`` prefix is registered as an alias for the same namespace,
+    purely for human readability when authoring LCA payloads — every
+    LCA term IRI is identical whether compacted as ``eudpp:Foo`` or
+    ``lca:Foo``.
+
     Returns:
         Dictionary of namespace prefixes for JSON-LD @context
     """
     return {
         "eudpp": EUDPPNamespace.EUDPP.value,
-        "lca": EUDPPNamespace.LCA.value,
+        # ``lca`` is an alias for ``eudpp`` per the LCA module's own
+        # ``@prefix ns1: <https://w3id.org/eudpp#>`` declaration.
+        "lca": EUDPPNamespace.EUDPP.value,
         "si": EUDPPNamespace.SI.value,
         "qudt": EUDPPNamespace.QUDT.value,
         "sh": EUDPPNamespace.SH.value,
@@ -499,12 +606,6 @@ def get_eudpp_context() -> dict[str, str]:
     }
 
 
-# Backward compatibility alias
-def get_cirpass_context() -> dict[str, str]:
-    """Deprecated: Use get_eudpp_context instead."""
-    return get_eudpp_context()
-
-
 def expand_eudpp_uri(compact_uri: str) -> str:
     """Expand a compact EU DPP URI to full form.
 
@@ -512,7 +613,7 @@ def expand_eudpp_uri(compact_uri: str) -> str:
         compact_uri: URI like "eudpp:Product"
 
     Returns:
-        Full URI like "http://dpp.taltech.ee/EUDPP#Product"
+        Full URI like "https://w3id.org/eudpp/Product"
     """
     if ":" not in compact_uri:
         return compact_uri
@@ -535,21 +636,17 @@ def compact_eudpp_uri(full_uri: str) -> str:
 
     Returns:
         Compact URI with namespace prefix
+
+    Note: When a URI matches multiple namespace prefixes (e.g. a P_DPP
+    URI also matches the EUDPP umbrella prefix), the longest match wins
+    so module-scoped IRIs compact to the module-scoped prefix.
     """
-    for ns in EUDPPNamespace:
+    # Sort by descending length so module IRIs (longer) take precedence
+    # over the umbrella EUDPP prefix on tied URIs.
+    sorted_namespaces = sorted(EUDPPNamespace, key=lambda ns: len(ns.value), reverse=True)
+    for ns in sorted_namespaces:
         if full_uri.startswith(ns.value):
             local = full_uri[len(ns.value) :]
             return f"{ns.name.lower()}:{local}"
 
     return full_uri
-
-
-# Backward compatibility aliases
-def expand_cirpass_uri(compact_uri: str) -> str:
-    """Deprecated: Use expand_eudpp_uri instead."""
-    return expand_eudpp_uri(compact_uri)
-
-
-def compact_cirpass_uri(full_uri: str) -> str:
-    """Deprecated: Use compact_eudpp_uri instead."""
-    return compact_eudpp_uri(full_uri)

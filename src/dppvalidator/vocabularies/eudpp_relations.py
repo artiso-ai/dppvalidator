@@ -1,11 +1,16 @@
 """EU DPP Core Ontology product relationship properties.
 
-Defines object and datatype properties for product relationships
-based on the official CIRPASS-2 ontology v1.7.1.
+Defines object and datatype properties for product relationships, based
+on the official CIRPASS-2 ontology.
 
-Source: EU DPP Core Ontology v1.7.1 (Product and DPP module)
-Namespace: http://dpp.taltech.ee/EUDPP#
-DOI: 10.5281/zenodo.15270342
+Source: EU DPP Core Ontology v1.9.1 (CORE + CON modules, 2026-03-04 —
+Phase 1 target). Until the v1.9.1 TTLs are vendored (Phase 1 task 1.1),
+this module ships the v1.7.1 relation set; only the namespace IRI was
+rebased onto the canonical ``https://w3id.org/eudpp/`` prefix per
+ADR 0002. The new CON module's relation properties land alongside this
+module's existing ones once the TTL is vendored.
+
+DOI (legacy v1.7.1 publication): 10.5281/zenodo.15270342
 """
 
 from __future__ import annotations
@@ -19,6 +24,18 @@ class EUDPPObjectProperty(str, Enum):
     """EU DPP Core Ontology object property URIs.
 
     Object properties define relationships between instances.
+
+    Phase 1 task 1.11 (CIRPASS-2 migration): regenerated against
+    P_DPP + CON + ACTOR + SOC v1.9.1. Major v1.9.1 spec change: 5
+    properties moved from P_DPP to CON
+    (``containsSubstanceOfConcern``, ``hasEconomicOperator``,
+    ``hasBackUpCopyHost``, ``hasIssuer``, ``hasManufacturer``); they
+    are unchanged at the IRI level and stay in this enum. ACTOR added
+    ``hasActor`` and ``hasRepresentativeMandate``. CON added
+    ``inContextOfActivity``, ``inContextOfDPP``, ``inContextOfProduct``,
+    ``isConnectedTo``, ``representsManufacturerForProduct``.
+    LCA v1.9.4-Maki added ~30 new properties; those are not added
+    here as their wire-up belongs to Phase 4 (LCA validation).
     """
 
     # DPP-Product relations
@@ -29,28 +46,31 @@ class EUDPPObjectProperty(str, Enum):
     IS_COMPONENT_OF = "eudpp:isComponentOf"
     IS_SPARE_PART_OF = "eudpp:isSparePartOf"
 
-    # Actor relations
+    # Actor relations (now in CON v1.9.1; IRIs unchanged)
     HAS_ISSUER = "eudpp:hasIssuer"
     HAS_MANUFACTURER = "eudpp:hasManufacturer"
     HAS_ECONOMIC_OPERATOR = "eudpp:hasEconomicOperator"
     HAS_BACKUP_COPY_HOST = "eudpp:hasBackUpCopyHost"
-    IS_RESPONSIBLE_FOR_PRODUCT = "eudpp:isResponsibleForProduct"
+    IS_RESPONSIBLE_FOR_PRODUCT = "eudpp:isResponsibleForProduct"  # −1.9.1 (not in v1.9.1 TTL)
 
-    # Actor-Role relations (Phase 2)
+    # Actor-Role relations
     HAS_ROLE = "eudpp:hasRole"
     IS_ROLE_OF = "eudpp:isRoleOf"
+    # +1.9.1 — new in ACTOR v1.9.1
+    HAS_ACTOR = "eudpp:hasActor"
+    HAS_REPRESENTATIVE_MANDATE = "eudpp:hasRepresentativeMandate"
 
-    # Actor-Facility relations (Phase 2)
+    # Actor-Facility relations
     USES_FACILITY = "eudpp:usesFacility"
     IS_USED_BY_ACTOR = "eudpp:isUsedByActor"
 
-    # Actor location relations (Phase 2)
+    # Actor location relations
     IS_ESTABLISHED_IN = "eudpp:isEstablishedIn"
     IS_RESIDING_IN = "eudpp:isResidingIn"
 
-    # Authorised representative relations (Phase 2)
+    # Authorised representative relations
     REPRESENTS_MANUFACTURER = "eudpp:representsManufacturer"
-    IS_REPRESENTED_BY = "eudpp:isRepresentedBy"
+    IS_REPRESENTED_BY = "eudpp:isRepresentedBy"  # −1.9.1 (not in v1.9.1 TTL)
 
     # Product classification
     HAS_PRODUCT_GROUP = "eudpp:hasProductGroup"
@@ -59,13 +79,20 @@ class EUDPPObjectProperty(str, Enum):
     HAS_PROPERTY = "eudpp:hasProperty"
     HAS_MEASUREMENT_UNIT = "eudpp:hasMeasurementUnit"
 
-    # Substance relations
+    # Substance relations (now in CON v1.9.1; IRIs unchanged)
     CONTAINS_SUBSTANCE_OF_CONCERN = "eudpp:containsSubstanceOfConcern"
 
-    # Substance of Concern relations (Phase 3)
+    # Substance of Concern relations
     HAS_CONCENTRATION = "eudpp:hasConcentration"
     HAS_LIFECYCLE_STAGE = "eudpp:hasLifeCycleStage"
     HAS_THRESHOLD = "eudpp:hasThreshold"
+
+    # +1.9.1 — Connector module cross-context relations (CON v1.9.1)
+    IS_CONNECTED_TO = "eudpp:isConnectedTo"
+    IN_CONTEXT_OF_ACTIVITY = "eudpp:inContextOfActivity"
+    IN_CONTEXT_OF_DPP = "eudpp:inContextOfDPP"
+    IN_CONTEXT_OF_PRODUCT = "eudpp:inContextOfProduct"
+    REPRESENTS_MANUFACTURER_FOR_PRODUCT = "eudpp:representsManufacturerForProduct"
 
     # LCA relations (Phase 4)
     QUANTIFIES = "lca:quantifies"
@@ -84,14 +111,23 @@ class EUDPPDatatypeProperty(str, Enum):
     """EU DPP Core Ontology datatype property URIs.
 
     Datatype properties define relationships to literal values.
+
+    Phase 1 task 1.11 (CIRPASS-2 migration): regenerated against
+    P_DPP + SOC + ACTOR + CON v1.9.1. Three IRIs renamed (``ID`` →
+    ``Identifier`` suffix), one removed (``facilityID``), five added
+    (assignment-temporal bounds + three identifier-scheme datatype
+    props). LCA v1.9.4-Maki adds ~30 datatype properties (e.g.
+    ``en15804Group``, ``referenceToPCR``); deferred to Phase 4 (LCA
+    validation wire-up).
     """
 
     # DPP identification
     UNIQUE_DPP_ID = "eudpp:uniqueDPPID"
-    UNIQUE_PRODUCT_ID = "eudpp:uniqueProductID"
+    UNIQUE_PRODUCT_ID = "eudpp:uniqueProductIdentifier"  # IRI corrected (was uniqueProductID)
+    UNIQUE_PRODUCT_IDENTIFIER_SCHEME = "eudpp:uniqueProductIdentifierScheme"  # +1.9.1
     GTIN = "eudpp:GTIN"
     COMMODITY_CODE = "eudpp:commodityCode"
-    FACILITY_ID = "eudpp:facilityID"
+    FACILITY_ID = "eudpp:facilityID"  # −1.9.1 (removed; use Facility class instead)
 
     # Product information
     PRODUCT_NAME = "eudpp:productName"
@@ -128,14 +164,20 @@ class EUDPPDatatypeProperty(str, Enum):
 
     # Actor properties (Phase 2)
     ACTOR_NAME = "eudpp:actorName"
-    ELECTRONIC_CONTACT = "eudpp:electronicContact"
-    POSTAL_ADDRESS = "eudpp:postalAddress"
+    ELECTRONIC_CONTACT = "eudpp:electronicContact"  # −1.9.1 (consolidated into Actor modelling)
+    POSTAL_ADDRESS = "eudpp:postalAddress"  # −1.9.1
     REGISTERED_TRADE_NAME = "eudpp:registeredTradeName"
     REGISTERED_TRADEMARK = "eudpp:registeredTrademark"
-    UNIQUE_OPERATOR_ID = "eudpp:uniqueOperatorID"
+    UNIQUE_OPERATOR_ID = "eudpp:uniqueOperatorIdentifier"  # IRI renamed (was uniqueOperatorID)
+    UNIQUE_OPERATOR_IDENTIFIER_SCHEME = "eudpp:uniqueOperatorIdentifierScheme"  # +1.9.1
 
     # Facility properties (Phase 2)
-    UNIQUE_FACILITY_ID = "eudpp:uniqueFacilityID"
+    UNIQUE_FACILITY_ID = "eudpp:uniqueFacilityIdentifier"  # IRI renamed (was uniqueFacilityID)
+    UNIQUE_FACILITY_IDENTIFIER_SCHEME = "eudpp:uniqueFacilityIdentifierScheme"  # +1.9.1
+
+    # +1.9.1 — assignment temporal bounds (paired with ActorRoleAssignment class)
+    ASSIGNMENT_VALID_FROM = "eudpp:assignmentValidFrom"
+    ASSIGNMENT_VALID_TO = "eudpp:assignmentValidTo"
 
     # Substance of Concern properties (Phase 3)
     NAME_IUPAC = "eudpp:nameIUPAC"
@@ -150,8 +192,8 @@ class EUDPPDatatypeProperty(str, Enum):
     HAS_IMPACT_ON_ENVIRONMENT = "eudpp:hasImpactOnEnvironment"
     HAS_IMPACT_ON_HUMAN_HEALTH = "eudpp:hasImpactOnHumanHealth"
 
-    # LCA properties (Phase 4)
-    LCA_HAS_UNIT = "lca:has_unit"
+    # LCA properties (legacy; Phase 4 will replace with v1.9.4-Maki set)
+    LCA_HAS_UNIT = "lca:has_unit"  # −1.9.4-Maki
     LCA_NUMERIC_VALUE = "qudt:numericValue"
 
 
@@ -363,7 +405,7 @@ DATATYPE_PROPERTIES: tuple[DatatypePropertyDefinition, ...] = (
         espr_reference="ESPR Art 9(1)",
     ),
     DatatypePropertyDefinition(
-        uri="eudpp:uniqueProductID",
+        uri="eudpp:uniqueProductIdentifier",
         domain="eudpp:Product",
         range="xsd:string",
         description="Unique product identifier",
@@ -516,7 +558,7 @@ DATATYPE_PROPERTIES: tuple[DatatypePropertyDefinition, ...] = (
         description="A trademark officially registered and owned by an actor",
     ),
     DatatypePropertyDefinition(
-        uri="eudpp:uniqueOperatorID",
+        uri="eudpp:uniqueOperatorIdentifier",
         domain="eudpp:Actor",
         range="xsd:string",
         description="Unique operator identifier",
@@ -524,7 +566,7 @@ DATATYPE_PROPERTIES: tuple[DatatypePropertyDefinition, ...] = (
     ),
     # Facility properties (Phase 2)
     DatatypePropertyDefinition(
-        uri="eudpp:uniqueFacilityID",
+        uri="eudpp:uniqueFacilityIdentifier",
         domain="eudpp:Facility",
         range="xsd:string",
         description="Unique facility identifier",
