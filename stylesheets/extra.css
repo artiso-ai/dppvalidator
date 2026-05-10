@@ -1,0 +1,22 @@
+/* Custom styles for dppvalidator documentation */
+
+/* Make the header logo larger */
+.md-header__button.md-logo img {
+  height: 48px;
+  width: auto;
+}
+
+/* Adjust logo in sidebar/nav if present */
+.md-nav__logo img {
+  height: 48px;
+  width: auto;
+}
+
+/* Match footer color to header (primary color) */
+.md-footer {
+  background-color: var(--md-primary-fg-color);
+}
+
+.md-footer-meta {
+  background-color: var(--md-primary-fg-color--dark);
+}
