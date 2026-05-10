@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-05-10
+
+Documentation-only patch. No runtime behaviour changed; no API,
+schema, validator, or CLI surface was touched. The release executes
+the [Docs Coherence Plan](https://github.com/artiso-ai/dppvalidator/blob/main/docs/plans/DOCS_COHERENCE_PLAN.md)
+end-to-end: every public source now agrees on the active default
+version, the canonical seven-layer taxonomy, and the error-code
+prefix table.
+
+### Added
+
+- [ADR 0006](https://github.com/artiso-ai/dppvalidator/blob/main/docs/adr/0006-validation-layer-taxonomy.md)
+  pinning the canonical "seven layers + Layer 0 detection" taxonomy
+  and the non-layer error-code prefix list (`PRS`, `DET`, `VER`,
+  `UPG`, `MAP`, `PRT`).
+- New error-page coverage for codes that ship in 0.5.0 but had no
+  reference page: `DET001` (family mismatch), `MAP001`–`MAP005`
+  (cross-family migration warnings).
+- `tools/check_doc_default_version.py` — CI guard that walks the
+  user-facing docs surface and asserts every "default UNTP version"
+  claim matches `DEFAULT_VERSIONS[SchemaFamily.UNTP]`. Wired into
+  pre-commit and `ci.yml` lint.
+- `tests/unit/test_doc_error_code_coverage.py` — asserts every error
+  code emitted by `src/` has a `docs/errors/<CODE>.md` page and an
+  `mkdocs.yml` nav entry, and the prefix allow-list agrees with
+  ADR 0006.
+- `mkdocs build --strict` is now a hard gate in
+  [`.github/workflows/docs.yml`](.github/workflows/docs.yml).
+
+### Changed
+
+- Default UNTP version flipped `0.6.1` → `0.7.0` across every
+  user-facing surface (README, mkdocs index/concepts/guides/FAQ,
+  AGENTS.md, both `llms*.txt`). The runtime default already lived at
+  `0.7.0` in [`schemas/registry.py`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/schemas/registry.py)
+  since 0.5.0; the docs caught up.
+- Error-code prefix `MOD` → `MDL` in every doc that referenced it
+  (the source code has emitted `MDL001`–`MDL099` since 0.5.0; only
+  the docs lagged).
+- The README + concept-page mermaid diagrams now render the full
+  seven-layer flow (Detection → Schema → Model → JSON-LD →
+  Semantic → Vocabulary → Plugin → Signature) instead of the older
+  five-layer dispatch path.
+- `SIG001`–`SIG099` is documented as **reserved**: the verifier
+  currently surfaces untyped error strings via
+  `VerificationResult.errors`; the `SIG` prefix is held for the
+  future structured-code migration.
+- README hero, `mkdocs.yml site_description`, and both `llms*.txt`
+  framings now name **CIRPASS DPP reference structure 1.3.0**
+  alongside UNTP 0.6.x / 0.7.0; previous wording mentioned only
+  UNTP.
+- `docs/changelog.md` is now a one-line `pymdownx.snippets` include
+  of the root `CHANGELOG.md` — single source of truth, both
+  surfaces stay in sync at build time.
+- Root `llms.txt` and `llms-ctx.txt` are symlinks into `docs/`; the
+  two copies can no longer drift.
+- FAQ error-prefix table extended from 7 rows to 12 (adds `DET`,
+  `VER`, `UPG`, `MAP`, `PRT`; clarifies `SIG` reservation).
+- `AGENTS.md` directory tree adds `models/cirpass/v1_3/` and
+  `validators/rules/cirpass_v1_3/`; "UNTP version handling" section
+  renamed to "Schema family + version handling" and now names
+  `SchemaFamily.CIRPASS`; `[rdf]` / `[cli]` / `[all]` extras called
+  out.
+
+### Removed
+
+- Scratch artefacts that had drifted into `docs/`: `docs/dpp/*.json`
+  (raw schema fixtures duplicated under `tests/fixtures/`),
+  `docs/uv/uv.md` and `docs/windsurf/cascade-reference.md`
+  (third-party docs copies),
+  `docs/dpp_validator_description.md` (early marketing draft).
+- Internal planning documents moved out of the published docs site
+  into `docs/plans/` (already in `exclude_docs:`):
+  `IMPLEMENTATION_PLAN.md`, `IMPROVEMENT_ROADMAP.md`,
+  `REFACTORING_PLAN.md`, `STRATEGIC_ROADMAP.md`,
+  `UNTTP_PLUGIN_PLAN.md`, `VC_WALLET_ROADMAP.md`. Their content is
+  unchanged; the relocation closes the mkdocs `--strict` orphan
+  gap.
+
+### Maintenance
+
+- All cross-document references in this `CHANGELOG.md` rewritten as
+  GitHub-absolute URLs so the snippet-included copy at
+  [`docs/changelog.md`](https://artiso-ai.github.io/dppvalidator/changelog/)
+  resolves cleanly under `mkdocs build --strict`.
+
 ## [0.5.0] - 2026-05-09 (Preview)
 
 This release adds **end-to-end CIRPASS-2 reference structure v1.3.0**
