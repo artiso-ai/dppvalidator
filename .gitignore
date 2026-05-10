@@ -232,3 +232,5 @@ docs/STRATEGIC_ROADMAP.md
 # scratch dir is the operator-audit workspace.
 tools/snapshot/cirpass-2/
 tools/snapshot/manifest-rows.json
+SECURITY_AUDIT_2026-05-10.md
+docs/plans/*
