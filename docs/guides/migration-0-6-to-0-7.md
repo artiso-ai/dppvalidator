@@ -188,7 +188,7 @@ warning explains why.**
 
 - [UNTP DPP versions](../concepts/untp-versions.md) — overall version
   handling, default version, detection rules.
-- [Five-layer validation](../concepts/validation-layers.md) — how the
+- [Seven-layer validation](../concepts/validation-layers.md) — how the
   upgraded payload then flows through validation.
 - [`upgrade_0_6_to_0_7.py`](https://github.com/artiso-ai/dppvalidator/blob/main/src/dppvalidator/compat/upgrade_0_6_to_0_7.py)
   — full implementation of the 17 transformation steps.

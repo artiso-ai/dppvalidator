@@ -1,5 +1,5 @@
 site_name: dppvalidator
-site_description: Python library for validating Digital Product Passports (UNTP DPP)
+site_description: Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and CIRPASS/UNECE ontologies
 site_url: https://artiso-ai.github.io/dppvalidator
 repo_url: https://github.com/artiso-ai/dppvalidator
 repo_name: artiso-ai/dppvalidator
@@ -81,7 +81,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format ""
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path: ['.', 'docs']
+      check_paths: true
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji ""
       emoji_generator: !!python/name:material.extensions.emoji.to_svg ""
@@ -176,9 +178,11 @@ nav:
       - EU DPP Ontology Alignment (legacy): concepts/eudpp-ontology-alignment.md
       - CIRPASS-2 Implementation (legacy): concepts/cirpass-implementation.md
   - Plugins:
+      - Overview: plugins.md
       - Tyres (Pre-1.0): plugins/tyres.md
   - Contributing:
       - Development Setup: contributing/development-setup.md
+      - Security Setup: contributing/SECURITY_SETUP.md
       - Code Style: contributing/code-style.md
       - Testing: contributing/testing.md
   - Errors:
@@ -290,5 +294,21 @@ nav:
           - UPG002 - Synthesised Value During Upgrade: errors/UPG002.md
           - UPG003 - Unmapped Country Code: errors/UPG003.md
           - UPG004 - Required v0.7 Field Missing: errors/UPG004.md
+      - Detection Errors:
+          - DET001 - Family Mismatch: errors/DET001.md
+      - Mapping Errors:
+          - MAP001 - Lossy Mapping Transformation: errors/MAP001.md
+          - MAP002 - Synthesised Value During Mapping: errors/MAP002.md
+          - MAP003 - Unmapped Field Passthrough: errors/MAP003.md
+          - MAP004 - Required Field Missing on Target: errors/MAP004.md
+          - MAP005 - Temporal Collapse: errors/MAP005.md
+  - Architecture Decisions:
+      - Overview: adr/README.md
+      - 0001 - CIRPASS JSON Schema Derivation: adr/0001-cirpass-json-schema-derivation.md
+      - 0002 - Canonical EUDPP IRI: adr/0002-canonical-eudpp-iri.md
+      - 0003 - Tyre License: adr/0003-tyre-license.md
+      - 0004 - Textile v2 Built-in: adr/0004-textile-v2-built-in.md
+      - 0005 - CLI Exit Codes: adr/0005-cli-exit-codes.md
+      - 0006 - Validation Layer Taxonomy: adr/0006-validation-layer-taxonomy.md
   - FAQ: faq.md
   - Changelog: changelog.md

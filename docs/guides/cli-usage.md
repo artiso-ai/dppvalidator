@@ -24,21 +24,21 @@ dppvalidator validate <input>... [options]
 
 - `-s, --strict` — Enable strict JSON Schema validation
 - `-f, --format` — Output format: `text`, `json`, `table` (default: text)
-- `--schema-version` — Schema version (default: `0.6.1`; one of
+- `--schema-version` — Schema version (default: `0.7.0`; one of
   `0.6.0`, `0.6.1`, `0.7.0`)
 - `--upgrade-from` — Run the v0.6 → v0.7 compat shim before validating
   (Phase 4); accepts `0.6.0` / `0.6.1`
 - `--fail-fast` — Stop on first error
 - `--max-errors` — Maximum errors to report (default: 100)
 
-**v0.6.x examples:**
+**v0.7.0 examples (default):**
 
 ```bash
-# Validate a single file (default schema-version is 0.6.1)
+# Validate a single file (default schema-version is 0.7.0)
 dppvalidator validate passport.json
 
-# Pin v0.6.1 explicitly. A v0.7.0 payload through this command fails
-# fast with VER001 (version mismatch).
+# Pin v0.6.1 (legacy) explicitly. A v0.7.0 payload through this command
+# fails fast with VER001 (version mismatch).
 dppvalidator validate passport.json --schema-version 0.6.1
 
 # Validate multiple files
@@ -60,11 +60,11 @@ dppvalidator validate "*.json" --format json
 dppvalidator validate "*.json" --format table
 ```
 
-**v0.7.0 examples:**
+**v0.6.x examples (legacy):**
 
 ```bash
-# Pin v0.7.0 explicitly. The detection layer otherwise auto-detects
-# from the payload's @context URL.
+# Pin v0.7.0 explicitly (matches the current default). The detection
+# layer otherwise auto-detects from the payload's @context URL.
 dppvalidator validate passport-v07.json --schema-version 0.7.0
 
 # Run the compat shim, then validate as v0.7.0. Upgrade warnings are
@@ -121,7 +121,7 @@ dppvalidator schema <subcommand> [options]
 
 **Options (for info/download):**
 
-- `-v, --version` — Schema version (default: 0.6.1)
+- `-v, --version` — Schema version (default: 0.7.0)
 - `-o, --output` — Output directory for download
 
 **Examples:**
@@ -130,11 +130,11 @@ dppvalidator schema <subcommand> [options]
 # List every registered version (currently 0.6.0, 0.6.1, 0.7.0).
 dppvalidator schema list
 
-# Show schema info for v0.6.1.
-dppvalidator schema info -v 0.6.1
-
-# Show schema info for v0.7.0.
+# Show schema info for v0.7.0 (current default).
 dppvalidator schema info -v 0.7.0
+
+# Show schema info for v0.6.1 (legacy).
+dppvalidator schema info -v 0.6.1
 
 # Download schema to local directory.
 dppvalidator schema download -v 0.7.0 -o ./schemas/

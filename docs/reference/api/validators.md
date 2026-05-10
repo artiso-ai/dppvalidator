@@ -100,14 +100,15 @@ reset_default_registry()
 
 ## Error Codes
 
-| Code   | Layer    | Description              |
-| ------ | -------- | ------------------------ |
-| SCH001 | schema   | Required field missing   |
-| SCH002 | schema   | Invalid type             |
-| MOD001 | model    | Model validation error   |
-| JLD001 | jsonld   | Invalid context          |
-| SEM001 | semantic | Invalid vocabulary value |
-| SEM002 | semantic | Invalid date range       |
-| SIG001 | crypto   | Invalid signature        |
+| Code   | Surface   | Description                      |
+| ------ | --------- | -------------------------------- |
+| SCH001 | schema    | Required field missing           |
+| SCH002 | schema    | Invalid type                     |
+| MDL001 | model     | Model validation error           |
+| JLD001 | jsonld    | Invalid context                  |
+| SEM001 | semantic  | Invalid vocabulary value         |
+| SEM002 | semantic  | Invalid date range               |
+| DET001 | detection | Family mismatch                  |
+| MAP004 | mapping   | Required field missing on target |
 
 > **Note:** This table shows common examples. See [Error Reference](../../errors/index.md) for the complete list of 70+ error codes.

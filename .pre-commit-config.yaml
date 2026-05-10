@@ -93,3 +93,14 @@ repos:
         language: system
         pass_filenames: false
         stages: [ pre-push ]
+      # Phase 7 of the Docs Coherence Plan — guard against the
+      # "default UNTP version" claim drifting away from the registry.
+      # Runs against user-facing docs (README, AGENTS.md, mkdocs pages,
+      # llms*.txt). See tools/check_doc_default_version.py for the
+      # exempt list and detection algorithm.
+      - id: check-doc-default-version
+        name: check-doc-default-version
+        entry: uv run python tools/check_doc_default_version.py
+        language: system
+        pass_filenames: false
+        files: ^(README\.md|AGENTS\.md|CLAUDE\.md|docs/(?!plans/|adr/0006).*\.(md|txt)|src/dppvalidator/schemas/registry\.py)$

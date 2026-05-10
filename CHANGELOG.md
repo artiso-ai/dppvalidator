@@ -12,7 +12,7 @@ support alongside UNTP DPP 0.6.x / 0.7.0 and ships the cross-family
 forward / reverse shims, the EUDPP v1.9.x ontology rebase, two pilot
 profiles (Textile v2 built-in, Tyres GPL plugin), and a six-code CLI
 exit surface. The migration plan is at
-[`docs/plans/CIRPASS_2_MIGRATION.md`](docs/plans/CIRPASS_2_MIGRATION.md);
+[`docs/plans/CIRPASS_2_MIGRATION.md`](https://github.com/artiso-ai/dppvalidator/blob/main/docs/plans/CIRPASS_2_MIGRATION.md);
 each phase has its own implementation log there.
 
 **Status: Preview / unstable.** The Pydantic v0.7 model layer has
@@ -39,7 +39,7 @@ correctness check.
   `src/dppvalidator/vocabularies/data/ontologies/`; 6 fresh
   manifest entries, every IRI rebased onto the canonical
   `https://w3id.org/eudpp#` fragment namespace per
-  [ADR 0002](docs/adr/0002-canonical-eudpp-iri.md).
+  [ADR 0002](https://github.com/artiso-ai/dppvalidator/blob/main/docs/adr/0002-canonical-eudpp-iri.md).
 - **CIRPASS reference Pydantic models** at
   `dppvalidator.models.cirpass.v1_3.*` (20 classes — Actor,
   ActorRoleAssignment, ConnectorRelation, Material, LifeCycleAssessment,
@@ -140,7 +140,7 @@ correctness check.
 
 The Pydantic v0.7 model layer has documented drift from the upstream
 JSON Schema, catalogued as drift items D3–D27 in
-[Phase 8.9 of the migration plan](docs/plans/CIRPASS_2_MIGRATION.md).
+[Phase 8.9 of the migration plan](https://github.com/artiso-ai/dppvalidator/blob/main/docs/plans/CIRPASS_2_MIGRATION.md).
 Schema validation (Layer 1) catches every contract violation; the
 drift is confined to the Python API ergonomics layer and will be
 fully reconciled in 0.6.0 (Phase 10 tasks 10.9–10.15). Specifically:
@@ -198,7 +198,7 @@ fully reconciled in 0.6.0 (Phase 10 tasks 10.9–10.15). Specifically:
 This release adds first-class support for **UNTP DPP 0.7.0** alongside
 the existing 0.6.x. Both wire formats coexist and are auto-detected
 from `@context` / `$schema` URLs. The plan is captured in
-[`docs/plans/UNTP_0.7.0_MIGRATION.md`](docs/plans/UNTP_0.7.0_MIGRATION.md);
+[`docs/plans/UNTP_0.7.0_MIGRATION.md`](https://github.com/artiso-ai/dppvalidator/blob/main/docs/plans/UNTP_0.7.0_MIGRATION.md);
 each phase has its own implementation log there.
 
 ### Added
@@ -249,8 +249,8 @@ each phase has its own implementation log there.
   `MANIFEST.json` now carry both an SHA-pinned `source_url` and a
   human-friendly `production_url` (e.g. `untp.unece.org`).
 - **Documentation**. New
-  [`docs/concepts/untp-versions.md`](docs/concepts/untp-versions.md)
-  and [`docs/guides/migration-0-6-to-0-7.md`](docs/guides/migration-0-6-to-0-7.md);
+  [`docs/concepts/untp-versions.md`](https://github.com/artiso-ai/dppvalidator/blob/main/docs/concepts/untp-versions.md)
+  and [`docs/guides/migration-0-6-to-0-7.md`](https://github.com/artiso-ai/dppvalidator/blob/main/docs/guides/migration-0-6-to-0-7.md);
   refreshed schema, JSON-LD, validation, CLI, FAQ, and index pages
   with both v0.6 and v0.7 examples.
 

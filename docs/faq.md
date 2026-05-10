@@ -12,7 +12,7 @@ dppvalidator is a Python library that validates Digital Product Passports (DPP) 
 
 **Core capabilities:**
 
-- **Validate** DPP JSON data through five validation layers
+- **Validate** DPP JSON data through seven validation layers (plus a Layer 0 detection phase)
 - **Parse** DPP data into type-safe Pydantic models
 - **Export** validated passports to JSON-LD format for W3C Verifiable Credentials
 - **Verify** cryptographic signatures on signed credentials
@@ -85,15 +85,15 @@ Optional extras:
 Currently supported:
 
 - **UNTP DPP 0.6.0** — supported (legacy)
-- **UNTP DPP 0.6.1** — default
-- **UNTP DPP 0.7.0** — fully supported
+- **UNTP DPP 0.6.1** — supported (legacy)
+- **UNTP DPP 0.7.0** — default
 
 Schema version is auto-detected from `@context` or `$schema` fields.
 You can also specify it explicitly:
 
 ```python
-engine = ValidationEngine(schema_version="0.6.1")  # current default
-engine = ValidationEngine(schema_version="0.7.0")  # opt in to v0.7
+engine = ValidationEngine(schema_version="0.7.0")  # current default
+engine = ValidationEngine(schema_version="0.6.1")  # opt in to legacy v0.6
 ```
 
 For the full version-handling story see
@@ -131,14 +131,19 @@ ______________________________________________________________________
 
 ## Validation Questions
 
-### What are the five validation layers?
+### What are the seven validation layers?
 
-1. **Layer 0: Schema Detection** — Auto-detects DPP schema version
-1. **Layer 1: Schema Validation** — JSON Schema structure validation
-1. **Layer 2: Model Validation** — Pydantic type validation
-1. **Layer 3: JSON-LD Semantic** — Context expansion and term resolution
-1. **Layer 4: Business Logic** — Vocabulary codes, date logic, GTIN checksums
-1. **Layer 5: Cryptographic** — VC signature verification (optional)
+1. **Layer 0: Detection** — Auto-detects DPP family + schema version
+1. **Layer 1: Schema** — JSON Schema structure validation (`SCH001`–`SCH099`)
+1. **Layer 2: Model** — Pydantic type validation (`MDL001`–`MDL099`)
+1. **Layer 3: JSON-LD** — Context expansion and term resolution (`JLD001`–`JLD099`)
+1. **Layer 4: Semantic** — Date logic, GTIN checksums, mass-fraction sums (`SEM001`–`SEM099`)
+1. **Layer 5: Vocabulary** — ISO / UNECE / HS code lists (`VOC001`–`VOC099`)
+1. **Layer 6: Plugin** — Per-pack rules (`TXT*`, `CQ*`, `TYR*`, …)
+1. **Layer 7: Signature** *(reserved)* — VC signature verification (optional; codes pending)
+
+The canonical taxonomy lives in
+[ADR 0006](adr/0006-validation-layer-taxonomy.md).
 
 ### Can I run only specific layers?
 
@@ -157,15 +162,20 @@ engine = ValidationEngine(layers=["schema", "model", "semantic", "jsonld"])
 
 ### What error codes does dppvalidator use?
 
-| Prefix | Layer      | Description                    |
-| ------ | ---------- | ------------------------------ |
-| `SCH`  | Schema     | JSON Schema validation errors  |
-| `MOD`  | Model      | Pydantic validation errors     |
-| `JLD`  | JSON-LD    | Context/term resolution errors |
-| `SEM`  | Semantic   | Business rule violations       |
-| `VOC`  | Vocabulary | Code list validation errors    |
-| `SIG`  | Signature  | Credential verification errors |
-| `PRS`  | Parse      | Input parsing errors           |
+| Prefix | Surface                         | Description                                    |
+| ------ | ------------------------------- | ---------------------------------------------- |
+| `SCH`  | Schema (Layer 1)                | JSON Schema validation errors                  |
+| `MDL`  | Model (Layer 2)                 | Pydantic validation errors                     |
+| `JLD`  | JSON-LD (Layer 3)               | Context/term resolution errors                 |
+| `SEM`  | Semantic (Layer 4)              | Business rule violations                       |
+| `VOC`  | Vocabulary (Layer 5)            | Code list validation errors                    |
+| `SIG`  | Signature (Layer 7)             | *Reserved*; verifier emits string errors today |
+| `PRS`  | Parse (pre-Layer 1)             | Input parsing errors                           |
+| `DET`  | Detection (Layer 0)             | Family-mismatch routing errors                 |
+| `VER`  | Version routing                 | UNTP version-mismatch errors                   |
+| `UPG`  | Upgrade shim (0.6 → 0.7)        | Intra-family upgrade warnings                  |
+| `MAP`  | Migration shim (UNTP ↔ CIRPASS) | Cross-family mapping warnings                  |
+| `PRT`  | Advisory rules                  | Role-enum strictness and other advisory checks |
 
 ### How do I handle validation errors?
 
