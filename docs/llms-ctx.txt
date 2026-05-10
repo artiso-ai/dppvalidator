@@ -1,42 +1,68 @@
 # dppvalidator - Extended Context for LLMs
 
-> Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations and UNTP standards.
+> Python library for validating Digital Product Passports (DPP) according to EU ESPR regulations, the UNTP DPP specification, and the CIRPASS DPP reference structure.
 
 ## Overview
 
-dppvalidator is the open-source compliance engine for EU Digital Product Passports. The EU's Ecodesign for Sustainable Products Regulation (ESPR) mandates Digital Product Passports for textiles starting 2027. This library ensures DPP data is compliant before production.
+dppvalidator is the open-source compliance engine for EU Digital Product Passports. The EU's Ecodesign for Sustainable Products Regulation (ESPR) mandates Digital Product Passports for textiles starting 2027. This library ensures DPP data is compliant before production. dppvalidator validates two parallel families in the same release: **UNTP DPP** (UN/CEFACT Verifiable Credential format) and **CIRPASS DPP** (CIRPASS-2 hierarchical reference structure).
 
 ## Tech Stack
 
 - Python 3.10+
 - Pydantic v2 for validation models
 - Included: httpx, jsonschema, pyld, cryptography, PyJWT
-- Optional: rich (CLI formatting via `[cli]` extra)
+- Optional extras: `[cli]` (rich CLI formatting), `[rdf]` (SHACL via rdflib + pyshacl), `[all]` (both)
 
 ## Installation
 
 ```bash
 # Using uv (recommended)
-uv add dppvalidator               # Full functionality
-uv add "dppvalidator[cli]"        # With rich CLI formatting
+uv add dppvalidator                 # Full functionality
+uv add "dppvalidator[cli]"          # With rich CLI formatting
+uv add "dppvalidator[rdf]"          # With SHACL via rdflib + pyshacl
+uv add "dppvalidator[all]"          # Both extras
 
 # Or using pip
 pip install dppvalidator
 pip install "dppvalidator[cli]"
+pip install "dppvalidator[rdf]"
+pip install "dppvalidator[all]"
 ```
+
+## Supported specs
+
+| Family  | Version | Default? | Wire shape highlight                                                          |
+| ------- | ------- | -------- | ----------------------------------------------------------------------------- |
+| UNTP    | 0.6.0   | no       | Same envelope as 0.6.1; minor schema-only fixes only.                         |
+| UNTP    | 0.6.1   | no       | `credentialSubject` is a `ProductPassport` envelope wrapping `Product`.       |
+| UNTP    | 0.7.0   | **yes**  | `credentialSubject` IS the `Product` directly.                                |
+| CIRPASS | 1.3.0   | (cross-family) | Hierarchical message: `dppIdentifier`, `product`, `relatedActors`, `composition`, `substancesOfConcern`, `lca`, `connectorRelations`. |
+
+The default UNTP version lives in `dppvalidator.schemas.registry.DEFAULT_SCHEMA_VERSION` (currently `0.7.0`). Auto-detection from `@context` / `$schema` URLs picks the family and version; pin explicitly with `--target` (family) and `--schema-version` (version), or `target=` / `schema_version=` in Python.
 
 ## Architecture
 
-### Seven-Layer Validation
+### Seven-Layer Validation (plus Layer 0 detection)
 
-0. **Schema Detection**: Auto-detect DPP schema version from $schema/@context
+0. **Detection**: Auto-detect DPP family + schema version from `$schema`/`@context`
 1. **Schema Layer (SCH001-SCH099)**: JSON Schema Draft 2020-12 validation
-2. **Model Layer (MOD001-MOD099)**: Pydantic v2 type validation and coercion
-3. **Semantic Layer (SEM001-SEM099)**: Business rules, ISO codes, GTIN checksums
-4. **JSON-LD Layer (JLD001-JLD099)**: PyLD expansion, context resolution
-5. **Vocabulary Layer (VOC001-VOC099)**: External code lists, ontology validation
-6. **Plugin Layer**: Custom validator plugins via entry points
-7. **Signature Layer (SIG001-SIG099)**: VC signature verification, DID resolution
+2. **Model Layer (MDL001-MDL099)**: Pydantic v2 type validation and coercion
+3. **JSON-LD Layer (JLD001-JLD099)**: PyLD expansion, context resolution
+4. **Semantic Layer (SEM001-SEM099)**: Business rules, GTIN checksums, mass-fraction sums
+5. **Vocabulary Layer (VOC001-VOC099)**: External code lists (ISO 3166, UNECE Rec 20/46, HS)
+6. **Plugin Layer**: Per-pack rules (`TXT*`, `CQ*`, `TYR*`, …) via entry-point plugins
+7. **Signature Layer (SIG001-SIG099 reserved)**: VC signature verification, DID resolution. The verifier currently surfaces untyped error strings via `VerificationResult.errors`; the SIG prefix is reserved for future structured codes.
+
+### Non-layer error prefixes
+
+- `PRS` — Input parsing (file IO, JSON syntax)
+- `DET` — Family-mismatch routing (`DET001` when `--target` contradicts detection)
+- `VER` — Version-mismatch routing
+- `UPG` — UNTP 0.6 → 0.7 upgrade-shim warnings (`UPG001`–`UPG004`)
+- `MAP` — Cross-family migration-shim warnings (`MAP001`–`MAP005`)
+- `PRT` — Advisory rules (e.g. role-enum strictness)
+
+The canonical layer + prefix table is pinned by [ADR 0006](https://artiso-ai.github.io/dppvalidator/adr/0006-validation-layer-taxonomy/).
 
 ### Performance
 
@@ -62,6 +88,12 @@ engine = ValidationEngine(layers=["model", "semantic"])
 # Strict mode (warnings become errors)
 engine = ValidationEngine(strict_mode=True)
 
+# Pin a UNTP version (auto-detection bypassed)
+engine = ValidationEngine(schema_version="0.7.0")
+
+# Pin a family (CIRPASS reference structure)
+engine = ValidationEngine(target="cirpass")
+
 # Validate
 result = engine.validate(dpp_dict)
 # Returns: ValidationResult with .valid, .errors, .warnings, .validation_time_ms
@@ -74,7 +106,8 @@ from dppvalidator.models import (
     DigitalProductPassport,
     CredentialIssuer,
     Product,
-    IdentifierScheme,
+    ProductBatch,
+    Identifier,
     Link,
 )
 
@@ -84,13 +117,30 @@ passport = DigitalProductPassport(
 )
 ```
 
+Per-version model packages live at `dppvalidator.models.v0_6.*` and
+`dppvalidator.models.v0_7.*`; the top-level `dppvalidator.models` re-
+exports the v0.6 surface for back-compat. CIRPASS models are at
+`dppvalidator.models.cirpass.v1_3.*`.
+
 ### Exporters
 
 ```python
-from dppvalidator.exporters import JSONLDExporter
+from dppvalidator.exporters import JSONLDExporter, EUDPPJsonLDExporter
 
-exporter = JSONLDExporter()
-jsonld = exporter.export(passport)  # W3C Verifiable Credential format
+JSONLDExporter().export(passport)               # UNTP / W3C VC format
+EUDPPJsonLDExporter(map_terms=True).export(passport)  # EU DPP-aligned
+```
+
+### Migration shims
+
+```python
+from dppvalidator.compat import upgrade  # UNTP 0.6 → 0.7 (intra-family)
+
+upgraded, warnings = upgrade(payload_v06, country_lookup={"DE": "Germany"})
+# warnings is a list of UpgradeWarning(code=UPG001..UPG004, ...)
+
+# Cross-family (UNTP 0.7 ↔ CIRPASS 1.3) lives behind the migrate CLI
+# and emits MAP001..MAP005 warnings.
 ```
 
 ### Plugin System
@@ -102,20 +152,15 @@ from dppvalidator.validators import ValidationEngine
 # Define a validator implementing the SemanticRule protocol
 class CustomValidator:
     rule_id = "CUSTOM001"
-    description = "Custom validation rule"
+    description = "..."
     severity = "error"
 
     def check(self, passport):
-        """Return list of (json_path, error_message) tuples."""
         violations = []
-        # Custom validation logic
         return violations
 
-# Manual registration
 registry = PluginRegistry(auto_discover=False)
 registry.register_validator("custom", CustomValidator)
-
-# Or use entry points for automatic discovery
 engine = ValidationEngine(load_plugins=True)
 ```
 
@@ -124,28 +169,46 @@ engine = ValidationEngine(load_plugins=True)
 ```bash
 dppvalidator validate passport.json
 dppvalidator validate passport.json --strict
+dppvalidator validate passport.json --schema-version 0.7.0
+dppvalidator validate passport.json --target cirpass
 dppvalidator export passport.json --format jsonld --output out.jsonld
-dppvalidator schema --version 0.6.1
+dppvalidator schema --version 0.7.0
+
+# Migration shims
+dppvalidator migrate passport-v06.json -o passport-v07.json
+dppvalidator migrate passport-v07.json --to cirpass-1.3 -o cirpass.json --accept-warnings
+dppvalidator migrate cirpass.json --to untp-0.7 -o untp.json --accept-warnings
 ```
+
+CLI exit codes are documented at
+<https://artiso-ai.github.io/dppvalidator/reference/cli/exit-codes/>
+and pinned by [ADR 0005](https://artiso-ai.github.io/dppvalidator/adr/0005-cli-exit-codes/).
 
 ## Directory Structure
 
 ```
 src/dppvalidator/
-├── models/          # Pydantic models for DPP entities
-├── validators/      # Validation engine and layers
-├── verifier/        # Signature and credential verification
-├── exporters/       # JSON-LD and other export formats
-├── schemas/         # JSON Schema loading and caching
-├── vocabularies/    # Controlled vocabulary loading
-├── cli/             # Command-line interface
-├── plugins/         # Plugin system
-└── __init__.py
+├── models/
+│   ├── v0_6/                  # UNTP 0.6.x models
+│   ├── v0_7/                  # UNTP 0.7.0 models
+│   └── cirpass/v1_3/          # CIRPASS DPP reference structure
+├── validators/
+│   ├── rules/v0_6/            # UNTP 0.6 semantic rules
+│   ├── rules/v0_7/            # UNTP 0.7 semantic rules
+│   └── rules/cirpass_v1_3/    # CIRPASS quality rules (CQ*)
+├── compat/                    # Cross-version + cross-family shims
+├── verifier/                  # VC signature verification
+├── exporters/                 # JSON-LD and EU DPP exporters
+├── schemas/                   # Schema loading + version registry
+├── vocabularies/              # Controlled vocabularies + EU DPP ontology
+├── cli/                       # CLI entry points
+└── plugins/                   # Plugin entry-points discovery
 ```
 
 ## Related Standards
 
 - UNTP Digital Product Passport: https://untp.unece.org/docs/specification/DigitalProductPassport/
+- CIRPASS-2 (EU DPP): https://dpp.vocabulary-hub.eu/specifications
 - EU ESPR Regulation: https://environment.ec.europa.eu/topics/circular-economy/ecodesign-sustainable-products-regulation_en
 - W3C Verifiable Credentials: https://www.w3.org/TR/vc-data-model/
 

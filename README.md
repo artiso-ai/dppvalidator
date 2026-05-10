@@ -29,7 +29,7 @@
 
 ______________________________________________________________________
 
-**dppvalidator** is a Python library for validating [Digital Product Passports (DPP)](https://untp.unece.org/docs/specification/DigitalProductPassport/) according to EU ESPR regulations and [UNTP](https://uncefact.unece.org/) standards.
+**dppvalidator** is a Python library for validating [Digital Product Passports (DPP)](https://untp.unece.org/docs/specification/DigitalProductPassport/) according to EU ESPR regulations, the [UNTP DPP](https://uncefact.unece.org/) specification, and the [CIRPASS DPP](https://dpp.vocabulary-hub.eu/specifications) reference structure.
 
 **Starting 2027, every textile and apparel product sold in the EU must have a Digital Product Passport.** This library ensures your DPP data is compliant *before* it hits production — saving fashion brands from costly compliance failures and enabling seamless integration with the circular economy.
 
@@ -188,11 +188,11 @@ shape; pin explicitly with `--target` (family) and `--schema-version`
 
 ### UNTP DPP
 
-| Version   | Status             | Default? | Wire shape                                                                                                                                                                          |
-| --------- | ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0.6.0** | Supported (legacy) | no       | `credentialSubject` is `ProductPassport` wrapping `Product`.                                                                                                                        |
-| **0.6.1** | Default            | **yes**  | Same shape as 0.6.0; current `DEFAULT_SCHEMA_VERSION`.                                                                                                                              |
-| **0.7.0** | Fully supported    | no       | `credentialSubject` IS the `Product` directly. New required fields: `name` (envelope), `idScheme`, `idGranularity`, `productCategory`, `producedAtFacility`, `countryOfProduction`. |
+| Version   | Status             | Default? | Wire shape                                                                                                                                                                                                            |
+| --------- | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.6.0** | Supported (legacy) | no       | `credentialSubject` is `ProductPassport` wrapping `Product`.                                                                                                                                                          |
+| **0.6.1** | Supported (legacy) | no       | Same shape as 0.6.0.                                                                                                                                                                                                  |
+| **0.7.0** | Default            | **yes**  | `credentialSubject` IS the `Product` directly. New required fields: `name` (envelope), `idScheme`, `idGranularity`, `productCategory`, `producedAtFacility`, `countryOfProduction`; current `DEFAULT_SCHEMA_VERSION`. |
 
 ### CIRPASS DPP reference structure
 
@@ -258,28 +258,36 @@ flowchart TD
         A[/"📄 Input Data (JSON)"/]
     end
 
-    subgraph Layer0["Layer 0: Schema Detection"]
-        A0["Auto-detect schema version<br/>from $schema, @context, type"]
+    subgraph Layer0["Layer 0: Detection"]
+        A0["Auto-detect family + version<br/>from $schema, @context, type"]
     end
 
-    subgraph Layer1["Layer 1: Schema Validation"]
+    subgraph Layer1["Layer 1: Schema"]
         B["JSON Schema Draft 2020-12<br/>Required fields, types, formats"]
     end
 
-    subgraph Layer2["Layer 2: Model Validation"]
+    subgraph Layer2["Layer 2: Model"]
         C["Pydantic v2 Models<br/>Type coercion, URL validation"]
     end
 
-    subgraph Layer3["Layer 3: JSON-LD Semantic"]
+    subgraph Layer3["Layer 3: JSON-LD"]
         C2["PyLD Expansion<br/>Context resolution, term validation"]
     end
 
-    subgraph Layer4["Layer 4: Business Logic"]
-        D["Business Rules & Vocabularies<br/>ISO codes, date logic, GTIN checksums"]
+    subgraph Layer4["Layer 4: Semantic"]
+        D["Business rules<br/>Date logic, GTIN checksums, sums"]
     end
 
-    subgraph Layer5["Layer 5: Cryptographic"]
-        E["VC Signature Verification<br/>DID resolution, Ed25519/ECDSA"]
+    subgraph Layer5["Layer 5: Vocabulary"]
+        D2["External code lists<br/>ISO 3166, UNECE Rec 20/46, HS"]
+    end
+
+    subgraph Layer6["Layer 6: Plugin"]
+        D3["Per-pack rules<br/>e.g. textile TXT, CIRPASS CQ, tyre TYR"]
+    end
+
+    subgraph Layer7["Layer 7: Signature (reserved)"]
+        E["VC signature verification<br/>DID resolution, Ed25519/ECDSA"]
     end
 
     subgraph Output
@@ -289,11 +297,20 @@ flowchart TD
     A --> A0
     A0 --> B
     B -->|"SCH001-SCH099"| C
-    C -->|"MOD001-MOD099"| C2
+    C -->|"MDL001-MDL099"| C2
     C2 -->|"JLD001-JLD099"| D
-    D -->|"SEM001-SEM099"| E
-    E -->|"SIG001-SIG099"| F
+    D -->|"SEM001-SEM099"| D2
+    D2 -->|"VOC001-VOC099"| D3
+    D3 -->|"plugin-specific"| E
+    E -->|"reserved"| F
 ```
+
+> Layer 7 codes (`SIG001`–`SIG099`) are reserved for the future
+> structured-code migration; the verifier currently surfaces untyped
+> error strings via `VerificationResult.errors`. See
+> [ADR 0006](docs/adr/0006-validation-layer-taxonomy.md) for the
+> canonical layer + prefix table, including non-layer codes
+> (`PRS`, `DET`, `VER`, `UPG`, `MAP`, `PRT`).
 
 ### Selective Layer Validation
 
@@ -394,14 +411,14 @@ jsonld = exporter.export(passport)
 
 📚 **Full documentation:** [artiso-ai.github.io/dppvalidator](https://artiso-ai.github.io/dppvalidator/)
 
-| Guide                                                                                              | Description                               |
-| -------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| [Installation](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)             | Setup and CLI extras                      |
-| [Quick Start](https://artiso-ai.github.io/dppvalidator/getting-started/quickstart/)                | Get started in 5 minutes                  |
-| [CLI Reference](https://artiso-ai.github.io/dppvalidator/guides/cli-usage/)                        | Command-line interface                    |
-| [Validation Layers](https://artiso-ai.github.io/dppvalidator/concepts/validation-layers/)          | Understanding the five-layer architecture |
-| [CIRPASS-2 Integration](https://artiso-ai.github.io/dppvalidator/concepts/cirpass-implementation/) | EU DPP ontology alignment                 |
-| [API Reference](https://artiso-ai.github.io/dppvalidator/reference/api/validators/)                | Complete Python API                       |
+| Guide                                                                                              | Description                                |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [Installation](https://artiso-ai.github.io/dppvalidator/getting-started/installation/)             | Setup and CLI extras                       |
+| [Quick Start](https://artiso-ai.github.io/dppvalidator/getting-started/quickstart/)                | Get started in 5 minutes                   |
+| [CLI Reference](https://artiso-ai.github.io/dppvalidator/guides/cli-usage/)                        | Command-line interface                     |
+| [Validation Layers](https://artiso-ai.github.io/dppvalidator/concepts/validation-layers/)          | Understanding the seven-layer architecture |
+| [CIRPASS-2 Integration](https://artiso-ai.github.io/dppvalidator/concepts/cirpass-implementation/) | EU DPP ontology alignment                  |
+| [API Reference](https://artiso-ai.github.io/dppvalidator/reference/api/validators/)                | Complete Python API                        |
 
 ## Built for Fashion & Textiles
 

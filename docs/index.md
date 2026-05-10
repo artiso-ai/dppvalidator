@@ -19,7 +19,7 @@ ______________________________________________________________________
 
 - :octicons-check-circle-16:{ .text-green } **Seven-Layer Validation** — Schema, Model, Semantic, JSON-LD, Vocabulary, Plugin, and Signature validation
 - :octicons-package-16: **UNTP DPP Schema Support** — Both **0.6.x**
-  (default) and **0.7.0** wire formats; auto-detected from
+  and **0.7.0** (default) wire formats; auto-detected from
   `@context` / `$schema` URLs. See
   [UNTP DPP versions](concepts/untp-versions.md).
 - :octicons-arrow-switch-16: **Compat shim 0.6 → 0.7** —

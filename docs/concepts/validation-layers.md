@@ -1,6 +1,11 @@
 # Seven-Layer Validation
 
-dppvalidator uses a seven-layer validation architecture to ensure Digital Product Passports are structurally correct, type-safe, semantically meaningful, cryptographically verifiable, and supply-chain traceable.
+dppvalidator uses a seven-layer validation architecture (plus a Layer 0
+detection phase) to ensure Digital Product Passports are structurally
+correct, type-safe, semantically meaningful, cryptographically
+verifiable, and supply-chain traceable. The canonical layer + error-code
+table is pinned by
+[ADR 0006](../adr/0006-validation-layer-taxonomy.md).
 
 ## Architecture
 
@@ -10,28 +15,36 @@ flowchart TD
         A[/"📄 Input Data (JSON)"/]
     end
 
-    subgraph Layer0["Layer 0: Schema Detection"]
-        A0["Auto-detect schema version<br/>from $schema, @context, type"]
+    subgraph Layer0["Layer 0: Detection"]
+        A0["Auto-detect family + version<br/>from $schema, @context, type"]
     end
 
-    subgraph Layer1["Layer 1: Schema Validation"]
+    subgraph Layer1["Layer 1: Schema"]
         B["JSON Schema Draft 2020-12<br/>Required fields, types, formats"]
     end
 
-    subgraph Layer2["Layer 2: Model Validation"]
+    subgraph Layer2["Layer 2: Model"]
         C["Pydantic v2 Models<br/>Type coercion, URL validation"]
     end
 
-    subgraph Layer3["Layer 3: JSON-LD Semantic"]
+    subgraph Layer3["Layer 3: JSON-LD"]
         C2["PyLD Expansion<br/>Context resolution, term validation"]
     end
 
-    subgraph Layer4["Layer 4: Business Logic"]
-        D["Business Rules & Vocabularies<br/>ISO codes, date logic, GTIN checksums"]
+    subgraph Layer4["Layer 4: Semantic"]
+        D["Business rules<br/>Date logic, GTIN checksums, sums"]
     end
 
-    subgraph Layer5["Layer 5: Cryptographic"]
-        E["VC Signature Verification<br/>DID resolution, Ed25519/ECDSA"]
+    subgraph Layer5["Layer 5: Vocabulary"]
+        D2["External code lists<br/>ISO 3166, UNECE Rec 20/46, HS"]
+    end
+
+    subgraph Layer6["Layer 6: Plugin"]
+        D3["Per-pack rules<br/>e.g. textile TXT, CIRPASS CQ, tyre TYR"]
+    end
+
+    subgraph Layer7["Layer 7: Signature (reserved)"]
+        E["VC signature verification<br/>DID resolution, Ed25519/ECDSA"]
     end
 
     subgraph Output
@@ -41,17 +54,21 @@ flowchart TD
     A --> A0
     A0 --> B
     B -->|"SCH001-SCH099"| C
-    C -->|"MOD001-MOD099"| C2
+    C -->|"MDL001-MDL099"| C2
     C2 -->|"JLD001-JLD099"| D
-    D -->|"SEM001-SEM099"| E
-    E -->|"SIG001-SIG099"| F
+    D -->|"SEM001-SEM099"| D2
+    D2 -->|"VOC001-VOC099"| D3
+    D3 -->|"plugin-specific"| E
+    E -->|"reserved"| F
 
     style Layer0 fill:#fce4ec,stroke:#c2185b
     style Layer1 fill:#e3f2fd,stroke:#1976d2
     style Layer2 fill:#fff3e0,stroke:#f57c00
     style Layer3 fill:#e0f7fa,stroke:#0097a7
     style Layer4 fill:#e8f5e9,stroke:#388e3c
-    style Layer5 fill:#fff8e1,stroke:#ffa000
+    style Layer5 fill:#dcedc8,stroke:#558b2f
+    style Layer6 fill:#ede7f6,stroke:#5e35b1
+    style Layer7 fill:#fff8e1,stroke:#ffa000
     style Output fill:#f3e5f5,stroke:#7b1fa2
 ```
 
@@ -68,7 +85,7 @@ Automatically detects the DPP schema version from the input document.
    - Modern (0.7.0+): `https://vocabulary.uncefact.org/untp/X.Y.Z/context/`
 1. `type` array presence → default version
 1. Fallback to `dppvalidator.schemas.registry.DEFAULT_SCHEMA_VERSION`
-   (currently `0.6.1`)
+   (currently `0.7.0`)
 
 ```python
 from dppvalidator import ValidationEngine
@@ -76,12 +93,12 @@ from dppvalidator import ValidationEngine
 # Auto-detection (default)
 engine = ValidationEngine()
 
-# Pin v0.6.1 explicitly. A v0.7.0 payload through this engine fails
-# fast with VER001 (version mismatch).
-engine = ValidationEngine(schema_version="0.6.1")
-
-# Pin v0.7.0 explicitly.
+# Pin v0.7.0 explicitly (matches the current default; the flag is optional).
 engine = ValidationEngine(schema_version="0.7.0")
+
+# Pin v0.6.1 (legacy) explicitly. A v0.7.0 payload through this engine
+# fails fast with VER001 (version mismatch).
+engine = ValidationEngine(schema_version="0.6.1")
 ```
 
 The full version-handling story (detection internals, default-version
@@ -135,7 +152,7 @@ Validates data against Pydantic models with stricter type checking.
 - Custom field validators
 - Model-level validators (cross-field)
 
-**Error codes:** `MOD001` - `MOD099`
+**Error codes:** `MDL001` - `MDL099`
 
 ## Layer 3: JSON-LD Semantic Validation
 
@@ -160,22 +177,52 @@ engine = ValidationEngine(validate_jsonld=True)
 engine = ValidationEngine(layers=["schema", "model", "jsonld"])
 ```
 
-## Layer 4: Business Logic Validation
+## Layer 4: Semantic Validation
 
-Validates business rules and external vocabulary references.
+Validates business rules over the parsed Pydantic shape.
 
 **What it checks:**
 
-- Vocabulary values (ISO country codes, UN/CEFACT unit codes)
-- Material codes (UNECE Rec 46)
-- HS codes for product classification
+- Mass-fraction sums (composition arrays sum to 100 %)
+- Date relationships (`validFrom < validUntil`)
 - GTIN checksums (GS1 standard)
-- Date relationships (validFrom < validUntil)
 - Cross-reference consistency
+- Hazardous-material safety claims
+- Item-level serial-number rules
 
-**Error codes:** `SEM001` - `SEM099`, `VOC001` - `VOC099`
+**Error codes:** `SEM001` - `SEM099`
 
-## Layer 5: Cryptographic Verification
+## Layer 5: Vocabulary Validation
+
+Validates external code-list references against the bundled
+controlled-vocabulary tables.
+
+**What it checks:**
+
+- ISO 3166-1 alpha-2 country codes
+- UN/CEFACT Rec 20 unit codes
+- UNECE Rec 46 material codes
+- HS codes for product classification
+
+**Error codes:** `VOC001` - `VOC099`
+
+## Layer 6: Plugin Validation
+
+Runs version-aware rules registered by entry-point plugins
+(`dppvalidator.plugins`). Every active pack contributes its own
+prefix; coverage across packs is enumerated by the plugin registry
+at runtime.
+
+**What it checks:**
+
+- Pack-specific business rules — e.g. textile MVP 2025-12-04 (`TXT*`),
+  CIRPASS-2 quality (`CQ*`), tyres GDSO Birth/Collection/Retread
+  (`TYR*`).
+
+**Error codes:** per-plugin (`TXT001`–`TXT099`, `CQ001`–`CQ099`,
+`TYR001`–`TYR099`, …).
+
+## Layer 7: Signature Verification (reserved)
 
 Verifies Verifiable Credential signatures and DID resolution.
 
@@ -185,7 +232,9 @@ Verifies Verifiable Credential signatures and DID resolution.
 - Signature verification (Ed25519, ES256, ES384)
 - Proof types (Ed25519Signature2020, DataIntegrityProof, JsonWebSignature2020)
 
-**Error codes:** `SIG001` - `SIG099`
+**Error codes:** *Reserved*. The `SIG001`–`SIG099` range is held for
+future structured signature-verification codes; today the verifier
+surfaces untyped error strings via `VerificationResult.errors`.
 
 ```python
 from dppvalidator import ValidationEngine

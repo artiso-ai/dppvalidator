@@ -69,6 +69,13 @@ jobs:
       - name: Check error documentation
         run: uv run python scripts/check_error_docs.py
 
+      # Phase 7 of the Docs Coherence Plan — guard the "default UNTP
+      # version" claim in user-facing docs against drifting away from
+      # DEFAULT_VERSIONS[SchemaFamily.UNTP]. Same script runs in
+      # .pre-commit-config.yaml.
+      - name: Check docs default-version coherence
+        run: uv run python tools/check_doc_default_version.py
+
       # License scanning - ensure all dependencies have compatible licenses
       - name: Check dependency licenses
         run: |

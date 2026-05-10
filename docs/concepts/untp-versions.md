@@ -15,8 +15,8 @@ see the [migration guide](../guides/migration-0-6-to-0-7.md).
 | UNTP DPP version | Default? | Status                                                                  | Wire shape highlight                                                          |
 | ---------------- | -------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | **0.6.0**        | no       | Supported (legacy)                                                      | Same envelope as 0.6.1; minor schema-only fixes only.                         |
-| **0.6.1**        | **yes**  | Default — set in `dppvalidator.schemas.registry.DEFAULT_SCHEMA_VERSION` | `credentialSubject` is a `ProductPassport` envelope wrapping `Product`.       |
-| **0.7.0**        | no       | Fully supported                                                         | `credentialSubject` IS the `Product` directly. No `ProductPassport` envelope. |
+| **0.6.1**        | no       | Supported (legacy)                                                      | `credentialSubject` is a `ProductPassport` envelope wrapping `Product`.       |
+| **0.7.0**        | **yes**  | Default — set in `dppvalidator.schemas.registry.DEFAULT_SCHEMA_VERSION` | `credentialSubject` IS the `Product` directly. No `ProductPassport` envelope. |
 
 Future releases may flip the default. The flip is a separate minor
 release with deprecation warnings — see *Adding a new version* below.
@@ -70,10 +70,10 @@ mixing in pipelines.
 ### CLI pin
 
 ```bash
-# Validate as 0.7.0 regardless of the payload's declared version.
+# Validate as 0.7.0 (current default; the flag is optional).
 dppvalidator validate passport.json --schema-version 0.7.0
 
-# Validate as 0.6.1 (current default; the flag is optional).
+# Validate as 0.6.1 (legacy) regardless of the payload's declared version.
 dppvalidator validate passport.json --schema-version 0.6.1
 
 # List every version the registry knows about.
@@ -87,7 +87,7 @@ from dppvalidator.schemas.registry import SCHEMA_REGISTRY, SchemaRegistry
 
 reg = SchemaRegistry()
 print(reg.available_versions)  # ['0.6.0', '0.6.1', '0.7.0']
-print(reg.default_version)  # '0.6.1'
+print(reg.default_version)  # '0.7.0'
 
 # The SHA-pinned upstream URL the bundled bytes came from.
 print(reg.get_schema_url("0.7.0"))

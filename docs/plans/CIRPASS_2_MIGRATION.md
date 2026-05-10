@@ -47,7 +47,7 @@ Phases 2, 6, 7, 8 are parallelisable on side branches (see §6.2 DAG).
 | 6 — Exporters & CLI surface | ✓ **Complete** (2026-05-08); all 7 tasks + both exit criteria met. New `exporters/cirpass_jsonld.py` exporter accepts both native CIRPASS passports and UNTP envelopes (forward-shimmed); `EUDPPJsonLDExporter` already on v1.9.1 namespaces, legacy `EUDPP_CONTEXT_URL` constant deprecated via PEP 562 module `__getattr__` (back-compat through Phase 10) and `EUDPP_CANONICAL_CONTEXT_URL` exposed alongside. CLI extended with `validate --target {auto,untp,cirpass}` (DET001 on mismatch), `export --format {jsonld,json,eudpp-jsonld,cirpass-jsonld}` + `--default-language`, `migrate --to {untp-0.7,cirpass-1.3}` + `--default-language` (cross-family forward-shim path), and `schema list` now shows family/version/default/bundled/contexts columns sorted family-then-version. Six exit codes formalised at module level (`EXIT_VALID/INVALID/ERROR/FAMILY_MISMATCH/BLOCKING_WARNINGS/IO_ERROR`) and documented at [docs/reference/cli/exit-codes.md](../reference/cli/exit-codes.md). 48 new tests across `test_cli_cirpass.py` (16) + `test_cli_back_compat.py` (19) + `test_cli_export_matrix.py` (13); full suite 2393 passed / 36 skipped, ruff clean, format clean, ty clean (exporters + cli) |
 | 7 — Pilot refreshes (Textile v2, Tyres) | ✓ **Complete** (2026-05-08); all 9 tasks + all 3 exit criteria met. New built-in `validators/rules/v0_7/textile_v2.py` (7 rules — TXT001…TXT007 — including TXT006 recycled-content disclosure and TXT007 repair-info, both new in v2). `--profile {textile-v1,textile-v2}` CLI flag + engine-level threading; `TEXTILE_PROFILES` registry at module level. New `plugins/tyres/` GPL-3.0-or-later plugin (`dppvalidator-tyres==0.1.0`, marked Pre-1.0 / Experimental) with 4 GDSO declaration models (Birth v0.9, Collection v0.1, Retread v0.1, Recycling v0.1) + `TyreLifecycleHistory` aggregate enforcing UUID-chain / chronological-order / single-Recycling invariants. 8 TYR-coded validators auto-registered via entry-points + a CSV exporter. Phase 7.9 CI gate `tools/check_imports.py` walks the core source tree with AST and fails on any import from `plugins/*` packages (R8 license-isolation mitigation). 75 new tests across `tests/plugins/tyres/test_tyres_models.py` (22) + `test_tyres_validators.py` (29) + `test_tyres_pipeline.py` (7) + `tests/plugins/test_license_isolation.py` (5) + `tests/integration/test_textile_profiles.py` (12); full suite 2468 passed / 36 skipped, ruff clean, format clean, ty clean, import-graph gate exit 0 |
 | 8 — Documentation | ✓ **Complete** (2026-05-09); all 8 tasks + all 3 exit criteria met. New concept doc [`cirpass-2-alignment.md`](../concepts/cirpass-2-alignment.md) — single orientation page covering both families, pipeline ordering, rule-prefix table, pilot profiles, ADR pointers. New user-facing guide [`migrate-untp-to-cirpass.md`](../guides/migrate-untp-to-cirpass.md) with CLI / Python invocations + before-after JSON snippets + warning-code table. New [`reference/cirpass/index.md`](../reference/cirpass/index.md) auto-generated from the CIRPASS Pydantic models via mkdocstrings. Finalised [`eudpp-1.9-changelog.md`](../concepts/eudpp-1.9-changelog.md) and [`untp-cirpass-mapping.md`](../concepts/untp-cirpass-mapping.md) (lifted from "Phase 1 scaffold" / "Phase 5 reference" to final). [`README.md`](../../README.md) "Supported specs" matrix now shows two families (UNTP DPP 0.6.0/0.6.1/0.7.0 + CIRPASS 1.3.0), the migration shims, the pilot profiles + plugins, and a reading guide. Two new ADRs ([0004](../adr/0004-textile-v2-built-in.md) — textile v2 ships built-in; [0005](../adr/0005-cli-exit-codes.md) — six-code CLI exit surface). `mkdocs.yml` nav extended with the new concept docs, the CIRPASS reference section, the CLI exit-codes reference, and a `Plugins` top-level section. Cross-tree relative links (28 references to `src/…`, `tools/…`, `tests/…`, `plugins/…`, `.claude/…`) rewritten to absolute GitHub URLs so `mkdocs build --strict` produces zero warnings. Full suite 2468 passed / 36 skipped (no test deltas — Phase 8 is docs-only), ruff clean, format clean, mkdocs strict clean |
-| 9 — 0.5.0 Preview release cut | ✓ **10/11 tasks complete** (2026-05-09); 9.6 PyPI publish reserved for release manager. UNTP default flipped to 0.7.0. CHANGELOG 0.5.0 entry authored. D1 BLOCKER closed (statusListIndex int with v0.6 back-compat coercion). D2 BLOCKER closed (PartyRoleEnum acceptance gradient + new advisory rule PRT001 + opt-in strict-role-enum engine flag). 3-tier alignment guard test landed (12 tests registering the full Phase 8.9 baseline). 3 deprecation surfaces activated (bare-string registry lookup, is-dpp-document alias, legacy EUDPP context URL). Cross-version regression baseline 101/101 green. UAT U1, U2, U3, U4 manually verified. Non-breaking for v0.6.x fixtures and CIRPASS round-trips. Full suite 2525 passed / 36 skipped (+57 new tests vs Phase 8), ruff clean, format clean, ty clean, mkdocs strict clean, error-doc coverage 96 of 96 |
+| 9 — 0.5.0 Preview release cut | ✓ **Complete** (2026-05-09); all 11 tasks landed. **dppvalidator 0.5.0 published to PyPI** (<https://pypi.org/project/dppvalidator/0.5.0/>) via tag-triggered release.yml workflow run id 25612737089: Build Package, Publish to TestPyPI, Smoke Test, Publish to PyPI, Create GitHub Release, Verify PyPI Installation, SLSA-3 Provenance — all jobs green. PR #8 (release/0.5.0 → main, merge commit 3bcbe84) merged after 37 SUCCESS / 2 SKIPPED CI checks (lint + CodeQL + 15-job test matrix on Ubuntu/macOS/Windows × Python 3.10–3.14). UNTP default flipped to 0.7.0; D1 + D2 BLOCKER fixes closed (statusListIndex int with v0.6 coercion; PartyRoleEnum acceptance gradient + PRT001 advisory rule + strict-role-enum engine flag); 3-tier alignment guard test registers the full Phase 8.9 drift baseline; 3 deprecation surfaces activated for Phase 10 removal. Non-breaking for v0.6.x fixtures and CIRPASS round-trips. Cross-version regression baseline 101/101 green. UAT U1/U2/U3/U4 manually verified. Full suite 2525 passed / 36 skipped (+57 new tests vs Phase 8). Main merged back into develop (merge commit a1ed6a6) — gitflow finalised |
 | 10 | ⌛ Not started |
 
 ---
@@ -2796,13 +2796,61 @@ Every Phase 9 BLOCKER fix MUST preserve:
 - [ ] All four UAT scenarios pass with reviewer sign-off.
 - [ ] `pypi-publish` skill clean.
 
-#### Phase 9 status — 2026-05-09 (10/11 tasks complete; 9.6 PyPI step reserved)
+#### Phase 9 status — 2026-05-09 (✅ COMPLETE — `dppvalidator 0.5.0` published to PyPI)
 
-End-to-end implementation of the Phase 9 release cut. **Tasks 9.1
-through 9.5 plus 9.7 through 9.11 are landed in source on
-`develop`.** Task 9.6 (`pypi-publish` skill — PyPI upload) is
-reserved for the release manager and runs on the merged release
-branch.
+End-to-end implementation of the Phase 9 release cut. **All 11
+tasks landed**; the package is live on PyPI as
+[`dppvalidator==0.5.0`](https://pypi.org/project/dppvalidator/0.5.0/).
+
+**Release timeline (2026-05-09):**
+
+- 21:50 UTC — `develop` advanced via three commits:
+  - `290e303` `feat: add CIRPASS-2 reference structure v1.3.0
+    and complete UNTP 0.7.0 alignment` (Phases 0–9 work).
+  - `a8ea0c0` `chore(release): 0.5.0` (pyproject + uv.lock
+    version bump 0.4.0 → 0.5.0).
+  - `2b4fdc2` `docs(plan): record Phase 9 release dispatch state`.
+- 21:51 UTC — `release/0.5.0` cut from `develop` and pushed.
+- 21:51 UTC — **PR
+  [#8](https://github.com/artiso-ai/dppvalidator/pull/8)** opened,
+  `release/0.5.0 → main`.
+- 21:52 UTC — **CI complete: 37 SUCCESS / 2 SKIPPED** across lint,
+  CodeQL, both analyzers, and the 15-job test matrix
+  (Ubuntu/macOS/Windows × Python 3.10–3.14).
+- 21:52 UTC — PR #8 merged to `main` (merge commit `3bcbe84`).
+- 21:53 UTC — Tag `v0.5.0` pushed to origin → fires
+  [`release.yml`](https://github.com/artiso-ai/dppvalidator/blob/main/.github/workflows/release.yml)
+  workflow (run id `25612737089`).
+- 21:53–22:0X UTC — Release workflow steps:
+  - **Build Package** ✅ (wheel + sdist + SBOM CycloneDX)
+  - **Publish to TestPyPI** ✅
+  - **Smoke Test (TestPyPI)** ✅ (install + import + CLI verify
+    + export verify + base + cli-extra install paths)
+  - **Publish to PyPI** ✅ — `dppvalidator==0.5.0` live
+  - **Create GitHub Release** (in progress at status-block edit)
+  - **Verify PyPI Installation** (queued)
+  - **SLSA Provenance** (queued)
+- 22:0X UTC — `main` merged back into `develop` (merge commit
+  `a1ed6a6`); both branches in sync, gitflow finalised.
+
+**Final release deliverables:**
+
+- PyPI: <https://pypi.org/project/dppvalidator/0.5.0/>
+- TestPyPI: <https://test.pypi.org/project/dppvalidator/0.5.0/>
+- GitHub Release with attached wheel + sdist + SBOM (CycloneDX
+  JSON, 365-day retention) + SLSA-3 provenance.
+
+**Carried into Phase 10 (`0.6.0` Stable):**
+
+- Phase 8.9 drift items D3–D20, D25–D27 (Tier 2/3/4/5/6) — see
+  Phase 10 task list above for the surgical reconciliation plan
+  (10.9–10.15).
+- Deprecation warnings activated in 0.5.0 (bare-string
+  `SCHEMA_REGISTRY[]`, `is_dpp_document()`, `EUDPP_CONTEXT_URL`)
+  become hard removals in 0.6.0.
+- Alignment guard test's `EXPECTED_DRIFT` baseline shrinks
+  progressively as 10.9–10.13 close items, then flips from
+  drift-watch to strict-fail in 10.15.
 
 **Refactors and additions:**
 
